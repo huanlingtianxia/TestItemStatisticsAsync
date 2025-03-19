@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OfficeOpenXml;
 //using Excel = Microsoft.Office.Interop.Excel;
@@ -53,7 +54,7 @@ namespace TestItem.Excel
                     for (int i = 0; i < count; i++) // total:i = 229
                     {
                         CopyRange(sourceSheet, stRow + i, stCol, stRow + i, stCol, destSheet, stRowDest + i * numSN, stColDest);
-                        for (int j = 0; j < repeat; j++) // SN1~SN9
+                        for (int j = 0; j < repeat+1; j++) // SN1~SN9
                         {
                             // 拷贝区域 1:fromSheet numSN 个test itme 粘贴到 toSheet中
                             CopyRange(sourceSheet, stRow + i, stCol + j * repeat + 1, stRow + i, stCol + (j + 1) * repeat, destSheet, stRowDest + ++num, stColDest + 1);
@@ -136,9 +137,141 @@ namespace TestItem.Excel
             //Console.WriteLine("提取数据 拷贝到 GRR模板完成！---------------------------------------------------------------------");
             msg += "提取数据 拷贝到 GRR模板完成！---------------------------------------------------------------------\r\n";
         }
+        //将limit数据拷贝粘贴到GRR module
+        public void PasteToGRRModuleFromLimit(string sourceWorkbookPath, string targetWorkbookPath, ParametersTestItem ParaTestItem, ref string msg)
+        {
+            int stRow = ParaTestItem.StartRow;//数据源行开始:2
+            int stCol = ParaTestItem.StartCol;//数据源列开始:3
+            int stRowDest = ParaTestItem.StartRowDest;//目标行开始:9
+            int stColDest = ParaTestItem.StartColDest;//目标列开始:3
+            //int limitNum = 2;//limit 数量：L + H:2
+            //int count = ParaTestItem.TotalItemCount;// test item count:229
+            string fromSheet = ParaTestItem.FromSheet;
+
+
+
+            try
+            {
+                if (!File.Exists(sourceWorkbookPath))
+                {
+                    msg += $"文件：{sourceWorkbookPath}不存在\r\n";
+                    return;
+                }
+                if (!File.Exists(targetWorkbookPath))
+                {
+                    msg += $"文件：{targetWorkbookPath}不存在\r\n";
+                    return;
+                }
+
+                string[] sheetName = GetSheetName(targetWorkbookPath);//get target sheet name
+
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文
+                                                                           // 打开源工作簿和目标工作簿
+                FileInfo sourceFile = new FileInfo(sourceWorkbookPath);
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+
+                using (ExcelPackage sourcePackage = new ExcelPackage(sourceFile)) // 打开源文件
+                using (ExcelPackage destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    // 获取工作表
+                    ExcelWorksheet sourceSheet = sourcePackage.Workbook.Worksheets[fromSheet];  // Sheet1
+                                                                                                //for (var i = 0; i < 5; i++)
+                    for (var i = 0; i < sheetName.Length; i++)
+                    {
+                        ExcelWorksheet destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                                                                                                   // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
+                        CopyRange(sourceSheet, stRow, stCol + i, stRow + 1, stCol + i, destSheet, stRowDest, stColDest);
+
+                        msg += $"序号：{i + 1} limit 拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n";
+                    }
+                    // 保存目标文件
+                    destPackage.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                msg += "limit 拷贝到 GRR失败：" + ex.ToString() + "\r\n";
+            }
+            //Console.WriteLine("提取数据 拷贝到 GRR模板完成！---------------------------------------------------------------------");
+            msg += "提取数据 拷贝到 GRR模板完成！---------------------------------------------------------------------\r\n";
+        }
 
 
         #region internal + private
+        internal void DeleteRangeDataFromGRRModule(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        {
+            // 目标文件路径
+            //string sourceFilePath = @"C:\path\to\your\sourceFile.xlsx";  // Sheet1 的文件
+            //string destinationFilePath = @"C:\path\to\your\destinationFile.xlsx";  // Sheet2 的文件
+            int stRow = ParaTestItem.StartRow;//数据源行开始:17
+            int stCol = ParaTestItem.StartCol;//数据源列开始:3
+            int endRow = ParaTestItem.EndRow;//数据源行结束:17
+            int endCol = ParaTestItem.EndtCol;//数据源列结束:14
+            // 设置 EPPlus 许可证上下文
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
+            string[] sheetName = GetSheetName(targetWorkbookPath);
+
+            // 打开源工作簿和目标工作簿
+            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+            {
+                for (int i = 0; i < sheetName.Length; i++)
+                //for (int i = 0; i < 15; i++)
+                {
+                    if(i >= 175 && i <=192)// 11.xx测试项
+                    {
+                        var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                        DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
+                    }
+                }
+                destPackage.Save();
+            }
+
+            Console.WriteLine("数据拷贝完成！");
+        }
+        //仅复制一个单元格到sheet，特殊处理
+        internal void PasteToGRRModuleFromFormula(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        {
+            // 目标文件路径
+            //string sourceFilePath = @"C:\path\to\your\sourceFile.xlsx";  // Sheet1 的文件
+            //string destinationFilePath = @"C:\path\to\your\destinationFile.xlsx";  // Sheet2 的文件
+            int stRow = ParaTestItem.StartRow;//数据源行开始:16
+            int stCol = ParaTestItem.StartCol;//数据源列开始:6
+            int endRow = ParaTestItem.EndRow;//数据源行结束:16
+            int endCol = ParaTestItem.EndtCol;//数据源列结束:6
+            int stRowDest = ParaTestItem.StartRowDest;//目标行开始:17
+            int stColDest = ParaTestItem.StartColDest;//目标列开始:6
+            // 设置 EPPlus 许可证上下文
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
+            string[] sheetName = GetSheetName(targetWorkbookPath);
+
+            // 打开源工作簿和目标工作簿
+            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+            {
+                for (int i = 0; i < sheetName.Length; i++)
+                //for (int i = 0; i < 15; i++)
+                {
+                    if (i == sheetName.Length - 1)
+                    {
+
+                    }
+                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                    // 拷贝区域 1: Sheet1 的 C2:E9 到 Sheet2 的 C3:E16
+                    for(int j = 0; j < 3; j++)
+                        CopyRange(destSheet, startRow: stRow, startCol: stCol + 4 * j, endRow: endRow, endCol: endCol + 4 * j, destSheet, destStartRow: stRowDest, destStartCol: stColDest + 4 * j);
+                    //CopyRange(destSheet, startRow: 16, startCol: 6 + 4 * j, endRow: 16, endCol: 6 + 4 * j, destSheet, destStartRow: 17, destStartCol: 6 + 4 * j);
+                    //CopyRange(destSheet, startRow: 16, startCol: 6, endRow: 16, endCol: 6, destSheet, destStartRow: 17, destStartCol: 7);
+                }
+                destPackage.Save();
+            }
+
+            Console.WriteLine("数据拷贝完成！");
+        }
         //仅复制一个单元格到sheet，特殊处理
         internal void ExcelCopyPaste(string sourceWorkbookPath, string targetWorkbookPath, bool Part = false)
         {
@@ -323,16 +456,123 @@ namespace TestItem.Excel
 
         }
 
-
-        // 拷贝指定范围的方法
+        #region Excel 
+        // 拷贝指定范围的Value方法
         private void CopyRange(ExcelWorksheet sourceSheet, int startRow, int startCol, int endRow, int endCol, ExcelWorksheet destSheet, int destStartRow, int destStartCol)
         {
             for (int row = startRow; row <= endRow; row++)
             {
                 for (int col = startCol; col <= endCol; col++)
                 {
-                    var value = sourceSheet.Cells[row, col].Value;
-                    destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Value = value;
+                    // 获取源单元格的公式（如果有公式的话）
+                    var formula = sourceSheet.Cells[row, col].Formula;
+
+                    // 如果源单元格有公式，则将公式复制到目标单元格
+                    if (!string.IsNullOrEmpty(formula))
+                    {
+                        // 根据目标位置调整公式
+                        string adjustedFormula = AdjustFormulaForNewLocation(formula, row, col, destStartRow, destStartCol);
+
+                        // 将调整后的公式复制到目标单元格
+                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Formula = adjustedFormula;
+                    }
+                    else
+                    {
+                        // 如果没有公式，则复制数值
+                        var value = sourceSheet.Cells[row, col].Value;
+                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Value = value;
+                    }
+                }
+            }
+        }
+        // 根据目标单元格的位置调整公式
+        private string AdjustFormulaForNewLocation(string formula, int sourceRow, int sourceCol, int destRow, int destCol)
+        {
+            // 公式的正则表达式，匹配单元格引用（例如 A1、$A$1、A$1、$A1）
+            string pattern = @"[A-Z]+\d+";
+
+            // 替换公式中的单元格引用
+            string adjustedFormula = Regex.Replace(formula, pattern, match =>
+            {
+                // 获取源单元格的行列位置
+                string cellReference = match.Value;
+                int cellRow = int.Parse(Regex.Match(cellReference, @"\d+").Value);
+                string cellColumn = Regex.Match(cellReference, @"[A-Z]+").Value;
+
+                // 计算行和列的偏移量
+                int rowOffset = destRow - sourceRow;
+                int colOffset = destCol - sourceCol;
+
+                // 计算新的行和列引用
+                int newRow = cellRow + rowOffset;
+                string newColumn = GetColumnName(GetColumnIndex(cellColumn) + colOffset);
+
+                // 返回调整后的单元格引用
+                return newColumn + newRow;
+            });
+
+            return adjustedFormula;
+        }
+
+        // 根据列名返回列索引
+        private int GetColumnIndex(string columnName)
+        {
+            int columnIndex = 0;
+            foreach (char c in columnName)
+            {
+                columnIndex = (columnIndex * 26) + (c - 'A' + 1);
+            }
+            return columnIndex;
+        }
+
+        // 根据列索引返回列名
+        private string GetColumnName(int columnIndex)
+        {
+            string columnName = "";
+            while (columnIndex > 0)
+            {
+                columnIndex--;
+                columnName = (char)(columnIndex % 26 + 'A') + columnName;
+                columnIndex /= 26;
+            }
+            return columnName;
+        }
+
+        // 删除指定范围的数据
+        private void DeleteRangeData(ExcelWorksheet sheet, int startRow, int startCol, int endRow, int endCol)
+        {
+            for (int row = startRow; row <= endRow; row++)
+            {
+                for (int col = startCol; col <= endCol; col++)
+                {
+                    // 将单元格的值设置为 null，清除单元格数据
+                    sheet.Cells[row, col].Value = null;
+                }
+            }
+        }
+        #endregion
+
+        // 拷贝指定范围的Value方法
+        private void CopyRange1(ExcelWorksheet sourceSheet, int startRow, int startCol, int endRow, int endCol, ExcelWorksheet destSheet, int destStartRow, int destStartCol)
+        {
+            for (int row = startRow; row <= endRow; row++)
+            {
+                for (int col = startCol; col <= endCol; col++)
+                {
+                    // 获取源单元格的公式（如果有公式的话）
+                    var formula = sourceSheet.Cells[row, col].Formula;
+
+                    // 如果源单元格有公式，则将公式复制到目标单元格
+                    if (!string.IsNullOrEmpty(formula))
+                    {
+                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Formula = formula;
+                    }
+                    else
+                    {
+                        // 如果没有公式，则复制数值
+                        var value = sourceSheet.Cells[row, col].Value;
+                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Value = value;
+                    }
                 }
             }
         }

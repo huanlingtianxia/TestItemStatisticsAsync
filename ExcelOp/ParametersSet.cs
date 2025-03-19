@@ -18,6 +18,12 @@ namespace TestItem.Excel
         // 数据源列开始
         public int StartCol { get; set; } = 1;
 
+        // 数据源行结束
+        public int EndRow { get; set; } = 9;
+
+        // 数据源列结束
+        public int EndtCol { get; set; } = 1;
+
         // 目标行开始
         public int StartRowDest { get; set; } = 1;
 

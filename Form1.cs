@@ -20,11 +20,17 @@ namespace TestItemStatistics
         }
         private void InitPara()
         {
+            textB_SourcePath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\op4_B001_C001.xlsx";
+            textB_TargetPath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\GRR_20250317_D471_FCT1_No.1&2&3_Test2.xlsx";
+ 
+            UpdateParaFromControl();
         }
 
-        ExcelOperation excelOperation = new ExcelOperation();
-        ParametersTestItem testItem = new ParametersTestItem();
-        ParametersTestItem testItemGRR = new ParametersTestItem();
+        ExcelOperation excelOperation = new ExcelOperation();//从测试log提取数据参数
+        ParametersTestItem testItem = new ParametersTestItem();//从测试log提取数据参数
+        ParametersTestItem testItemGRR = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
+        ParametersTestItem testItemGRRLimit = new ParametersTestItem();// copy paste Limit到GRR module 参数
+        ParametersTestItem tempTestItem = new ParametersTestItem();//临时 参数
         string msg = string.Empty;
 
         //string sourceExcelFilePaht = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\test1\op4_Test.xlsx";
@@ -43,6 +49,7 @@ namespace TestItemStatistics
             if (path != String.Empty)
                 textB_TargetPath.Text = path;
         }
+       
         private void btn_ExtractData_Click(object sender, EventArgs e)
         {
             richTB_Log.Clear();
@@ -54,6 +61,8 @@ namespace TestItemStatistics
 
         private void btn_PasteToGRR_Click(object sender, EventArgs e)
         {
+            richTB_Log.Clear();
+            msg = string.Empty;
             UpdateParaFromControl();
             excelOperation.PasteToGRRModuleFromExtractData(testItemGRR.SourcePath, testItemGRR.TargetPath, testItemGRR, ref msg);
             richTB_Log.Text += msg;
@@ -81,6 +90,37 @@ namespace TestItemStatistics
             richTB_Log.Text += msg;
         }
 
+        private void btn_PasteLimit_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            UpdateParaFromControl();
+            excelOperation.PasteToGRRModuleFromLimit(testItemGRRLimit.SourcePath, testItemGRRLimit.TargetPath, testItemGRRLimit, ref msg);
+            richTB_Log.Text += msg;
+        }
+
+        private void btn_CopyGRRModuleAndDelete_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            tempTestItem.StartRow = 16;
+            tempTestItem.StartCol = 6;
+            tempTestItem.EndRow = 16;
+            tempTestItem.EndtCol = 6;
+            tempTestItem.StartRowDest = 17;
+            tempTestItem.StartColDest = 6;
+            excelOperation.PasteToGRRModuleFromFormula(testItemGRRLimit.TargetPath, tempTestItem); // 复制 公式单元格
+            msg += "复制粘贴公式到F17，J17，N17公式完成\r\n";
+            richTB_Log.Text += msg;
+
+            tempTestItem.StartRow = 17;
+            tempTestItem.StartCol = 3;
+            tempTestItem.EndRow = 17;
+            tempTestItem.EndtCol = 14;
+            excelOperation.DeleteRangeDataFromGRRModule(testItemGRRLimit.TargetPath, tempTestItem); // 删除 17行单元格，作用域：11.xx测试项
+            msg += "删除11.x item C17:N17完成\r\n";
+            richTB_Log.Text += msg;
+        }
         //function
         private string SelectPath()
         {
@@ -120,7 +160,7 @@ namespace TestItemStatistics
                 testItem.ToSheet = textB_ToSheet.Text;
                 testItem.SourcePath = textB_SourcePath.Text;
 
-                //Paste to GRR module
+                //Paste to GRR module test item
                 testItemGRR.StartRow = int.Parse(textB_StartRow_GRR.Text);
                 testItemGRR.StartCol = int.Parse(textB_StartCol_GRR.Text);
                 testItemGRR.StartRowDest = int.Parse(textB_StartRowDest_GRR.Text);
@@ -131,6 +171,15 @@ namespace TestItemStatistics
                 testItemGRR.FromSheet = textB_FromSheet_GRR.Text;
                 testItemGRR.SourcePath = textB_SourcePath.Text;
                 testItemGRR.TargetPath = textB_TargetPath.Text;
+
+                //Paste to GRR module Limit
+                testItemGRRLimit.StartRow = int.Parse(textB_StartRowLimit.Text);
+                testItemGRRLimit.StartCol = int.Parse(textB_StartColLimit.Text);
+                testItemGRRLimit.StartRowDest = int.Parse(textB_StartRowDestLimit.Text);
+                testItemGRRLimit.StartColDest = int.Parse(textB_StartColDestLimit.Text);
+                testItemGRRLimit.FromSheet = textB_FromSheetLimit.Text;
+                testItemGRRLimit.SourcePath = textB_SourcePath.Text;
+                testItemGRRLimit.TargetPath = textB_TargetPath.Text;
 
                 // common
             }
