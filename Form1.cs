@@ -20,7 +20,6 @@ namespace TestItemStatistics
         }
         private void InitPara()
         {
-            UpdateParaFromControl();
         }
 
         ExcelOperation excelOperation = new ExcelOperation();
