@@ -198,7 +198,7 @@ namespace TestItem.Excel
 
 
         #region internal + private
-        internal void DeleteRangeDataFromGRRModule(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        internal void DeleteRangeDataFromGRRModule(string targetWorkbookPath, ParametersTestItem ParaTestItem, int startSheet, int count)
         {
             // 目标文件路径
             //string sourceFilePath = @"C:\path\to\your\sourceFile.xlsx";  // Sheet1 的文件
@@ -220,7 +220,7 @@ namespace TestItem.Excel
                 for (int i = 0; i < sheetName.Length; i++)
                 //for (int i = 0; i < 15; i++)
                 {
-                    if(i >= 175 && i <=192)// 11.xx测试项
+                    if(i >= startSheet && i <= startSheet + count -1)// 11.xx测试项,175~192，count:18
                     {
                         var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
                         DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
@@ -256,10 +256,6 @@ namespace TestItem.Excel
                 for (int i = 0; i < sheetName.Length; i++)
                 //for (int i = 0; i < 15; i++)
                 {
-                    if (i == sheetName.Length - 1)
-                    {
-
-                    }
                     var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
                     // 拷贝区域 1: Sheet1 的 C2:E9 到 Sheet2 的 C3:E16
                     for(int j = 0; j < 3; j++)

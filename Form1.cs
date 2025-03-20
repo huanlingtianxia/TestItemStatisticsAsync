@@ -21,8 +21,10 @@ namespace TestItemStatistics
         private void InitPara()
         {
             textB_SourcePath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\op4_B001_C001.xlsx";
-            textB_TargetPath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\GRR_20250317_D471_FCT1_No.1&2&3_Test2.xlsx";
- 
+            textB_TargetPath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\GRR_20250317_D471_FCT1_No.1&2&3_1.xlsx";
+            // 取消选中状态并将光标移到文本框末尾
+            textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
+            textB_TargetPath.SelectionLength = 0;
             UpdateParaFromControl();
         }
 
@@ -38,14 +40,16 @@ namespace TestItemStatistics
 
         private void btn_SelectSourcePath_Click(object sender, EventArgs e)
         {
-            string path = SelectPath();
+            //string path1 = SelectfullPath();
+            string path = SelectfullPath();
             if (path != String.Empty)
                 textB_SourcePath.Text = path;
         }
 
         private void btn_SelectTargetPath_Click(object sender, EventArgs e)
         {
-            string path = SelectPath();
+            //string path = SelectPath();
+            string path = SelectfullPath();
             if (path != String.Empty)
                 textB_TargetPath.Text = path;
         }
@@ -109,7 +113,8 @@ namespace TestItemStatistics
             tempTestItem.EndtCol = 6;
             tempTestItem.StartRowDest = 17;
             tempTestItem.StartColDest = 6;
-            excelOperation.PasteToGRRModuleFromFormula(testItemGRRLimit.TargetPath, tempTestItem); // 复制 公式单元格
+            UpdateParaFromControl();
+            excelOperation.PasteToGRRModuleFromFormula(tempTestItem.TargetPath, tempTestItem); // 复制 公式单元格
             msg += "复制粘贴公式到F17，J17，N17公式完成\r\n";
             richTB_Log.Text += msg;
 
@@ -117,7 +122,7 @@ namespace TestItemStatistics
             tempTestItem.StartCol = 3;
             tempTestItem.EndRow = 17;
             tempTestItem.EndtCol = 14;
-            excelOperation.DeleteRangeDataFromGRRModule(testItemGRRLimit.TargetPath, tempTestItem); // 删除 17行单元格，作用域：11.xx测试项
+            excelOperation.DeleteRangeDataFromGRRModule(tempTestItem.TargetPath, tempTestItem, 175, 18); // 删除 17行单元格，作用域：11.xx测试项
             msg += "删除11.x item C17:N17完成\r\n";
             richTB_Log.Text += msg;
         }
@@ -143,6 +148,48 @@ namespace TestItemStatistics
                 return folderPath;
             }
             return string.Empty;
+        }
+        private string SelectfullPath()
+        {
+            // 创建 OpenFileDialog 实例
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            // 设置初始目录和过滤器（可选）
+            openFileDialog.InitialDirectory = "C:\\";  // 你可以设置你希望打开的默认目录
+            openFileDialog.Filter = "所有文件 (*.*)|*.*";  // 允许选择所有文件类型
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            string fullPath = string.Empty;
+
+            // 显示对话框并检查用户是否选择了文件
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // 获取选择的文件路径
+                fullPath = openFileDialog.FileName;
+            }
+            return fullPath;
+        }
+        private string SaveFile()
+        {
+            // 创建 SaveFileDialog 实例
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // 设置初始目录和过滤器（可选）
+            saveFileDialog.InitialDirectory = "C:\\";
+            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+            string fullPath = string.Empty;
+            // 显示对话框并检查用户是否选择了保存路径
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // 获取选择的保存文件路径
+                fullPath += saveFileDialog.FileName;
+
+                // 显示文件路径
+                //filePathTextBox.Text = selectedFile;
+            }
+            return fullPath;
         }
         private void UpdateParaFromControl()
         {
@@ -180,6 +227,10 @@ namespace TestItemStatistics
                 testItemGRRLimit.FromSheet = textB_FromSheetLimit.Text;
                 testItemGRRLimit.SourcePath = textB_SourcePath.Text;
                 testItemGRRLimit.TargetPath = textB_TargetPath.Text;
+
+                // option tempTestItem
+                tempTestItem.SourcePath = textB_SourcePath.Text;
+                tempTestItem.TargetPath = textB_TargetPath.Text;
 
                 // common
             }
