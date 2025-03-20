@@ -20,9 +20,6 @@ namespace TestItemStatistics
         }
         private void InitPara()
         {
-            textB_SourcePath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\op4_B001_C001.xlsx";
-            textB_TargetPath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\GRR_20250317_D471_FCT1_No.1&2&3_Test2.xlsx";
- 
             UpdateParaFromControl();
         }
 
