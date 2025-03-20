@@ -88,6 +88,7 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label28 = new System.Windows.Forms.Label();
             this.btn_PasteLimit = new System.Windows.Forms.Button();
+            this.label32 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -95,7 +96,6 @@
             this.label29 = new System.Windows.Forms.Label();
             this.label30 = new System.Windows.Forms.Label();
             this.label31 = new System.Windows.Forms.Label();
-            this.label32 = new System.Windows.Forms.Label();
             this.label33 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -665,6 +665,16 @@
             this.btn_PasteLimit.UseVisualStyleBackColor = true;
             this.btn_PasteLimit.Click += new System.EventHandler(this.btn_PasteLimit_Click);
             // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.ForeColor = System.Drawing.Color.Red;
+            this.label32.Location = new System.Drawing.Point(193, 66);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(57, 13);
+            this.label32.TabIndex = 8;
+            this.label32.Text = "3.粘贴limit";
+            // 
             // label24
             // 
             this.label24.AutoSize = true;
@@ -694,9 +704,9 @@
             // 
             // btn_CopyGRRModuleAndDelete
             // 
-            this.btn_CopyGRRModuleAndDelete.Location = new System.Drawing.Point(604, 262);
+            this.btn_CopyGRRModuleAndDelete.Location = new System.Drawing.Point(577, 262);
             this.btn_CopyGRRModuleAndDelete.Name = "btn_CopyGRRModuleAndDelete";
-            this.btn_CopyGRRModuleAndDelete.Size = new System.Drawing.Size(125, 23);
+            this.btn_CopyGRRModuleAndDelete.Size = new System.Drawing.Size(152, 23);
             this.btn_CopyGRRModuleAndDelete.TabIndex = 20;
             this.btn_CopyGRRModuleAndDelete.Text = "CopyGRRModuleAndDelete";
             this.btn_CopyGRRModuleAndDelete.UseVisualStyleBackColor = true;
@@ -731,21 +741,11 @@
             this.label31.TabIndex = 8;
             this.label31.Text = "2.粘贴到GRR";
             // 
-            // label32
-            // 
-            this.label32.AutoSize = true;
-            this.label32.ForeColor = System.Drawing.Color.Red;
-            this.label32.Location = new System.Drawing.Point(193, 66);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(57, 13);
-            this.label32.TabIndex = 8;
-            this.label32.Text = "3.粘贴limit";
-            // 
             // label33
             // 
             this.label33.AutoSize = true;
             this.label33.ForeColor = System.Drawing.Color.Red;
-            this.label33.Location = new System.Drawing.Point(559, 269);
+            this.label33.Location = new System.Drawing.Point(532, 269);
             this.label33.Name = "label33";
             this.label33.Size = new System.Drawing.Size(48, 13);
             this.label33.TabIndex = 8;

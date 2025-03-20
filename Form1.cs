@@ -116,7 +116,7 @@ namespace TestItemStatistics
             UpdateParaFromControl();
             excelOperation.PasteToGRRModuleFromFormula(tempTestItem.TargetPath, tempTestItem); // 复制 公式单元格
             msg += "复制粘贴公式到F17，J17，N17公式完成\r\n";
-            richTB_Log.Text += msg;
+            richTB_Log.Text = msg;
 
             tempTestItem.StartRow = 17;
             tempTestItem.StartCol = 3;
@@ -124,7 +124,7 @@ namespace TestItemStatistics
             tempTestItem.EndtCol = 14;
             excelOperation.DeleteRangeDataFromGRRModule(tempTestItem.TargetPath, tempTestItem, 175, 18); // 删除 17行单元格，作用域：11.xx测试项
             msg += "删除11.x item C17:N17完成\r\n";
-            richTB_Log.Text += msg;
+            richTB_Log.Text = msg;
         }
         //function
         private string SelectPath()
