@@ -10,31 +10,31 @@ namespace TestItem.Excel
     public class ParametersTestItem
     {
         // 测试SN个数
-        public int NumSN { get; set; } = 8;
+        public int NumSN { get; set; }
 
         // 数据源行开始
-        public int StartRow { get; set; } = 9;
+        public int StartRow { get; set; }
 
         // 数据源列开始
-        public int StartCol { get; set; } = 1;
+        public int StartCol { get; set; }
 
         // 数据源行结束
-        public int EndRow { get; set; } = 9;
+        public int EndRow { get; set; }
 
         // 数据源列结束
-        public int EndtCol { get; set; } = 1;
+        public int EndtCol { get; set; }
 
         // 目标行开始
-        public int StartRowDest { get; set; } = 1;
+        public int StartRowDest { get; set; }
 
         // 目标列开始
-        public int StartColDest { get; set; } = 2;
+        public int StartColDest { get; set; }
 
         // 单个SN的测试次数，即单个SN测试项跨度单元格数量
-        public int Span { get; set; } = 9;
+        public int Span { get; set; }
 
         // 测试项数量
-        public int TotalItemCount { get; set; } = 229;
+        public int TotalItemCount { get; set; }
 
         // 来源Sheet名称
         public string FromSheet { get; set; } = "SortSelectTrans";
@@ -46,9 +46,12 @@ namespace TestItem.Excel
         // 目标路径
         public string TargetPath { get; set; }
 
+        // sheet name
+        public string[] SheetName { get; set; }
 
+        // 删除sheet时保留sheet个数
+        public int ReserveSheetCount { get; set; }
 
-        // 可以添加更多方法，根据需要执行操作。
     }
     public class ParametersSet
     {

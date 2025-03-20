@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OfficeOpenXml;
-//using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TestItem.Excel
 {
@@ -61,7 +60,7 @@ namespace TestItem.Excel
                         }
                         num++;
                         //Console.WriteLine($"序号：{i + 1} 数据提取中......，提取test item 个数:{i + 1}, 剩余test item个数: {count - (i + 1)}, item name: {sourceSheet.Cells[stRow + i, stCol].Value}\r\n");
-                        msg += $"序号：{i + 1} 数据提取中......，提取test item 个数:{i + 1}, 剩余test item个数: {count - (i + 1)}, item name: {sourceSheet.Cells[stRow + i, stCol].Value}\r\n";
+                        msg += $"序号：{i + 1,-6} 数据提取中......，提取test item 个数:{i + 1}, 剩余test item个数: {count - (i + 1)}, item name: {sourceSheet.Cells[stRow + i, stCol].Value}\r\n";
                     }
                     // 保存目标文件
                     Package.Save();
@@ -124,7 +123,7 @@ namespace TestItem.Excel
                             CopyRange(sourceSheet, stRow + i * numSN, stCol + j * 3, stRow + i * numSN + (numSN - 3), stCol + j * 3 + 2, destSheet, stRowDest, stColDest + j * 4);
                         }
                         //Console.WriteLine( $"序号：{i +1} 数据拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n");
-                        msg += $"序号：{i +1} 数据拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n";
+                        msg += $"序号：{i +1,-6} 数据拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n";
                     }
                     // 保存目标文件
                     destPackage.Save();
@@ -182,7 +181,7 @@ namespace TestItem.Excel
                                                                                                    // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
                         CopyRange(sourceSheet, stRow, stCol + i, stRow + 1, stCol + i, destSheet, stRowDest, stColDest);
 
-                        msg += $"序号：{i + 1} limit 拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n";
+                        msg += $"序号：{i + 1,-6} limit 拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n";
                     }
                     // 保存目标文件
                     destPackage.Save();
@@ -198,45 +197,128 @@ namespace TestItem.Excel
 
 
         #region internal + private
-        internal void DeleteRangeDataFromGRRModule(string targetWorkbookPath, ParametersTestItem ParaTestItem, int startSheet, int count)
+        // 删除sheet
+        internal void DeleteSheet(string targetWorkbookPath, int reserveSheetCount,ref string msg)
         {
-            // 目标文件路径
-            //string sourceFilePath = @"C:\path\to\your\sourceFile.xlsx";  // Sheet1 的文件
-            //string destinationFilePath = @"C:\path\to\your\destinationFile.xlsx";  // Sheet2 的文件
+            try
+            {
+                if (!File.Exists(targetWorkbookPath))
+                {
+                    Console.WriteLine(msg += $"文件：{targetWorkbookPath}不存在\r\n");
+                    return;
+                }
+                // 设置 EPPlus 许可证上下文
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
+                string[] sheetName = GetSheetName(targetWorkbookPath);
+
+                // 打开源工作簿和目标工作簿
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    // 获取工作表集合
+                    var workbook = destPackage.Workbook;
+
+                    // 删除名为 "Sheet1" 的工作表
+                    if (sheetName.Length <= reserveSheetCount)
+                    {
+                        msg += $"工作表小于 {reserveSheetCount} 个\r\n";
+                        return;
+                    }
+                    for (int i = reserveSheetCount; i < sheetName.Length; i++)
+                    {
+                        var sheetToRemove = workbook.Worksheets[sheetName[i]];
+                        if (sheetToRemove != null)
+                        {
+                            workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
+                            Console.WriteLine(msg += $"序号{i - reserveSheetCount + 1,-6}, 工作表 '{sheetToRemove}' 已删除");
+                        }
+                        else
+                        {
+                            Console.WriteLine(msg += $"未找到工作表 '{sheetToRemove}'");
+                        }
+                    }
+
+                    destPackage.Save();
+                }
+
+                Console.WriteLine("删除工作表完成！");
+            }
+            catch(Exception ex)
+            {
+                msg += $"{ex.ToString()}\r\n";
+            }
+            
+        }
+        // 删除部分单元格
+        internal void DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        {
             int stRow = ParaTestItem.StartRow;//数据源行开始:17
             int stCol = ParaTestItem.StartCol;//数据源列开始:3
             int endRow = ParaTestItem.EndRow;//数据源行结束:17
             int endCol = ParaTestItem.EndtCol;//数据源列结束:14
+            string[] sheetName = ParaTestItem.SheetName;
+
             // 设置 EPPlus 许可证上下文
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
-            string[] sheetName = GetSheetName(targetWorkbookPath);
-
             // 打开源工作簿和目标工作簿
             FileInfo destinationFile = new FileInfo(targetWorkbookPath);
             using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
             {
                 for (int i = 0; i < sheetName.Length; i++)
-                //for (int i = 0; i < 15; i++)
                 {
-                    if(i >= startSheet && i <= startSheet + count -1)// 11.xx测试项,175~192，count:18
+                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                    if (destSheet != null)
                     {
-                        var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
                         DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
+                    }
+                    else
+                    {
+                        Console.WriteLine("未找到工作表 ");
                     }
                 }
                 destPackage.Save();
             }
+            Console.WriteLine("删除数据完成！");
+        }
+        //仅复制一个单元格到sheet，特殊处理
+        internal void CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        {
+            int stRow = ParaTestItem.StartRow;//数据源行开始
+            int stCol = ParaTestItem.StartCol;//数据源列开始
+            int endRow = ParaTestItem.EndRow;//数据源行结束
+            int endCol = ParaTestItem.EndtCol;//数据源列结束
+            int stRowDest = ParaTestItem.StartRowDest;//目标行开始
+            int stColDest = ParaTestItem.StartColDest;//目标列开始
+            string[] sheetName = ParaTestItem.SheetName;
 
+            // 设置 EPPlus 许可证上下文
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            // 打开源工作簿和目标工作簿
+            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+            {
+                for (int i = 0; i < sheetName.Length; i++)
+                {
+                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                    if (destSheet != null)
+                    {
+                        CopyRange(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol, destSheet, destStartRow: stRowDest, destStartCol: stColDest);
+                    }
+                    else
+                    {
+                        Console.WriteLine("未找到工作表 ");
+                    }
+                    
+                }
+                destPackage.Save();
+            }
             Console.WriteLine("数据拷贝完成！");
         }
         //仅复制一个单元格到sheet，特殊处理
         internal void PasteToGRRModuleFromFormula(string targetWorkbookPath, ParametersTestItem ParaTestItem)
         {
-            // 目标文件路径
-            //string sourceFilePath = @"C:\path\to\your\sourceFile.xlsx";  // Sheet1 的文件
-            //string destinationFilePath = @"C:\path\to\your\destinationFile.xlsx";  // Sheet2 的文件
             int stRow = ParaTestItem.StartRow;//数据源行开始:16
             int stCol = ParaTestItem.StartCol;//数据源列开始:6
             int endRow = ParaTestItem.EndRow;//数据源行结束:16
@@ -548,30 +630,6 @@ namespace TestItem.Excel
         }
         #endregion
 
-        // 拷贝指定范围的Value方法
-        private void CopyRange1(ExcelWorksheet sourceSheet, int startRow, int startCol, int endRow, int endCol, ExcelWorksheet destSheet, int destStartRow, int destStartCol)
-        {
-            for (int row = startRow; row <= endRow; row++)
-            {
-                for (int col = startCol; col <= endCol; col++)
-                {
-                    // 获取源单元格的公式（如果有公式的话）
-                    var formula = sourceSheet.Cells[row, col].Formula;
-
-                    // 如果源单元格有公式，则将公式复制到目标单元格
-                    if (!string.IsNullOrEmpty(formula))
-                    {
-                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Formula = formula;
-                    }
-                    else
-                    {
-                        // 如果没有公式，则复制数值
-                        var value = sourceSheet.Cells[row, col].Value;
-                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Value = value;
-                    }
-                }
-            }
-        }
         //获取或创建.txt文件
         private string GetTextFileName(string fullPath)
         {

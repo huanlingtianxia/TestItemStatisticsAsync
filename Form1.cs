@@ -20,8 +20,8 @@ namespace TestItemStatistics
         }
         private void InitPara()
         {
-            textB_SourcePath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\op4_B001_C001.xlsx";
-            textB_TargetPath.Text = @"E:\labview\MSA\AllLoginOneSheet_C001D471\testCreat\GRR_20250317_D471_FCT1_No.1&2&3_1.xlsx";
+            textB_SourcePath.Text = @"E:\labview\MSA\D474 D475\ProdDataMSA\ExtractData\done\";
+            textB_TargetPath.Text = @"E:\labview\MSA\D474 D475\ProdDataMSA\ExtractData\done\";
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
@@ -37,7 +37,7 @@ namespace TestItemStatistics
 
         //string sourceExcelFilePaht = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\test1\op4_Test.xlsx";
         //string targetExccelFilePaht = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\test1\GRR_20250317_D471_FCT1_No.1&2&3_Test.xlsx";
-
+        #region Click event
         private void btn_SelectSourcePath_Click(object sender, EventArgs e)
         {
             //string path1 = SelectfullPath();
@@ -72,7 +72,7 @@ namespace TestItemStatistics
             richTB_Log.Text += msg;
         }
 
-        private void btn_ExtracSheetToTxt_Click(object sender, EventArgs e)
+        private void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
         {
             UpdateParaFromControl();
             string[] str = { "\\" };
@@ -87,7 +87,7 @@ namespace TestItemStatistics
             msg += "提取GRR module中 test item sheet name 到GRRModuleSheetName.txt,\r\n path: " + path + "\r\n";
             for (int i = 0; i < sheetName.Length; i++)
             {
-                msg += sheetName[i] + "\r\n";
+                msg += $"序号：{i,-6} {sheetName[i]}\r\n";
             }
 
             msg += $"提取sheet name 完成！sheet count: {sheetName.Length} ----------------------\r\n";
@@ -117,15 +117,42 @@ namespace TestItemStatistics
             excelOperation.PasteToGRRModuleFromFormula(tempTestItem.TargetPath, tempTestItem); // 复制 公式单元格
             msg += "复制粘贴公式到F17，J17，N17公式完成\r\n";
             richTB_Log.Text = msg;
+        }
 
-            tempTestItem.StartRow = 17;
-            tempTestItem.StartCol = 3;
-            tempTestItem.EndRow = 17;
-            tempTestItem.EndtCol = 14;
-            excelOperation.DeleteRangeDataFromGRRModule(tempTestItem.TargetPath, tempTestItem, 175, 18); // 删除 17行单元格，作用域：11.xx测试项
-            msg += "删除11.x item C17:N17完成\r\n";
+        private void btn_CopyPaste_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            ParametersTestItem para = new ParametersTestItem();
+            UpdateParaFromControl(para, true);
+            excelOperation.CopyRangePaste(para.TargetPath, para); // 复制 公式单元格
+            msg += $"拷贝粘贴完成！";
             richTB_Log.Text = msg;
         }
+
+        private void btn_DeleteRange_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            ParametersTestItem para = new ParametersTestItem();
+            UpdateParaFromControl(para, false);
+            excelOperation.DeleteRangeData(para.TargetPath, para); // 删除 17行单元格，作用域：11.xx测试项
+            msg += $"删除：开始行{para.StartRow}，开始列{para.StartCol}，结束行{para.EndRow}，结束始列{para.EndtCol} 完成！";
+            richTB_Log.Text = msg;
+        }
+
+        private void btn_DeleteSheet_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            ParametersTestItem parametersTestItem = new ParametersTestItem();
+            UpdateParaFromControl(parametersTestItem, false);
+            excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, ref msg);//保留xx个sheet
+            richTB_Log.Text = msg;
+        }
+
+        #endregion
+
         //function
         private string SelectPath()
         {
@@ -240,6 +267,53 @@ namespace TestItemStatistics
                 richTB_Log.Text += msg;
             }
             
+        }
+        private void UpdateParaFromControl(ParametersTestItem parameters, bool copyPast)
+        {
+            try
+            {
+                parameters.TargetPath = textB_ExcelPath.Text;
+                parameters.SheetName = richT_SheetName.Text.Trim().Split(new string[1] { "\n" }, StringSplitOptions.None);
+                parameters.ReserveSheetCount = int.Parse(textB_ReserveSheetCount.Text);
+                int[] CopyPastePara = textB_CopyPastePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
+                int[] DeletePara = textB_DeletePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
+                //parameters.CopyPastePara = textB_CopyPastePara.Text;
+                //parameters.DeletePara = textB_DeletePara.Text;
+                //parameters.SheetName = richT_SheetName.Text;
+                if (copyPast)
+                {
+                    for (int i = 0; i < CopyPastePara.Length; i++)
+                    {
+                        switch (i)
+                        {
+                            case 0: parameters.StartRow = CopyPastePara[i]; break;
+                            case 1: parameters.StartCol = CopyPastePara[i]; break;
+                            case 2: parameters.EndRow = CopyPastePara[i]; break;
+                            case 3: parameters.EndtCol = CopyPastePara[i]; break;
+                            case 4: parameters.StartRowDest = CopyPastePara[i]; break;
+                            case 5: parameters.StartColDest = CopyPastePara[i]; break;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < DeletePara.Length; i++)
+                    {
+                        switch (i)
+                        {
+                            case 0: parameters.StartRow = DeletePara[i]; break;
+                            case 1: parameters.StartCol = DeletePara[i]; break;
+                            case 2: parameters.EndRow = DeletePara[i]; break;
+                            case 3: parameters.EndtCol = DeletePara[i]; break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msg += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                richTB_Log.Text += msg;
+            }
         }
 
 
