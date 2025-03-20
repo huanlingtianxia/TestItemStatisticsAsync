@@ -25,6 +25,7 @@ namespace TestItemStatistics
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
+>>>>>>>>> Temporary merge branch 2
             UpdateParaFromControl();
         }
 
