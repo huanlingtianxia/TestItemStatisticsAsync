@@ -5,10 +5,10 @@
 1.1 新建.xlsx文件，名称自定义（eg:op01.xlsx),新建5个sheet,sheet名分别为：AllLog, sort, SortSelectTrans, toSheetAll, limit；
 1.2 将测试log中的数据拷贝到ALLlog中，将ALLlog数据拷贝到“sort”sheet中，删除异常数据，按SN号排序；
 1.3 复制sort中的行：UUTSerialNumber行和所有SN号的行数据。粘贴到SortSelectTrans中，粘贴选择转置，删除空测试项；
-1.4 复制sort中的行：UUTSerialNumber行 + limit high + limit Low + 单位 + 比较 这5行。粘贴到limit中，将limit high 和 limit low调换行，即limit high在上方；
+1.4 复制sort中的行：UUTSerialNumber行 + limit high + limit Low + 单位 + 比较 这5行。粘贴到limit中，将limit high 和 limit low调换行，即limit high在limit low上方；
 
 2.MSA模板整理：
-2.1 根据op01.xlsx中SortSelectTrans里的test item，在MSA模板中给每个test item创建单独的sheet，sheet名取test item 前8位。必须确保所有的item都有单独的sheet（空测试项除外）；
+2.1 根据op01.xlsx中SortSelectTrans里的test item，在MSA模板中给每个test item创建单独的sheet，sheet名取test item 前8位。必须确保所有的test item都有单独的sheet（空测试项除外）；
 2.2 MSA模板中的Summary中的数据需要手动整理。
 
 3.软件介绍
@@ -27,7 +27,7 @@
 	按钮：DeleteRange：删除DeletePara中的值
 	按钮：DeleteSheet：删除工作表，保留ReserveCnt个或删除SheetName个。
 	按钮：CreatSheet：新建工作表。
-	SheetName：扩展CopyPaste，DeleteRange，DeleteSheet的工作表作用域。
+	SheetName：指定作用域:CopyPaste，DeleteRange，DeleteSheet，CreatSheet的工作表。
 	ReserveCnt：如果值是”:cnt“格式(cnt取正整数)，则表示只保留cnt个工作表格，其他的删除。如果不是”:cnt“格式，则删除SheetName中的工作表。
 	General: CopyPaste And Delete
 		PastePara参数格式：StartCol,StartCol,EndRow,EndCol,StartRowDest,StartColDest// 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数）

@@ -90,24 +90,24 @@
             this.label22 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
             this.label34 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.textB_CopyPastePara = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btn_CreatSheet = new System.Windows.Forms.Button();
             this.btn_DeleteSheet = new System.Windows.Forms.Button();
             this.btn_DeleteRange = new System.Windows.Forms.Button();
             this.btn_CopyPaste = new System.Windows.Forms.Button();
-            this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.label30 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
             this.label37 = new System.Windows.Forms.Label();
             this.label32 = new System.Windows.Forms.Label();
             this.label31 = new System.Windows.Forms.Label();
-            this.label26 = new System.Windows.Forms.Label();
             this.textB_ReserveSheetCount = new System.Windows.Forms.TextBox();
             this.textB_DeletePara = new System.Windows.Forms.TextBox();
             this.textB_ExcelPath = new System.Windows.Forms.TextBox();
-            this.btn_CreatSheet = new System.Windows.Forms.Button();
+            this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -704,6 +704,15 @@
             this.label34.TabIndex = 8;
             this.label34.Text = "3";
             // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(131, 76);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(63, 13);
+            this.label26.TabIndex = 8;
+            this.label26.Text = "SheetName";
+            // 
             // label23
             // 
             this.label23.AutoSize = true;
@@ -752,6 +761,16 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "General: CopyPaste And Delete";
             // 
+            // btn_CreatSheet
+            // 
+            this.btn_CreatSheet.Location = new System.Drawing.Point(312, 59);
+            this.btn_CreatSheet.Name = "btn_CreatSheet";
+            this.btn_CreatSheet.Size = new System.Drawing.Size(76, 20);
+            this.btn_CreatSheet.TabIndex = 23;
+            this.btn_CreatSheet.Text = "CreatSheet";
+            this.btn_CreatSheet.UseVisualStyleBackColor = true;
+            this.btn_CreatSheet.Click += new System.EventHandler(this.btn_CreatSheet_Click);
+            // 
             // btn_DeleteSheet
             // 
             this.btn_DeleteSheet.Location = new System.Drawing.Point(312, 81);
@@ -781,14 +800,6 @@
             this.btn_CopyPaste.Text = "CopyPaste";
             this.btn_CopyPaste.UseVisualStyleBackColor = true;
             this.btn_CopyPaste.Click += new System.EventHandler(this.btn_CopyPaste_Click);
-            // 
-            // richT_SheetName
-            // 
-            this.richT_SheetName.Location = new System.Drawing.Point(6, 19);
-            this.richT_SheetName.Name = "richT_SheetName";
-            this.richT_SheetName.Size = new System.Drawing.Size(136, 235);
-            this.richT_SheetName.TabIndex = 16;
-            this.richT_SheetName.Text = "Sheet4\nSheet5\nSheet6";
             // 
             // label30
             // 
@@ -835,15 +846,6 @@
             this.label31.TabIndex = 8;
             this.label31.Text = "PastePara";
             // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(131, 76);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(63, 13);
-            this.label26.TabIndex = 8;
-            this.label26.Text = "SheetName";
-            // 
             // textB_ReserveSheetCount
             // 
             this.textB_ReserveSheetCount.Location = new System.Drawing.Point(460, 82);
@@ -867,15 +869,13 @@
             this.textB_ExcelPath.TabIndex = 15;
             this.textB_ExcelPath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\TestCopyPasteAndDelete.xlsx";
             // 
-            // btn_CreatSheet
+            // richT_SheetName
             // 
-            this.btn_CreatSheet.Location = new System.Drawing.Point(312, 59);
-            this.btn_CreatSheet.Name = "btn_CreatSheet";
-            this.btn_CreatSheet.Size = new System.Drawing.Size(76, 20);
-            this.btn_CreatSheet.TabIndex = 23;
-            this.btn_CreatSheet.Text = "CreatSheet";
-            this.btn_CreatSheet.UseVisualStyleBackColor = true;
-            this.btn_CreatSheet.Click += new System.EventHandler(this.btn_CreatSheet_Click);
+            this.richT_SheetName.Location = new System.Drawing.Point(6, 19);
+            this.richT_SheetName.Name = "richT_SheetName";
+            this.richT_SheetName.Size = new System.Drawing.Size(136, 235);
+            this.richT_SheetName.TabIndex = 16;
+            this.richT_SheetName.Text = "Sheet4\nSheet5\nSheet6";
             // 
             // groupBox5
             // 

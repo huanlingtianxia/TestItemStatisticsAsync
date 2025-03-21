@@ -208,7 +208,7 @@ namespace TestItem.Excel
                     return;
                 }
                 string[] sheetName = ParaTestItem.SheetName;
-                string summary = GetSheetName(targetWorkbookPath, true).Last();
+                string summary = GetSheetName(targetWorkbookPath, false).Last();
                 // 设置 EPPlus 许可证上下文
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 // 打开源工作簿和目标工作簿
@@ -219,21 +219,19 @@ namespace TestItem.Excel
                     {
                         var destSheet = destPackage.Workbook.Worksheets.Add(sheetName[i]);  // // 创建一个新的工作表，名称为 "NewSheet"
 
-                        // 获取工作表集合
-                        var workbook = destPackage.Workbook;
+                       
+                        var workbook = destPackage.Workbook; // 获取工作表集合
+                        var targetSheet = workbook.Worksheets[summary];                       
+                        int targetSheetIndex = targetSheet.Index;// 获取工作表的索引
 
-                        var targetSheet = workbook.Worksheets[summary];
-                        // 获取工作表的索引
-                        int targetSheetIndex = targetSheet.Index;
 
-                        // 将工作表移到目标位置前（插入位置）
-                        if(before)
+                        if (before)
                         {
-                            workbook.Worksheets.MoveBefore(destSheet.Index, targetSheetIndex);
+                            workbook.Worksheets.MoveBefore(destSheet.Index, targetSheetIndex - i);// 将工作表移到目标位置前（插入位置）
                         }
                         else
                         {
-                            workbook.Worksheets.MoveAfter(destSheet.Index, targetSheetIndex);
+                            workbook.Worksheets.MoveAfter(destSheet.Index, targetSheetIndex - i);// 将工作表移到目标位置后（插入位置）
                         }
                         //var newSheet = package.Workbook.Worksheets.Add("NewSheet");
                         msg += $"序号{i + 1,-6}, 创建工作表 '{sheetName[i]}'\r\n";
@@ -355,125 +353,150 @@ namespace TestItem.Excel
         //删除range单元格
         internal void DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem)
         {
-            int stRow = ParaTestItem.StartRow;//数据源行开始:17
-            int stCol = ParaTestItem.StartCol;//数据源列开始:3
-            int endRow = ParaTestItem.EndRow;//数据源行结束:17
-            int endCol = ParaTestItem.EndtCol;//数据源列结束:14
-            string[] sheetName = ParaTestItem.SheetName;
-
-            // 设置 EPPlus 许可证上下文
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // 打开源工作簿和目标工作簿
-            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
-            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+            try
             {
-                for (int i = 0; i < sheetName.Length; i++)
-                {
-                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                    if (destSheet != null)
-                    {
-                        DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
-                    }
-                    else
-                    {
-                        Console.WriteLine("未找到工作表 ");
-                    }
-                }
+                int stRow = ParaTestItem.StartRow;//数据源行开始:17
+                int stCol = ParaTestItem.StartCol;//数据源列开始:3
+                int endRow = ParaTestItem.EndRow;//数据源行结束:17
+                int endCol = ParaTestItem.EndtCol;//数据源列结束:14
+                string[] sheetName = ParaTestItem.SheetName;
 
-                destPackage.Save();
+                // 设置 EPPlus 许可证上下文
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // 打开源工作簿和目标工作簿
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    for (int i = 0; i < sheetName.Length; i++)
+                    {
+                        var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                        if (destSheet != null)
+                        {
+                            DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
+                        }
+                        else
+                        {
+                            Console.WriteLine("未找到工作表 ");
+                        }
+                    }
+
+                    destPackage.Save();
+                }
+                Console.WriteLine("删除数据完成！");
             }
-            Console.WriteLine("删除数据完成！");
+            catch
+            {
+                throw;
+            }
+            
         }
         //复制粘贴range单元格
         internal void CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem)
         {
-            int stRow = ParaTestItem.StartRow;//数据源行开始
-            int stCol = ParaTestItem.StartCol;//数据源列开始
-            int endRow = ParaTestItem.EndRow;//数据源行结束
-            int endCol = ParaTestItem.EndtCol;//数据源列结束
-            int stRowDest = ParaTestItem.StartRowDest;//目标行开始
-            int stColDest = ParaTestItem.StartColDest;//目标列开始
-            string[] sheetName = ParaTestItem.SheetName;
-
-            // 设置 EPPlus 许可证上下文
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // 打开源工作簿和目标工作簿
-            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
-            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+            try
             {
-                for (int i = 0; i < sheetName.Length; i++)
+                int stRow = ParaTestItem.StartRow;//数据源行开始
+                int stCol = ParaTestItem.StartCol;//数据源列开始
+                int endRow = ParaTestItem.EndRow;//数据源行结束
+                int endCol = ParaTestItem.EndtCol;//数据源列结束
+                int stRowDest = ParaTestItem.StartRowDest;//目标行开始
+                int stColDest = ParaTestItem.StartColDest;//目标列开始
+                string[] sheetName = ParaTestItem.SheetName;
+
+                // 设置 EPPlus 许可证上下文
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // 打开源工作簿和目标工作簿
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
-                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                    if (destSheet != null)
+                    for (int i = 0; i < sheetName.Length; i++)
                     {
-                        CopyRange(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol, destSheet, destStartRow: stRowDest, destStartCol: stColDest);
+                        var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                        if (destSheet != null)
+                        {
+                            CopyRange(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol, destSheet, destStartRow: stRowDest, destStartCol: stColDest);
+                        }
+                        else
+                        {
+                            Console.WriteLine("未找到工作表 ");
+                        }
+
                     }
-                    else
-                    {
-                        Console.WriteLine("未找到工作表 ");
-                    }
-                    
+                    destPackage.Save();
                 }
-                destPackage.Save();
+                Console.WriteLine("数据拷贝完成！");
             }
-            Console.WriteLine("数据拷贝完成！");
+            catch { throw; }
+            
         }
         // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
         internal string[] GetSheetName(string excelFilePaht, bool allSheet, string outputFilePath = null, bool CompRangeName = false)
         {
             string[] sheetNames;
-
-            // 设置 EPPlus 许可证上下文
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 或者 LicenseContext.Commercial
-
-            // 确保使用 EPPlus 许可证
-            using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))
+            try
             {
-                // 获取工作簿中的所有工作表
-                var worksheets = package.Workbook.Worksheets;
-                sheetNames = worksheets.Select(x => x.Name).ToArray();
-                Array.Reverse(sheetNames);
-                if(!allSheet)
+                if (!File.Exists(excelFilePaht))
                 {
-                    Array.Resize(ref sheetNames, sheetNames.Length - 1);// delete Summary sheet
+                    //Console.WriteLine(msg += $"文件：{excelFilePaht}不存在\r\n");
+                    return null;// new string[1] { $"文件: {excelFilePaht}不存在" };
                 }
-            }
+                // 设置 EPPlus 许可证上下文
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 或者 LicenseContext.Commercial
 
-            if (outputFilePath != null) // save to .txt
-            {
-                outputFilePath = GetTextFileName(outputFilePath);
-                using (StreamWriter writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
+                // 确保使用 EPPlus 许可证
+                using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))
                 {
-                    writer.WriteLine($"sheet name:all count: {sheetNames.Length}");
-                    foreach (var sheet in sheetNames)
+                    // 获取工作簿中的所有工作表
+                    var worksheets = package.Workbook.Worksheets;
+                    sheetNames = worksheets.Select(x => x.Name).ToArray();
+                    Array.Reverse(sheetNames);
+                    if (!allSheet)// 移除最后一个sheet，保留n-1个sheet
                     {
-                        writer.WriteLine($"{sheet}");
+                        Array.Resize(ref sheetNames, sheetNames.Length - 1);// delete Summary sheet
                     }
                 }
+
+                if (outputFilePath != null) // save to .txt
+                {
+                    outputFilePath = GetTextFileName(outputFilePath);
+                    using (StreamWriter writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
+                    {
+                        writer.WriteLine($"sheet name:all count: {sheetNames.Length}");
+                        foreach (var sheet in sheetNames)
+                        {
+                            writer.WriteLine($"{sheet}");
+                        }
+                    }
+                }
+
+                #region test rangeNames is contain sheetNames
+                //if (CompRangeName)
+                //{
+                //    Console.WriteLine($"-----------------------------");
+                //    string[] rangeNames = GetSheetName(@"E:\labview\other prj\IGBT cplusplus dll\MSA1\op4.xlsx",false);
+                //    int notContains = 0;
+                //    for (int i = 0; i < rangeNames.Length; i++)
+                //    {
+                //        if (rangeNames[i].Contains(sheetNames[i]))
+                //        {
+
+                //        }
+                //        else
+                //        {
+                //            notContains++;
+                //            Console.WriteLine($"{sheetNames[i]}");
+                //        }
+
+                //    }
+                //    Console.WriteLine($"notContains count: {notContains}");
+                //}
+                #endregion
             }
-
-            #region test rangeNames is contain sheetNames
-            //if (CompRangeName)
-            //{
-            //    Console.WriteLine($"-----------------------------");
-            //    string[] rangeNames = GetSheetName(@"E:\labview\other prj\IGBT cplusplus dll\MSA1\op4.xlsx",false);
-            //    int notContains = 0;
-            //    for (int i = 0; i < rangeNames.Length; i++)
-            //    {
-            //        if (rangeNames[i].Contains(sheetNames[i]))
-            //        {
-
-            //        }
-            //        else
-            //        {
-            //            notContains++;
-            //            Console.WriteLine($"{sheetNames[i]}");
-            //        }
-
-            //    }
-            //    Console.WriteLine($"notContains count: {notContains}");
-            //}
-            #endregion
+            catch
+            {
+                throw;
+            }
+            
             return sheetNames;
 
         }
