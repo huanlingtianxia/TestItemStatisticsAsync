@@ -100,7 +100,7 @@ namespace TestItem.Excel
                     return;
                 }
 
-                string[] sheetName = GetSheetName(targetWorkbookPath);//get target sheet nam
+                string[] sheetName = GetSheetName(targetWorkbookPath,false);//get target sheet nam
 
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文
                                                                            // 打开源工作簿和目标工作簿
@@ -162,7 +162,7 @@ namespace TestItem.Excel
                     return;
                 }
 
-                string[] sheetName = GetSheetName(targetWorkbookPath);//get target sheet name
+                string[] sheetName = GetSheetName(targetWorkbookPath,false);//get target sheet name
 
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文
                                                                            // 打开源工作簿和目标工作簿
@@ -197,7 +197,108 @@ namespace TestItem.Excel
 
 
         #region internal + private
-        // 删除sheet
+        // 新建sheet
+        internal void CreatSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, ref string msg, bool before = false)
+        {
+            try
+            {
+                if (!File.Exists(targetWorkbookPath))
+                {
+                    Console.WriteLine(msg += $"文件：{targetWorkbookPath}不存在\r\n");
+                    return;
+                }
+                string[] sheetName = ParaTestItem.SheetName;
+                string summary = GetSheetName(targetWorkbookPath, true).Last();
+                // 设置 EPPlus 许可证上下文
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // 打开源工作簿和目标工作簿
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    for (int i = 0; i < sheetName.Length; i++)
+                    {
+                        var destSheet = destPackage.Workbook.Worksheets.Add(sheetName[i]);  // // 创建一个新的工作表，名称为 "NewSheet"
+
+                        // 获取工作表集合
+                        var workbook = destPackage.Workbook;
+
+                        var targetSheet = workbook.Worksheets[summary];
+                        // 获取工作表的索引
+                        int targetSheetIndex = targetSheet.Index;
+
+                        // 将工作表移到目标位置前（插入位置）
+                        if(before)
+                        {
+                            workbook.Worksheets.MoveBefore(destSheet.Index, targetSheetIndex);
+                        }
+                        else
+                        {
+                            workbook.Worksheets.MoveAfter(destSheet.Index, targetSheetIndex);
+                        }
+                        //var newSheet = package.Workbook.Worksheets.Add("NewSheet");
+                        msg += $"序号{i + 1,-6}, 创建工作表 '{sheetName[i]}'\r\n";
+                    }
+                    destPackage.Save();
+                }
+
+                Console.WriteLine(msg += $"创建工作表完成！\r\n");
+            }
+            catch (Exception ex)
+            {
+                msg += $"{ex.ToString()}\r\n";
+            }
+
+        }
+        //删除sheet
+        internal void DeleteSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, ref string msg)
+        {
+            try
+            {
+                if (!File.Exists(targetWorkbookPath))
+                {
+                    Console.WriteLine(msg += $"文件：{targetWorkbookPath}不存在\r\n");
+                    return;
+                }
+                // 设置 EPPlus 许可证上下文
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
+                string[] sheetName = ParaTestItem.SheetName;
+
+                // 打开源工作簿和目标工作簿
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    // 获取工作表集合
+                    var workbook = destPackage.Workbook;
+
+                   
+                    for (int i = 0; i < sheetName.Length; i++)
+                    {
+                        var sheetToRemove = workbook.Worksheets[sheetName[i]];
+                        if (sheetToRemove != null)
+                        {
+                            workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
+                            msg += $"序号{i + 1,-6}, 工作表 '{sheetToRemove}' 已删除\r\n";
+                        }
+                        else
+                        {
+                            msg += $"未找到工作表 '{sheetToRemove}'\r\n";
+                        }
+                    }
+
+                    destPackage.Save();
+                }
+
+                msg += "删除工作表完成！\r\n";
+            }
+            catch (Exception ex)
+            {
+                msg += $"{ex.ToString()}\r\n";
+            }
+
+        }
+        //删除sheet
         internal void DeleteSheet(string targetWorkbookPath, int reserveSheetCount,ref string msg)
         {
             try
@@ -211,7 +312,7 @@ namespace TestItem.Excel
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
                 //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
-                string[] sheetName = GetSheetName(targetWorkbookPath);
+                string[] sheetName = GetSheetName(targetWorkbookPath,false);
 
                 // 打开源工作簿和目标工作簿
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);
@@ -232,18 +333,18 @@ namespace TestItem.Excel
                         if (sheetToRemove != null)
                         {
                             workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
-                            Console.WriteLine(msg += $"序号{i - reserveSheetCount + 1,-6}, 工作表 '{sheetToRemove}' 已删除");
+                            msg += $"序号{i - reserveSheetCount + 1,-6}, 工作表 '{sheetToRemove}' 已删除\r\n";
                         }
                         else
                         {
-                            Console.WriteLine(msg += $"未找到工作表 '{sheetToRemove}'");
+                            msg += $"未找到工作表 '{sheetToRemove}'\r\n";
                         }
                     }
 
                     destPackage.Save();
                 }
 
-                Console.WriteLine("删除工作表完成！");
+                msg += "删除工作表完成！\r\n";
             }
             catch(Exception ex)
             {
@@ -251,7 +352,7 @@ namespace TestItem.Excel
             }
             
         }
-        // 删除部分单元格
+        //删除range单元格
         internal void DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem)
         {
             int stRow = ParaTestItem.StartRow;//数据源行开始:17
@@ -278,11 +379,12 @@ namespace TestItem.Excel
                         Console.WriteLine("未找到工作表 ");
                     }
                 }
+
                 destPackage.Save();
             }
             Console.WriteLine("删除数据完成！");
         }
-        //仅复制一个单元格到sheet，特殊处理
+        //复制粘贴range单元格
         internal void CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem)
         {
             int stRow = ParaTestItem.StartRow;//数据源行开始
@@ -316,74 +418,66 @@ namespace TestItem.Excel
             }
             Console.WriteLine("数据拷贝完成！");
         }
-        //仅复制一个单元格到sheet，特殊处理
-        internal void PasteToGRRModuleFromFormula(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
+        internal string[] GetSheetName(string excelFilePaht, bool allSheet, string outputFilePath = null, bool CompRangeName = false)
         {
-            int stRow = ParaTestItem.StartRow;//数据源行开始:16
-            int stCol = ParaTestItem.StartCol;//数据源列开始:6
-            int endRow = ParaTestItem.EndRow;//数据源行结束:16
-            int endCol = ParaTestItem.EndtCol;//数据源列结束:6
-            int stRowDest = ParaTestItem.StartRowDest;//目标行开始:17
-            int stColDest = ParaTestItem.StartColDest;//目标列开始:6
-            // 设置 EPPlus 许可证上下文
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
-            string[] sheetName = GetSheetName(targetWorkbookPath);
-
-            // 打开源工作簿和目标工作簿
-            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
-            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
-            {
-                for (int i = 0; i < sheetName.Length; i++)
-                //for (int i = 0; i < 15; i++)
-                {
-                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                    // 拷贝区域 1: Sheet1 的 C2:E9 到 Sheet2 的 C3:E16
-                    for(int j = 0; j < 3; j++)
-                        CopyRange(destSheet, startRow: stRow, startCol: stCol + 4 * j, endRow: endRow, endCol: endCol + 4 * j, destSheet, destStartRow: stRowDest, destStartCol: stColDest + 4 * j);
-                    //CopyRange(destSheet, startRow: 16, startCol: 6 + 4 * j, endRow: 16, endCol: 6 + 4 * j, destSheet, destStartRow: 17, destStartCol: 6 + 4 * j);
-                    //CopyRange(destSheet, startRow: 16, startCol: 6, endRow: 16, endCol: 6, destSheet, destStartRow: 17, destStartCol: 7);
-                }
-                destPackage.Save();
-            }
-
-            Console.WriteLine("数据拷贝完成！");
-        }
-        //仅复制一个单元格到sheet，特殊处理
-        internal void ExcelCopyPaste(string sourceWorkbookPath, string targetWorkbookPath, bool Part = false)
-        {
-            // 目标文件路径
-            //string sourceFilePath = @"C:\path\to\your\sourceFile.xlsx";  // Sheet1 的文件
-            //string destinationFilePath = @"C:\path\to\your\destinationFile.xlsx";  // Sheet2 的文件
+            string[] sheetNames;
 
             // 设置 EPPlus 许可证上下文
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 或者 LicenseContext.Commercial
 
-            //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
-            string[] sheetName = GetSheetName(targetWorkbookPath);
-
-            // 打开源工作簿和目标工作簿
-            FileInfo sourceFile = new FileInfo(sourceWorkbookPath);
-            FileInfo destinationFile = new FileInfo(targetWorkbookPath);
-
-            using (var sourcePackage = new ExcelPackage(sourceFile)) // 打开源文件
-            using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+            // 确保使用 EPPlus 许可证
+            using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))
             {
-                // 获取工作表
-                var sourceSheet = sourcePackage.Workbook.Worksheets["Sheet1"];  // Sheet1
-                for (int i = 0; i < sheetName.Length - 1; i++)
-                //for (int i = 0; i < 15; i++)
+                // 获取工作簿中的所有工作表
+                var worksheets = package.Workbook.Worksheets;
+                sheetNames = worksheets.Select(x => x.Name).ToArray();
+                Array.Reverse(sheetNames);
+                if(!allSheet)
                 {
-                    var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                    // 拷贝区域 1: Sheet1 的 C2:E9 到 Sheet2 的 C3:E16
-                    CopyRange(sourceSheet, startRow: 13 + i, startCol: 2, endRow: 13 + i, endCol: 2, destSheet, destStartRow: 11, destStartCol: 13);
+                    Array.Resize(ref sheetNames, sheetNames.Length - 1);// delete Summary sheet
                 }
-                destPackage.Save();
             }
 
-            Console.WriteLine("数据拷贝完成！");
+            if (outputFilePath != null) // save to .txt
+            {
+                outputFilePath = GetTextFileName(outputFilePath);
+                using (StreamWriter writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
+                {
+                    writer.WriteLine($"sheet name:all count: {sheetNames.Length}");
+                    foreach (var sheet in sheetNames)
+                    {
+                        writer.WriteLine($"{sheet}");
+                    }
+                }
+            }
+
+            #region test rangeNames is contain sheetNames
+            //if (CompRangeName)
+            //{
+            //    Console.WriteLine($"-----------------------------");
+            //    string[] rangeNames = GetSheetName(@"E:\labview\other prj\IGBT cplusplus dll\MSA1\op4.xlsx",false);
+            //    int notContains = 0;
+            //    for (int i = 0; i < rangeNames.Length; i++)
+            //    {
+            //        if (rangeNames[i].Contains(sheetNames[i]))
+            //        {
+
+            //        }
+            //        else
+            //        {
+            //            notContains++;
+            //            Console.WriteLine($"{sheetNames[i]}");
+            //        }
+
+            //    }
+            //    Console.WriteLine($"notContains count: {notContains}");
+            //}
+            #endregion
+            return sheetNames;
+
         }
+
         // 生产excel VBS脚本，提取同一测试项的值（测试：span 次）
         internal void CreatVBScript(string outputFilePath, ref string msg)
         {
@@ -476,62 +570,6 @@ namespace TestItem.Excel
                 Console.WriteLine(msg += "发生错误: " + ex.Message);
                 msg += "发生错误: " + ex.Message + "\n";
             }
-        }
-        // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
-        internal string[] GetSheetName(string excelFilePaht, string outputFilePath = null, bool CompRangeName = false)
-        {
-            string[] sheetNames;
-
-            // 设置 EPPlus 许可证上下文
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 或者 LicenseContext.Commercial
-
-            // 确保使用 EPPlus 许可证
-            using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))
-            {
-                // 获取工作簿中的所有工作表
-                var worksheets = package.Workbook.Worksheets;
-                sheetNames = worksheets.Select(x => x.Name).ToArray();
-                Array.Reverse(sheetNames);
-                Array.Resize(ref sheetNames, sheetNames.Length - 1);// delete Summary sheet
-            }
-
-            if (outputFilePath != null) // save to .txt
-            {
-                outputFilePath = GetTextFileName(outputFilePath);
-                using (StreamWriter writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
-                {
-                    writer.WriteLine($"sheet name:all count: {sheetNames.Length}");
-                    foreach (var sheet in sheetNames)
-                    {
-                        writer.WriteLine($"{sheet}");
-                    }
-                }
-            }
-
-            #region test rangeNames is contain sheetNames
-            if (CompRangeName)
-            {
-                Console.WriteLine($"-----------------------------");
-                string[] rangeNames = GetSheetName(@"E:\labview\other prj\IGBT cplusplus dll\MSA1\op4.xlsx");
-                int notContains = 0;
-                for (int i = 0; i < rangeNames.Length; i++)
-                {
-                    if (rangeNames[i].Contains(sheetNames[i]))
-                    {
-
-                    }
-                    else
-                    {
-                        notContains++;
-                        Console.WriteLine($"{sheetNames[i]}");
-                    }
-
-                }
-                Console.WriteLine($"notContains count: {notContains}");
-            }
-            #endregion
-            return sheetNames;
-
         }
 
         #region Excel 

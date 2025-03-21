@@ -18,16 +18,21 @@
 
 3.2 参数：根据名称理解
 	Extract data: SourcePath：将op01.xlsx SortSelectTrans中的数据提取到 toSheetAll中；功能按钮：ExtractData
-	Paste to GRR module: SourcePath to TargetPath：将op01.xlsx toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
-	Paste to GRR: Limit：将op01.xlsx limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
+	Paste to GRR: SourcePath to TargetPath：将op01.xlsx中工资表toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
+	Paste to GRR: Limit：将op01.xlsx中工资表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
 
 3.3 其他功能
 	按钮：ExtracSheetToTxt：将Target路径下模板中的所有sheet名（Summary除外），提取出来并生成txt文件
 	按钮：CopyPaste：拷贝粘贴PastePara中的值
 	按钮：DeleteRange：删除DeletePara中的值
-	按钮：DeleteSheet：删除工作表，保留ReserveCnt个。
-	SheetName：扩展CopyPaste和DeleteRange的工作表作用域。
-	//按钮：CopyGRRModuleAndDelete：可忽略，用于拷贝MSA模板中16行的公式到17行 和 删除11.xx测试项的第17行的数据和公式。
+	按钮：DeleteSheet：删除工作表，保留ReserveCnt个或删除SheetName个。
+	按钮：CreatSheet：新建工作表。
+	SheetName：扩展CopyPaste，DeleteRange，DeleteSheet的工作表作用域。
+	ReserveCnt：如果值是”:cnt“格式(cnt取正整数)，则表示只保留cnt个工作表格，其他的删除。如果不是”:cnt“格式，则删除SheetName中的工作表。
+	General: CopyPaste And Delete
+		PastePara参数格式：StartCol,StartCol,EndRow,EndCol,StartRowDest,StartColDest// 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数）
+		DeletePara参数格式：StartCol,StartCol,EndRow,EndCol							// 开始行，开始列，结束行，结束列（行列都是正整数）
+		ReserveCnt参数格式：:cnt													// 保留cnt个sheet。注意最后一个sheet不在统计范围（保留Summary工作表）。
 
 4. 软件操作说明：
 4.1 选择路径；

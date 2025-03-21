@@ -28,7 +28,7 @@ namespace TestItemStatistics
             UpdateParaFromControl();
         }
 
-        ExcelOperation excelOperation = new ExcelOperation();//从测试log提取数据参数
+        ExcelOperation excelOperation = new ExcelOperation();//Excel 操作
         ParametersTestItem testItem = new ParametersTestItem();//从测试log提取数据参数
         ParametersTestItem testItemGRR = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
         ParametersTestItem testItemGRRLimit = new ParametersTestItem();// copy paste Limit到GRR module 参数
@@ -37,7 +37,7 @@ namespace TestItemStatistics
 
         //string sourceExcelFilePaht = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\test1\op4_Test.xlsx";
         //string targetExccelFilePaht = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\test1\GRR_20250317_D471_FCT1_No.1&2&3_Test.xlsx";
-        #region Click event
+        #region Control Click event
         private void btn_SelectSourcePath_Click(object sender, EventArgs e)
         {
             //string path1 = SelectfullPath();
@@ -83,11 +83,11 @@ namespace TestItemStatistics
                 path += pathArr[i] + "\\";
             }
             path += "GRRModuleSheetName.txt";
-            string[] sheetName = excelOperation.GetSheetName(testItemGRR.TargetPath, path);
+            string[] sheetName = excelOperation.GetSheetName(testItemGRR.TargetPath, false, path);
             msg += "提取GRR module中 test item sheet name 到GRRModuleSheetName.txt,\r\n path: " + path + "\r\n";
             for (int i = 0; i < sheetName.Length; i++)
             {
-                msg += $"序号：{i,-6} {sheetName[i]}\r\n";
+                msg += $"序号：{i+1,-6} {sheetName[i]}\r\n";
             }
 
             msg += $"提取sheet name 完成！sheet count: {sheetName.Length} ----------------------\r\n";
@@ -101,22 +101,6 @@ namespace TestItemStatistics
             UpdateParaFromControl();
             excelOperation.PasteToGRRModuleFromLimit(testItemGRRLimit.SourcePath, testItemGRRLimit.TargetPath, testItemGRRLimit, ref msg);
             richTB_Log.Text += msg;
-        }
-
-        private void btn_CopyGRRModuleAndDelete_Click(object sender, EventArgs e)
-        {
-            richTB_Log.Clear();
-            msg = string.Empty;
-            tempTestItem.StartRow = 16;
-            tempTestItem.StartCol = 6;
-            tempTestItem.EndRow = 16;
-            tempTestItem.EndtCol = 6;
-            tempTestItem.StartRowDest = 17;
-            tempTestItem.StartColDest = 6;
-            UpdateParaFromControl();
-            excelOperation.PasteToGRRModuleFromFormula(tempTestItem.TargetPath, tempTestItem); // 复制 公式单元格
-            msg += "复制粘贴公式到F17，J17，N17公式完成\r\n";
-            richTB_Log.Text = msg;
         }
 
         private void btn_CopyPaste_Click(object sender, EventArgs e)
@@ -147,11 +131,28 @@ namespace TestItemStatistics
             msg = string.Empty;
             ParametersTestItem parametersTestItem = new ParametersTestItem();
             UpdateParaFromControl(parametersTestItem, false);
-            excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, ref msg);//保留xx个sheet
+            if (parametersTestItem.ReserveSheetCount == -1)
+            {
+                excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, ref msg);//删除SheetName中的工作表
+            }
+            else
+            {
+                excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, ref msg);//保留ReserveSheetCount个工作表
+            }
+            //string[] sheet = excelOperation.GetSheetName(parametersTestItem.TargetPath,true);
             richTB_Log.Text = msg;
         }
 
-        #endregion
+        private void btn_CreatSheet_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            ParametersTestItem para = new ParametersTestItem();
+            UpdateParaFromControl(para, false);
+            excelOperation.CreatSheet(para.TargetPath, para, ref msg); // 删除 17行单元格，作用域：11.xx测试项
+            richTB_Log.Text = msg;
+        }
+#endregion
 
         //function
         private string SelectPath()
@@ -274,7 +275,8 @@ namespace TestItemStatistics
             {
                 parameters.TargetPath = textB_ExcelPath.Text;
                 parameters.SheetName = richT_SheetName.Text.Trim().Split(new string[1] { "\n" }, StringSplitOptions.None);
-                parameters.ReserveSheetCount = int.Parse(textB_ReserveSheetCount.Text);
+                string[] cnt = textB_ReserveSheetCount.Text.Trim().Split(new string[1] { ":" }, StringSplitOptions.None);
+                parameters.ReserveSheetCount = cnt.Length == 2 ? int.Parse(cnt[1]) : -1;
                 int[] CopyPastePara = textB_CopyPastePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 int[] DeletePara = textB_DeletePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 //parameters.CopyPastePara = textB_CopyPastePara.Text;
