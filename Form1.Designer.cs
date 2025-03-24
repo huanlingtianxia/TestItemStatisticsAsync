@@ -643,7 +643,6 @@
             this.groupBox3.Controls.Add(this.label34);
             this.groupBox3.Controls.Add(this.textB_FromSheetLimit);
             this.groupBox3.Controls.Add(this.textB_StartColDestLimit);
-            this.groupBox3.Controls.Add(this.label26);
             this.groupBox3.Controls.Add(this.label23);
             this.groupBox3.Controls.Add(this.textB_StartRowDestLimit);
             this.groupBox3.Controls.Add(this.label3);
@@ -695,7 +694,7 @@
             // label26
             // 
             this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(131, 76);
+            this.label26.Location = new System.Drawing.Point(3, 16);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(63, 13);
             this.label26.TabIndex = 8;
@@ -838,7 +837,7 @@
             // 
             this.textB_ReserveSheetCount.Location = new System.Drawing.Point(460, 82);
             this.textB_ReserveSheetCount.Name = "textB_ReserveSheetCount";
-            this.textB_ReserveSheetCount.Size = new System.Drawing.Size(45, 20);
+            this.textB_ReserveSheetCount.Size = new System.Drawing.Size(35, 20);
             this.textB_ReserveSheetCount.TabIndex = 15;
             // 
             // textB_DeletePara
@@ -859,15 +858,16 @@
             // 
             // richT_SheetName
             // 
-            this.richT_SheetName.Location = new System.Drawing.Point(6, 19);
+            this.richT_SheetName.Location = new System.Drawing.Point(6, 32);
             this.richT_SheetName.Name = "richT_SheetName";
-            this.richT_SheetName.Size = new System.Drawing.Size(136, 235);
+            this.richT_SheetName.Size = new System.Drawing.Size(136, 222);
             this.richT_SheetName.TabIndex = 16;
             this.richT_SheetName.Text = "Sheet4\nSheet5\nSheet6";
             // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.richT_SheetName);
+            this.groupBox5.Controls.Add(this.label26);
             this.groupBox5.Location = new System.Drawing.Point(629, 200);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(145, 254);
@@ -903,6 +903,7 @@
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
