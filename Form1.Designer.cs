@@ -85,7 +85,6 @@
             this.label27 = new System.Windows.Forms.Label();
             this.textB_FromSheetLimit = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label28 = new System.Windows.Forms.Label();
             this.btn_PasteLimit = new System.Windows.Forms.Button();
             this.label22 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
@@ -633,7 +632,6 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.label28);
             this.groupBox3.Controls.Add(this.btn_PasteLimit);
             this.groupBox3.Controls.Add(this.textB_StartColLimit);
             this.groupBox3.Controls.Add(this.label12);
@@ -655,16 +653,6 @@
             this.groupBox3.TabIndex = 19;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Paste to GRR: Limit";
-            // 
-            // label28
-            // 
-            this.label28.AutoSize = true;
-            this.label28.ForeColor = System.Drawing.SystemColors.AppWorkspace;
-            this.label28.Location = new System.Drawing.Point(105, 6);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(9, 130);
-            this.label28.TabIndex = 20;
-            this.label28.Text = "|\r\n|\r\n|\r\n|\r\n|\r\n|\r\n|\r\n|\r\n|\r\n|";
             // 
             // btn_PasteLimit
             // 
@@ -980,7 +968,6 @@
         private System.Windows.Forms.Button btn_PasteLimit;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label28;
         private System.Windows.Forms.TextBox textB_CopyPastePara;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label24;
