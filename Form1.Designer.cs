@@ -89,11 +89,12 @@
             this.label22 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
             this.label34 = new System.Windows.Forms.Label();
-            this.label26 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
             this.textB_CopyPastePara = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btn_RemaneSheet = new System.Windows.Forms.Button();
             this.btn_CreatSheet = new System.Windows.Forms.Button();
             this.btn_DeleteSheet = new System.Windows.Forms.Button();
             this.btn_DeleteRange = new System.Windows.Forms.Button();
@@ -108,6 +109,7 @@
             this.textB_ExcelPath = new System.Windows.Forms.TextBox();
             this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label28 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -153,7 +155,7 @@
             // 
             // richTB_Log
             // 
-            this.richTB_Log.Location = new System.Drawing.Point(6, 311);
+            this.richTB_Log.Location = new System.Drawing.Point(6, 316);
             this.richTB_Log.Name = "richTB_Log";
             this.richTB_Log.Size = new System.Drawing.Size(618, 144);
             this.richTB_Log.TabIndex = 14;
@@ -182,7 +184,7 @@
             // 
             // textB_NumSN
             // 
-            this.textB_NumSN.Location = new System.Drawing.Point(174, 17);
+            this.textB_NumSN.Location = new System.Drawing.Point(174, 19);
             this.textB_NumSN.Name = "textB_NumSN";
             this.textB_NumSN.Size = new System.Drawing.Size(35, 20);
             this.textB_NumSN.TabIndex = 15;
@@ -191,7 +193,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(128, 20);
+            this.label4.Location = new System.Drawing.Point(128, 22);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(44, 13);
             this.label4.TabIndex = 8;
@@ -251,7 +253,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(8, 87);
+            this.label8.Location = new System.Drawing.Point(8, 88);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(66, 13);
             this.label8.TabIndex = 8;
@@ -259,7 +261,7 @@
             // 
             // textB_StartColDest
             // 
-            this.textB_StartColDest.Location = new System.Drawing.Point(76, 84);
+            this.textB_StartColDest.Location = new System.Drawing.Point(76, 85);
             this.textB_StartColDest.Name = "textB_StartColDest";
             this.textB_StartColDest.Size = new System.Drawing.Size(35, 20);
             this.textB_StartColDest.TabIndex = 15;
@@ -268,7 +270,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(121, 43);
+            this.label9.Location = new System.Drawing.Point(121, 44);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(51, 13);
             this.label9.TabIndex = 8;
@@ -276,7 +278,7 @@
             // 
             // textB_TotalItem
             // 
-            this.textB_TotalItem.Location = new System.Drawing.Point(174, 40);
+            this.textB_TotalItem.Location = new System.Drawing.Point(174, 41);
             this.textB_TotalItem.Name = "textB_TotalItem";
             this.textB_TotalItem.Size = new System.Drawing.Size(35, 20);
             this.textB_TotalItem.TabIndex = 15;
@@ -285,7 +287,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(114, 65);
+            this.label10.Location = new System.Drawing.Point(114, 66);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(58, 13);
             this.label10.TabIndex = 8;
@@ -293,7 +295,7 @@
             // 
             // textB_FromSheet
             // 
-            this.textB_FromSheet.Location = new System.Drawing.Point(174, 62);
+            this.textB_FromSheet.Location = new System.Drawing.Point(174, 63);
             this.textB_FromSheet.Name = "textB_FromSheet";
             this.textB_FromSheet.Size = new System.Drawing.Size(90, 20);
             this.textB_FromSheet.TabIndex = 15;
@@ -302,7 +304,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(124, 87);
+            this.label11.Location = new System.Drawing.Point(124, 88);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(48, 13);
             this.label11.TabIndex = 8;
@@ -310,7 +312,7 @@
             // 
             // textB_ToSheet
             // 
-            this.textB_ToSheet.Location = new System.Drawing.Point(174, 84);
+            this.textB_ToSheet.Location = new System.Drawing.Point(174, 85);
             this.textB_ToSheet.Name = "textB_ToSheet";
             this.textB_ToSheet.Size = new System.Drawing.Size(90, 20);
             this.textB_ToSheet.TabIndex = 15;
@@ -360,7 +362,7 @@
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(129, 26);
+            this.label20.Location = new System.Drawing.Point(129, 23);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(44, 13);
             this.label20.TabIndex = 8;
@@ -368,7 +370,7 @@
             // 
             // textB_NumSN_GRR
             // 
-            this.textB_NumSN_GRR.Location = new System.Drawing.Point(175, 23);
+            this.textB_NumSN_GRR.Location = new System.Drawing.Point(175, 20);
             this.textB_NumSN_GRR.Name = "textB_NumSN_GRR";
             this.textB_NumSN_GRR.Size = new System.Drawing.Size(35, 20);
             this.textB_NumSN_GRR.TabIndex = 15;
@@ -402,7 +404,7 @@
             // 
             // textB_StartCol_GRR
             // 
-            this.textB_StartCol_GRR.Location = new System.Drawing.Point(78, 42);
+            this.textB_StartCol_GRR.Location = new System.Drawing.Point(78, 41);
             this.textB_StartCol_GRR.Name = "textB_StartCol_GRR";
             this.textB_StartCol_GRR.Size = new System.Drawing.Size(35, 20);
             this.textB_StartCol_GRR.TabIndex = 15;
@@ -411,7 +413,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(115, 49);
+            this.label15.Location = new System.Drawing.Point(115, 45);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(60, 13);
             this.label15.TabIndex = 8;
@@ -419,7 +421,7 @@
             // 
             // textB_TrialsCount_GRR
             // 
-            this.textB_TrialsCount_GRR.Location = new System.Drawing.Point(175, 46);
+            this.textB_TrialsCount_GRR.Location = new System.Drawing.Point(175, 41);
             this.textB_TrialsCount_GRR.Name = "textB_TrialsCount_GRR";
             this.textB_TrialsCount_GRR.Size = new System.Drawing.Size(35, 20);
             this.textB_TrialsCount_GRR.TabIndex = 15;
@@ -436,7 +438,7 @@
             // 
             // textB_StartRowDest_GRR
             // 
-            this.textB_StartRowDest_GRR.Location = new System.Drawing.Point(78, 64);
+            this.textB_StartRowDest_GRR.Location = new System.Drawing.Point(78, 62);
             this.textB_StartRowDest_GRR.Name = "textB_StartRowDest_GRR";
             this.textB_StartRowDest_GRR.Size = new System.Drawing.Size(35, 20);
             this.textB_StartRowDest_GRR.TabIndex = 15;
@@ -453,7 +455,7 @@
             // 
             // textB_StartColDest_GRR
             // 
-            this.textB_StartColDest_GRR.Location = new System.Drawing.Point(78, 85);
+            this.textB_StartColDest_GRR.Location = new System.Drawing.Point(78, 83);
             this.textB_StartColDest_GRR.Name = "textB_StartColDest_GRR";
             this.textB_StartColDest_GRR.Size = new System.Drawing.Size(35, 20);
             this.textB_StartColDest_GRR.TabIndex = 15;
@@ -462,7 +464,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(115, 71);
+            this.label14.Location = new System.Drawing.Point(115, 67);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(58, 13);
             this.label14.TabIndex = 8;
@@ -470,7 +472,7 @@
             // 
             // textB_FromSheet_GRR
             // 
-            this.textB_FromSheet_GRR.Location = new System.Drawing.Point(175, 68);
+            this.textB_FromSheet_GRR.Location = new System.Drawing.Point(175, 62);
             this.textB_FromSheet_GRR.Name = "textB_FromSheet_GRR";
             this.textB_FromSheet_GRR.Size = new System.Drawing.Size(77, 20);
             this.textB_FromSheet_GRR.TabIndex = 15;
@@ -535,7 +537,7 @@
             this.groupBox2.Controls.Add(this.textB_TrialsCount_GRR);
             this.groupBox2.Controls.Add(this.btn_PasteToGRR);
             this.groupBox2.Controls.Add(this.label17);
-            this.groupBox2.Location = new System.Drawing.Point(282, 59);
+            this.groupBox2.Location = new System.Drawing.Point(287, 59);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(259, 135);
             this.groupBox2.TabIndex = 18;
@@ -565,7 +567,7 @@
             // 
             // textB_StartColLimit
             // 
-            this.textB_StartColLimit.Location = new System.Drawing.Point(65, 55);
+            this.textB_StartColLimit.Location = new System.Drawing.Point(66, 55);
             this.textB_StartColLimit.Name = "textB_StartColLimit";
             this.textB_StartColLimit.Size = new System.Drawing.Size(35, 20);
             this.textB_StartColLimit.TabIndex = 15;
@@ -574,7 +576,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(19, 58);
+            this.label12.Location = new System.Drawing.Point(20, 58);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(44, 13);
             this.label12.TabIndex = 8;
@@ -582,7 +584,7 @@
             // 
             // textB_StartRowLimit
             // 
-            this.textB_StartRowLimit.Location = new System.Drawing.Point(65, 33);
+            this.textB_StartRowLimit.Location = new System.Drawing.Point(66, 33);
             this.textB_StartRowLimit.Name = "textB_StartRowLimit";
             this.textB_StartRowLimit.Size = new System.Drawing.Size(35, 20);
             this.textB_StartRowLimit.TabIndex = 15;
@@ -591,7 +593,7 @@
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(12, 36);
+            this.label21.Location = new System.Drawing.Point(13, 36);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(51, 13);
             this.label21.TabIndex = 8;
@@ -599,7 +601,7 @@
             // 
             // textB_StartColDestLimit
             // 
-            this.textB_StartColDestLimit.Location = new System.Drawing.Point(189, 49);
+            this.textB_StartColDestLimit.Location = new System.Drawing.Point(178, 55);
             this.textB_StartColDestLimit.Name = "textB_StartColDestLimit";
             this.textB_StartColDestLimit.Size = new System.Drawing.Size(35, 20);
             this.textB_StartColDestLimit.TabIndex = 15;
@@ -607,7 +609,7 @@
             // 
             // textB_StartRowDestLimit
             // 
-            this.textB_StartRowDestLimit.Location = new System.Drawing.Point(189, 25);
+            this.textB_StartRowDestLimit.Location = new System.Drawing.Point(178, 33);
             this.textB_StartRowDestLimit.Name = "textB_StartRowDestLimit";
             this.textB_StartRowDestLimit.Size = new System.Drawing.Size(35, 20);
             this.textB_StartRowDestLimit.TabIndex = 15;
@@ -616,7 +618,7 @@
             // label27
             // 
             this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(1, 79);
+            this.label27.Location = new System.Drawing.Point(2, 79);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(58, 13);
             this.label27.TabIndex = 8;
@@ -624,7 +626,7 @@
             // 
             // textB_FromSheetLimit
             // 
-            this.textB_FromSheetLimit.Location = new System.Drawing.Point(65, 76);
+            this.textB_FromSheetLimit.Location = new System.Drawing.Point(66, 76);
             this.textB_FromSheetLimit.Name = "textB_FromSheetLimit";
             this.textB_FromSheetLimit.Size = new System.Drawing.Size(35, 20);
             this.textB_FromSheetLimit.TabIndex = 15;
@@ -646,16 +648,16 @@
             this.groupBox3.Controls.Add(this.label23);
             this.groupBox3.Controls.Add(this.textB_StartRowDestLimit);
             this.groupBox3.Controls.Add(this.label3);
-            this.groupBox3.Location = new System.Drawing.Point(547, 59);
+            this.groupBox3.Location = new System.Drawing.Point(558, 59);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(228, 135);
+            this.groupBox3.Size = new System.Drawing.Size(217, 135);
             this.groupBox3.TabIndex = 19;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Paste to GRR: Limit";
             // 
             // btn_PasteLimit
             // 
-            this.btn_PasteLimit.Location = new System.Drawing.Point(146, 110);
+            this.btn_PasteLimit.Location = new System.Drawing.Point(135, 110);
             this.btn_PasteLimit.Name = "btn_PasteLimit";
             this.btn_PasteLimit.Size = new System.Drawing.Size(78, 22);
             this.btn_PasteLimit.TabIndex = 20;
@@ -666,7 +668,7 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(62, 16);
+            this.label22.Location = new System.Drawing.Point(63, 16);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(41, 13);
             this.label22.TabIndex = 8;
@@ -675,7 +677,7 @@
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(186, 9);
+            this.label24.Location = new System.Drawing.Point(175, 16);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(38, 13);
             this.label24.TabIndex = 8;
@@ -685,25 +687,16 @@
             // 
             this.label34.AutoSize = true;
             this.label34.BackColor = System.Drawing.Color.Red;
-            this.label34.Location = new System.Drawing.Point(131, 114);
+            this.label34.Location = new System.Drawing.Point(120, 114);
             this.label34.Name = "label34";
             this.label34.Size = new System.Drawing.Size(13, 13);
             this.label34.TabIndex = 8;
             this.label34.Text = "3";
             // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(3, 16);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(63, 13);
-            this.label26.TabIndex = 8;
-            this.label26.Text = "SheetName";
-            // 
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(112, 26);
+            this.label23.Location = new System.Drawing.Point(102, 36);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(73, 13);
             this.label23.TabIndex = 8;
@@ -712,11 +705,20 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(119, 49);
+            this.label3.Location = new System.Drawing.Point(109, 58);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(66, 13);
             this.label3.TabIndex = 8;
             this.label3.Text = "StartColDest";
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(3, 19);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(63, 13);
+            this.label26.TabIndex = 8;
+            this.label26.Text = "SheetName";
             // 
             // textB_CopyPastePara
             // 
@@ -728,6 +730,8 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.textB_ExcelPath);
+            this.groupBox4.Controls.Add(this.btn_RemaneSheet);
             this.groupBox4.Controls.Add(this.btn_CreatSheet);
             this.groupBox4.Controls.Add(this.btn_DeleteSheet);
             this.groupBox4.Controls.Add(this.btn_DeleteRange);
@@ -739,18 +743,27 @@
             this.groupBox4.Controls.Add(this.label31);
             this.groupBox4.Controls.Add(this.textB_ReserveSheetCount);
             this.groupBox4.Controls.Add(this.textB_DeletePara);
-            this.groupBox4.Controls.Add(this.textB_ExcelPath);
             this.groupBox4.Controls.Add(this.textB_CopyPastePara);
-            this.groupBox4.Location = new System.Drawing.Point(6, 200);
+            this.groupBox4.Location = new System.Drawing.Point(5, 209);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(624, 105);
             this.groupBox4.TabIndex = 21;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "General: CopyPaste And Delete";
             // 
+            // btn_RemaneSheet
+            // 
+            this.btn_RemaneSheet.Location = new System.Drawing.Point(516, 58);
+            this.btn_RemaneSheet.Name = "btn_RemaneSheet";
+            this.btn_RemaneSheet.Size = new System.Drawing.Size(101, 20);
+            this.btn_RemaneSheet.TabIndex = 24;
+            this.btn_RemaneSheet.Text = "RemaneSheet";
+            this.btn_RemaneSheet.UseVisualStyleBackColor = true;
+            this.btn_RemaneSheet.Click += new System.EventHandler(this.btn_RemaneSheet_Click);
+            // 
             // btn_CreatSheet
             // 
-            this.btn_CreatSheet.Location = new System.Drawing.Point(312, 59);
+            this.btn_CreatSheet.Location = new System.Drawing.Point(434, 58);
             this.btn_CreatSheet.Name = "btn_CreatSheet";
             this.btn_CreatSheet.Size = new System.Drawing.Size(76, 20);
             this.btn_CreatSheet.TabIndex = 23;
@@ -760,7 +773,7 @@
             // 
             // btn_DeleteSheet
             // 
-            this.btn_DeleteSheet.Location = new System.Drawing.Point(312, 81);
+            this.btn_DeleteSheet.Location = new System.Drawing.Point(434, 80);
             this.btn_DeleteSheet.Name = "btn_DeleteSheet";
             this.btn_DeleteSheet.Size = new System.Drawing.Size(76, 20);
             this.btn_DeleteSheet.TabIndex = 22;
@@ -809,7 +822,7 @@
             // label37
             // 
             this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(391, 85);
+            this.label37.Location = new System.Drawing.Point(513, 84);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(63, 13);
             this.label37.TabIndex = 8;
@@ -835,7 +848,7 @@
             // 
             // textB_ReserveSheetCount
             // 
-            this.textB_ReserveSheetCount.Location = new System.Drawing.Point(460, 82);
+            this.textB_ReserveSheetCount.Location = new System.Drawing.Point(582, 81);
             this.textB_ReserveSheetCount.Name = "textB_ReserveSheetCount";
             this.textB_ReserveSheetCount.Size = new System.Drawing.Size(35, 20);
             this.textB_ReserveSheetCount.TabIndex = 15;
@@ -863,23 +876,35 @@
             this.richT_SheetName.Size = new System.Drawing.Size(136, 222);
             this.richT_SheetName.TabIndex = 16;
             this.richT_SheetName.Text = "Sheet4\nSheet5\nSheet6";
+            this.richT_SheetName.WordWrap = false;
             // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.richT_SheetName);
             this.groupBox5.Controls.Add(this.label26);
-            this.groupBox5.Location = new System.Drawing.Point(629, 200);
+            this.groupBox5.Controls.Add(this.label28);
+            this.groupBox5.Controls.Add(this.richT_SheetName);
+            this.groupBox5.Location = new System.Drawing.Point(628, 209);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(145, 254);
             this.groupBox5.TabIndex = 22;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "General: SheetName";
             // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label28.Location = new System.Drawing.Point(66, 19);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(22, 13);
+            this.label28.TabIndex = 8;
+            this.label28.Text = "<--";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(779, 459);
+            this.ClientSize = new System.Drawing.Size(779, 464);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.richTB_Log);
             this.Controls.Add(this.groupBox4);
@@ -991,6 +1016,8 @@
         private System.Windows.Forms.TextBox textB_ReserveSheetCount;
         private System.Windows.Forms.Button btn_CreatSheet;
         private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Button btn_RemaneSheet;
+        private System.Windows.Forms.Label label28;
     }
 }
 

@@ -38,11 +38,9 @@ namespace TestItem.Excel
                     msg += $"文件：{WorkbookPath}不存在\r\n";
                     return;
                 }
-                    
 
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文
-                                                                           // 打开源工作簿和目标工作簿
-                FileInfo workbookPath = new FileInfo(WorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文                                                                  
+                FileInfo workbookPath = new FileInfo(WorkbookPath);// 打开工作簿
 
                 using (ExcelPackage Package = new ExcelPackage(workbookPath)) // 打开目标文件
                 {
@@ -102,9 +100,8 @@ namespace TestItem.Excel
 
                 string[] sheetName = GetSheetName(targetWorkbookPath,false);//get target sheet nam
 
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文
-                                                                           // 打开源工作簿和目标工作簿
-                FileInfo sourceFile = new FileInfo(sourceWorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文                                                                           
+                FileInfo sourceFile = new FileInfo(sourceWorkbookPath);// 打开源工作簿和目标工作簿
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);
 
                 using (ExcelPackage sourcePackage = new ExcelPackage(sourceFile)) // 打开源文件
@@ -164,9 +161,8 @@ namespace TestItem.Excel
 
                 string[] sheetName = GetSheetName(targetWorkbookPath,false);//get target sheet name
 
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文
-                                                                           // 打开源工作簿和目标工作簿
-                FileInfo sourceFile = new FileInfo(sourceWorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文                                                                    
+                FileInfo sourceFile = new FileInfo(sourceWorkbookPath);// 打开源工作簿和目标工作簿
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);
 
                 using (ExcelPackage sourcePackage = new ExcelPackage(sourceFile)) // 打开源文件
@@ -209,10 +205,9 @@ namespace TestItem.Excel
                 }
                 string[] sheetName = ParaTestItem.SheetName;
                 string summary = GetSheetName(targetWorkbookPath, false).Last();
-                // 设置 EPPlus 许可证上下文
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                // 打开源工作簿和目标工作簿
-                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
                     for (int i = 0; i < sheetName.Length; i++)
@@ -247,6 +242,52 @@ namespace TestItem.Excel
             }
 
         }
+        // rename sheet
+        internal void RenameSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, ref string msg)
+        {
+            try
+            {
+                if (!File.Exists(targetWorkbookPath))
+                {
+                    Console.WriteLine(msg += $"文件：{targetWorkbookPath}不存在\r\n");
+                    return;
+                }
+                string[] newSheetName = ParaTestItem.SheetName;
+                string[] oldSheetName = GetSheetName(targetWorkbookPath, false);
+                int len = Math.Min(newSheetName.Length, oldSheetName.Length);
+
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打开源工作簿和目标工作簿
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    
+
+                    for (int i = 0; i < len; i++)
+                    {
+                        // 获取指定名称的工作表
+                        ExcelWorksheet worksheet = destPackage.Workbook.Worksheets[oldSheetName[i]];
+
+                        if (worksheet != null)
+                        {                          
+                            worksheet.Name = newSheetName[i];// 重命名工作表
+                            msg += $"序号{i + 1,-6}, '{oldSheetName[i]} ' 重命名为 --> ‘{newSheetName[i]}'\r\n";
+                        }
+                        else
+                        {
+                            msg += $"工作表 '{oldSheetName}' 不存在！\r\n";
+                        }
+                    }
+                    destPackage.Save();
+                }
+
+                Console.WriteLine(msg += $"重命名工作表完成！\r\n");
+            }
+            catch (Exception ex)
+            {
+                msg += $"{ex.ToString()}\r\n";
+            }
+
+        }
         //删除sheet
         internal void DeleteSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, ref string msg)
         {
@@ -257,19 +298,16 @@ namespace TestItem.Excel
                     Console.WriteLine(msg += $"文件：{targetWorkbookPath}不存在\r\n");
                     return;
                 }
-                // 设置 EPPlus 许可证上下文
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
                 //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
                 string[] sheetName = ParaTestItem.SheetName;
 
-                // 打开源工作簿和目标工作簿
-                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
                     // 获取工作表集合
                     var workbook = destPackage.Workbook;
-
                    
                     for (int i = 0; i < sheetName.Length; i++)
                     {
@@ -306,14 +344,11 @@ namespace TestItem.Excel
                     Console.WriteLine(msg += $"文件：{targetWorkbookPath}不存在\r\n");
                     return;
                 }
-                // 设置 EPPlus 许可证上下文
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-                //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
                 string[] sheetName = GetSheetName(targetWorkbookPath,false);
 
-                // 打开源工作簿和目标工作簿
-                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
                     // 获取工作表集合
@@ -361,10 +396,8 @@ namespace TestItem.Excel
                 int endCol = ParaTestItem.EndtCol;//数据源列结束:14
                 string[] sheetName = ParaTestItem.SheetName;
 
-                // 设置 EPPlus 许可证上下文
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                // 打开源工作簿和目标工作簿
-                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
                     for (int i = 0; i < sheetName.Length; i++)
@@ -393,20 +426,17 @@ namespace TestItem.Excel
         //复制粘贴range单元格
         internal void CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem)
         {
+            int stRow = ParaTestItem.StartRow;//数据源行开始
+            int stCol = ParaTestItem.StartCol;//数据源列开始
+            int endRow = ParaTestItem.EndRow;//数据源行结束
+            int endCol = ParaTestItem.EndtCol;//数据源列结束
+            int stRowDest = ParaTestItem.StartRowDest;//目标行开始
+            int stColDest = ParaTestItem.StartColDest;//目标列开始
+            string[] sheetName = ParaTestItem.SheetName;
             try
             {
-                int stRow = ParaTestItem.StartRow;//数据源行开始
-                int stCol = ParaTestItem.StartCol;//数据源列开始
-                int endRow = ParaTestItem.EndRow;//数据源行结束
-                int endCol = ParaTestItem.EndtCol;//数据源列结束
-                int stRowDest = ParaTestItem.StartRowDest;//目标行开始
-                int stColDest = ParaTestItem.StartColDest;//目标列开始
-                string[] sheetName = ParaTestItem.SheetName;
-
-                // 设置 EPPlus 许可证上下文
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                // 打开源工作簿和目标工作簿
-                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
                     for (int i = 0; i < sheetName.Length; i++)
@@ -430,21 +460,18 @@ namespace TestItem.Excel
             
         }
         // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
-        internal string[] GetSheetName(string excelFilePaht, bool allSheet, string outputFilePath = null, bool CompRangeName = false)
+        internal string[] GetSheetName(string excelFilePaht, bool allSheet, string outputFilePath = null)
         {
             string[] sheetNames;
             try
             {
                 if (!File.Exists(excelFilePaht))
                 {
-                    //Console.WriteLine(msg += $"文件：{excelFilePaht}不存在\r\n");
                     return null;// new string[1] { $"文件: {excelFilePaht}不存在" };
                 }
-                // 设置 EPPlus 许可证上下文
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 或者 LicenseContext.Commercial
 
-                // 确保使用 EPPlus 许可证
-                using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 设置 EPPlus 许可证上下文// 或者 LicenseContext.Commercial             
+                using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))// 确保使用 EPPlus 许可证
                 {
                     // 获取工作簿中的所有工作表
                     var worksheets = package.Workbook.Worksheets;
@@ -468,37 +495,12 @@ namespace TestItem.Excel
                         }
                     }
                 }
-
-                #region test rangeNames is contain sheetNames
-                //if (CompRangeName)
-                //{
-                //    Console.WriteLine($"-----------------------------");
-                //    string[] rangeNames = GetSheetName(@"E:\labview\other prj\IGBT cplusplus dll\MSA1\op4.xlsx",false);
-                //    int notContains = 0;
-                //    for (int i = 0; i < rangeNames.Length; i++)
-                //    {
-                //        if (rangeNames[i].Contains(sheetNames[i]))
-                //        {
-
-                //        }
-                //        else
-                //        {
-                //            notContains++;
-                //            Console.WriteLine($"{sheetNames[i]}");
-                //        }
-
-                //    }
-                //    Console.WriteLine($"notContains count: {notContains}");
-                //}
-                #endregion
             }
             catch
             {
                 throw;
             }
-            
             return sheetNames;
-
         }
 
         // 生产excel VBS脚本，提取同一测试项的值（测试：span 次）

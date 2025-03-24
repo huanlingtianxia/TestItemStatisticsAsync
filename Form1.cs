@@ -166,6 +166,16 @@ namespace TestItemStatistics
             excelOperation.CreatSheet(para.TargetPath, para, ref msg); // 删除 17行单元格，作用域：11.xx测试项
             richTB_Log.Text = msg;
         }
+
+        private void btn_RemaneSheet_Click(object sender, EventArgs e)
+        {
+            richTB_Log.Clear();
+            msg = string.Empty;
+            ParametersTestItem para = new ParametersTestItem();
+            UpdateParaFromControl(para, false);
+            excelOperation.RenameSheet(para.TargetPath, para, ref msg); // 删除 17行单元格，作用域：11.xx测试项
+            richTB_Log.Text = msg;
+        }
         #endregion
 
         #region function
@@ -329,6 +339,7 @@ namespace TestItemStatistics
                 richTB_Log.Text += msg;
             }
         }
+
         #endregion
 
     }
