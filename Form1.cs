@@ -243,6 +243,7 @@ namespace TestItemStatistics
             }
             return fullPath;
         }
+        //GRR parameters
         private void UpdateParaFromControl()
         {
             try
@@ -291,6 +292,7 @@ namespace TestItemStatistics
             }
             
         }
+        // General parameters
         private void UpdateParaFromControl(ParametersTestItem parameters, bool copyPast)
         {
             try
@@ -298,7 +300,7 @@ namespace TestItemStatistics
                 parameters.TargetPath = textB_ExcelPath.Text;
                 parameters.SheetName = richT_SheetName.Text.Trim().Split(new string[1] { "\n" }, StringSplitOptions.None);
                 string[] cnt = textB_ReserveSheetCount.Text.Trim().Split(new string[1] { ":" }, StringSplitOptions.None);
-                parameters.ReserveSheetCount = cnt.Length == 2 ? int.Parse(cnt[1]) : -1;
+                parameters.ReserveSheetCount = (cnt.Length == 2 && cnt[0] == ":") ? int.Parse(cnt[1]) : -1;
                 int[] CopyPastePara = textB_CopyPastePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 int[] DeletePara = textB_DeletePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 //parameters.CopyPastePara = textB_CopyPastePara.Text;
