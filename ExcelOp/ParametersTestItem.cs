@@ -53,10 +53,5 @@ namespace TestItem.Excel
         public int ReserveSheetCount { get; set; }
 
     }
-    public class ParametersSet
-    {
-        
 
-
-    }
 }
