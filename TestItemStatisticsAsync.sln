@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestItemStatistics", "TestItemStatistics.csproj", "{6B918B3F-BB08-42D0-9582-53D87268096C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestItemStatisticsAsync", "TestItemStatisticsAsync.csproj", "{6B918B3F-BB08-42D0-9582-53D87268096C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

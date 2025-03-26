@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestItem.Excel
+namespace TestItemStatistics.ExcelOp
 {
 
     public class ParametersTestItem
