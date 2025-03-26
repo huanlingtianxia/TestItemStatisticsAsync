@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OfficeOpenXml;
-using TestItemStatistics.ExcelOp;
+using TestItemStatisticsAcync.ExcelOp;
 
-namespace TestItemStatistics.ExcelOp
+namespace TestItemStatisticsAcync.ExcelOp
 {
     /// <summary>
     /// 要在nuget里安装EPPlus：Install-Package EPPlus;
@@ -17,7 +17,9 @@ namespace TestItemStatistics.ExcelOp
     /// </summary>
     internal class ExcelOperation
     {
-        //从测试项中提取数据
+        #region Extract data and copy paste to GRR module
+
+        // 从测试项中提取数据
         public async Task ExtractDataFromTestItem(string WorkbookPath, ParametersTestItem ParaTestItem, LogMessage logMessage)
         {
             int numSN = ParaTestItem.NumSN;//SN个数:8
@@ -25,7 +27,7 @@ namespace TestItemStatistics.ExcelOp
             int stCol = ParaTestItem.StartCol;//数据源列开始:1
             int stRowDest = ParaTestItem.StartRowDest;//目标行开始:1
             int stColDest = ParaTestItem.StartColDest;//目标列开始:2
-            int repeat = ParaTestItem.Span;//单个SN的测试次数，即单个SN测试项跨度单元格数量:9
+            int repeat = ParaTestItem.Repeat;//单个SN的测试次数，即单个SN测试项跨度单元格数量:9
             int count = ParaTestItem.TotalItemCount;// test item count:229
             string fromSheet = ParaTestItem.FromSheet;
             string toSheet = ParaTestItem.ToSheet;
@@ -81,7 +83,7 @@ namespace TestItemStatistics.ExcelOp
             int stCol = ParaTestItem.StartCol;//数据源列开始:3
             int stRowDest = ParaTestItem.StartRowDest;//目标行开始:9
             int stColDest = ParaTestItem.StartColDest;//目标列开始:3
-            int TrialsCount= ParaTestItem.Span;//模板单组列数量:3
+            int TrialsCount= ParaTestItem.Repeat;//模板单组列数量:3
             int count = ParaTestItem.TotalItemCount;// test item count:229
             string fromSheet = ParaTestItem.FromSheet;
             //string toSheet = ParaTestItem.ToSheet;
@@ -146,8 +148,6 @@ namespace TestItemStatistics.ExcelOp
             //int count = ParaTestItem.TotalItemCount;// test item count:229
             string fromSheet = ParaTestItem.FromSheet;
 
-
-
             try
             {
                 if (!File.Exists(sourceWorkbookPath))
@@ -190,11 +190,11 @@ namespace TestItemStatistics.ExcelOp
                 logMessage.Message += "limit 拷贝到 GRR失败：" + ex.ToString() + "\r\n";
             }
             //Console.WriteLine("提取数据 拷贝到 GRR模板完成！---------------------------------------------------------------------");
-            logMessage.Message += "提取数据 拷贝到 GRR模板完成！---------------------------------------------------------------------\r\n";
+            logMessage.Message += "limit数据 拷贝到 GRR模板完成！---------------------------------------------------------------------\r\n";
         }
-
-
-        #region internal + private
+        #endregion
+        
+        #region internal
         // 新建sheet
         internal async Task CreatSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage logMessage, bool before = false)
         {
@@ -236,8 +236,10 @@ namespace TestItemStatistics.ExcelOp
                     }
                     destPackage.Save();
                 }
-
-                Console.WriteLine(logMessage.Message += $"创建工作表完成！\r\n");
+                if (logMessage.Message.Contains("未找到工作表"))
+                    logMessage.Message += "创建工作表 异常！\r\n";
+                else
+                    logMessage.Message += "创建工作表 完成！\r\n";
             }
             catch (Exception ex)
             {
@@ -282,8 +284,10 @@ namespace TestItemStatistics.ExcelOp
                     }
                     destPackage.Save();
                 }
-
-                Console.WriteLine(logMessage.Message += $"重命名工作表完成！\r\n");
+                if (logMessage.Message.Contains("未找到工作表"))
+                    logMessage.Message += "重命名工作表 异常！\r\n";
+                else
+                    logMessage.Message += "重命名工作表 完成！\r\n";
             }
             catch (Exception ex)
             {
@@ -329,8 +333,10 @@ namespace TestItemStatistics.ExcelOp
 
                     destPackage.Save();
                 }
-
-                logMessage.Message += "删除工作表完成！\r\n";
+                if (logMessage.Message.Contains("未找到工作表"))
+                    logMessage.Message += "删除工作表 异常！\r\n";
+                else
+                    logMessage.Message += "删除工作表 完成！\r\n";
             }
             catch (Exception ex)
             {
@@ -380,8 +386,10 @@ namespace TestItemStatistics.ExcelOp
 
                     destPackage.Save();
                 }
-
-                logMessage.Message += "删除工作表完成！\r\n";
+                if (logMessage.Message.Contains("未找到工作表"))
+                    logMessage.Message += "删除工作表 异常！\r\n";
+                else
+                    logMessage.Message += "删除工作表 完成！\r\n";
             }
             catch(Exception ex)
             {
@@ -390,7 +398,7 @@ namespace TestItemStatistics.ExcelOp
             
         }
         //删除range单元格
-        internal async Task DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        internal async Task DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage logMessage)
         {
             int stRow = ParaTestItem.StartRow;//数据源行开始:17
             int stCol = ParaTestItem.StartCol;//数据源列开始:3
@@ -403,7 +411,7 @@ namespace TestItemStatistics.ExcelOp
             {
                 if (!File.Exists(targetWorkbookPath))
                 {
-                    //Console.WriteLine(logMessage.Message += $"文件：{targetWorkbookPath}不存在\r\n");
+                    Console.WriteLine(logMessage.Message += $"文件：{targetWorkbookPath}不存在\r\n");
                     return;
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
@@ -419,22 +427,25 @@ namespace TestItemStatistics.ExcelOp
                         }
                         else
                         {
-                            Console.WriteLine("未找到工作表 ");
+                            Console.WriteLine(logMessage.Message += $"未找到工作表{sheetName[i]}\r\n ");
                         }
                     }
 
                     destPackage.Save();
                 }
-                Console.WriteLine("删除数据完成！");
+                if (logMessage.Message.Contains("未找到工作表"))
+                    logMessage.Message += "数据删除 异常！";
+                else
+                    logMessage.Message += $"删除：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束始列{endCol} 完成！";
+                
+                
+                //Console.WriteLine(logMessage.Message += "删除数据完成！");
             }
-            catch
-            {
-                throw;
-            }
+            catch(Exception ex) {logMessage.Message += ex.ToString(); throw;}
             
         }
         //复制粘贴range单元格
-        internal async Task CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem)
+        internal async Task CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage logMessage)
         {
             int stRow = ParaTestItem.StartRow;//数据源行开始
             int stCol = ParaTestItem.StartCol;//数据源列开始
@@ -449,7 +460,7 @@ namespace TestItemStatistics.ExcelOp
             {
                 if (!File.Exists(targetWorkbookPath))
                 {
-                    //Console.WriteLine(logMessage.Message += $"文件：{targetWorkbookPath}不存在\r\n");
+                    Console.WriteLine(logMessage.Message += $"文件：{targetWorkbookPath}不存在\r\n");
                     return;
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
@@ -465,15 +476,18 @@ namespace TestItemStatistics.ExcelOp
                         }
                         else
                         {
-                            Console.WriteLine("未找到工作表 ");
+                            Console.WriteLine(logMessage.Message += $"未找到工作表{sheetName[i]}\r\n ");
                         }
 
                     }
                     destPackage.Save();
                 }
-                Console.WriteLine("数据拷贝完成！");
+                if(logMessage.Message.Contains("未找到工作表"))
+                    logMessage.Message += "数据拷贝粘贴 异常！";
+                else
+                   logMessage.Message += "数据拷贝粘贴 完成！";
             }
-            catch { throw; }
+            catch(Exception ex) { logMessage.Message += ex.ToString(); throw; }
             
         }
         // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
@@ -483,10 +497,7 @@ namespace TestItemStatistics.ExcelOp
 
             try
             {
-                if (!File.Exists(excelFilePaht))
-                {
-                    return null;// new string[1] { $"文件: {excelFilePaht}不存在" };
-                }
+                if (!File.Exists(excelFilePaht)) return null;// new string[1] { $"文件: {excelFilePaht}不存在" };
 
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 设置 EPPlus 许可证上下文// 或者 LicenseContext.Commercial             
                 using (var package = new ExcelPackage(new FileInfo(excelFilePaht)))// 确保使用 EPPlus 许可证
@@ -496,12 +507,12 @@ namespace TestItemStatistics.ExcelOp
                     //sheetNames = worksheets.Select(x => x.Name).ToArray();
                     sheetNames = await Task.Run(() => { return worksheets.Select(x => x.Name).ToArray();});
                     Array.Reverse(sheetNames);
-                    if (!allSheet)// 移除最后一个sheet，保留n-1个sheet
+                    if (!allSheet)// 移除最后一个sheet，保留n-1个sheet(保留Summary sheet)
                     {
                         Array.Resize(ref sheetNames, sheetNames.Length - 1);// delete Summary sheet
                     }
                 }
-
+                if (!File.Exists(excelFilePaht)) return null;
                 if (outputFilePath != null) // save to .txt
                 {
                     outputFilePath = GetTextFileName(outputFilePath);
@@ -522,6 +533,7 @@ namespace TestItemStatistics.ExcelOp
             return sheetNames;
         }
 
+        #region creat excel VBS script
         // 生产excel VBS脚本，提取同一测试项的值（测试：span 次）
         internal async Task CreatVBScript(string outputFilePath, LogMessage logMessage)
         {
@@ -622,6 +634,11 @@ namespace TestItemStatistics.ExcelOp
                 logMessage.Message += "发生错误: " + ex.Message + "\n";
             }
         }
+        #endregion
+
+        #endregion
+
+        #region private
 
         #region Excel 
         // 拷贝指定范围的Value方法

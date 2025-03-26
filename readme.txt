@@ -31,7 +31,7 @@
 	SheetName：指定作用域:CopyPaste，DeleteRange，DeleteSheet，CreatSheet，RemaneSheet的工作表。
 	ReserveCnt：如果值是”:cnt“格式(cnt取正整数)，则表示只保留cnt个工作表格，其他的删除。如果不是”:cnt“格式，则删除SheetName中的工作表。
 	General: CopyPaste And Delete
-		PastePara参数格式：StartCol,StartCol,EndRow,EndCol,StartRowDest,StartColDest// 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数）
+		PastePara参数格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest// 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数）
 		DeletePara参数格式：StartCol,StartCol,EndRow,EndCol							// 开始行，开始列，结束行，结束列（行列都是正整数）
 		ReserveCnt参数格式：:cnt													// 保留cnt个sheet。注意最后一个sheet不在统计范围（保留Summary工作表）。
 

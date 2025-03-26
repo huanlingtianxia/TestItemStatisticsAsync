@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestItemStatistics.ExcelOp
+namespace TestItemStatisticsAcync.ExcelOp
 {
 
     public class ParametersTestItem
@@ -31,7 +31,7 @@ namespace TestItemStatistics.ExcelOp
         public int StartColDest { get; set; }
 
         // 单个SN的测试次数，即单个SN测试项跨度单元格数量
-        public int Span { get; set; }
+        public int Repeat { get; set; }
 
         // 测试项数量
         public int TotalItemCount { get; set; }

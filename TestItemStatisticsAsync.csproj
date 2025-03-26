@@ -9,6 +9,7 @@
     <RootNamespace>TestItemStatisticsAcync</RootNamespace>
     <AssemblyName>TestItemStatisticsAsync</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -93,9 +94,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExcelOp\ExcelOperation.cs" />
-    <Compile Include="ExcelOp\LogMessage.cs" />
-    <Compile Include="ExcelOp\ParametersTestItem.cs" />
+    <Compile Include="ExcelOperation\ExcelOperation.cs" />
+    <Compile Include="Ini\IIniReaderWriter.cs" />
+    <Compile Include="Ini\IniFile.cs" />
+    <Compile Include="Ini\IniReaderWriter.cs" />
+    <Compile Include="ExcelOperation\LogMessage.cs" />
+    <Compile Include="ExcelOperation\ParametersTestItem.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -117,6 +121,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Ini\TestItemStatistics.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -132,7 +139,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ExcelOp\readme.txt" />
+    <Content Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.1">

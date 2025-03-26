@@ -1,40 +1,48 @@
-﻿using System;
+﻿//#define INIFILE
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TestItemStatistics.ExcelOp;
+using TestItemStatisticsAcync.ExcelOp;
+using TestItemStatisticsAcync.Ini;
 
-namespace TestItemStatistics
+
+namespace TestItemStatisticsAcync
 {
     public partial class Form1 : Form
     {
         public Form1()
         {
             InitializeComponent();
-            InitPara();
+            InitParam();
         }
-        private void InitPara()
+        private void InitParam()
         {
-            textB_SourcePath.Text = @"E:\labview\MSA\D474 D475\ProdDataMSA\ExtractData\done\";
-            textB_TargetPath.Text = @"E:\labview\MSA\D474 D475\ProdDataMSA\ExtractData\done\";
             logMessage.Message = String.Empty;
+
+            UpdateUIControlFromIniFile();
+            UpdateParamFromControl();
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
-            UpdateParaFromControl();
+            
         }
 
+        #region property
         ExcelOperation excelOperation { get; set; } = new ExcelOperation();//Excel 操作
+        //IIniReaderWriter iniReaderWriter { get; set; } = new IniReaderWriter();
         ParametersTestItem testItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
         ParametersTestItem testItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
         ParametersTestItem testItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
         LogMessage logMessage { get; set; } = new LogMessage();
-
+        #endregion
 
         #region Control Click event
         //Extract data, copy paste test data to GRR, copy paste limit to GRR
@@ -61,7 +69,7 @@ namespace TestItemStatistics
         private async void btn_ExtractData_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParaFromControl();
+            UpdateParamFromControl();
             await excelOperation.ExtractDataFromTestItem(testItem.SourcePath, testItem, logMessage).ConfigureAwait(false);
             UpdateUILog(logMessage.Message);
         }
@@ -69,7 +77,7 @@ namespace TestItemStatistics
         private async void btn_PasteToGRR_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParaFromControl();
+            UpdateParamFromControl();
             await excelOperation.PasteToGRRModuleFromExtractData(testItemGRR.SourcePath, testItemGRR.TargetPath, testItemGRR, logMessage).ConfigureAwait(false);
             UpdateUILog(logMessage.Message);
         }
@@ -77,10 +85,10 @@ namespace TestItemStatistics
         private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParaFromControl();
+            UpdateParamFromControl();
             try
             {
-                UpdateParaFromControl();
+                UpdateParamFromControl();
                 string[] str = { "\\" };
                 string path = string.Empty;
                 string[] pathArr = testItemGRR.TargetPath.Split(str, StringSplitOptions.None);
@@ -116,19 +124,46 @@ namespace TestItemStatistics
         private async void btn_PasteLimit_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParaFromControl();
+            UpdateParamFromControl();
             await excelOperation.PasteToGRRModuleFromLimit(testItemGRRLimit.SourcePath, testItemGRRLimit.TargetPath, testItemGRRLimit, logMessage).ConfigureAwait(false);
             UpdateUILog(logMessage.Message);
         }
-
+        // update ini file
+        private void btn_WriterIni_Click(object sender, EventArgs e)
+        {
+            InitUILog("waiting......\r\n");
+            try
+            {
+                DialogResult result = MessageBox.Show(this, "确定将UI中的数据更新到 Ini 文件?", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                if (result == DialogResult.OK)
+                {                 
+                    UpdateIniFileFromUIControl();
+                    MessageBox.Show(logMessage.Message += "已将UI数据更新到Ini文件\r\n");// 用户点击“确认”
+                }
+                else
+                {
+                    MessageBox.Show(this, logMessage.Message += "操作已取消\r\n");// 用户点击“取消”
+                }
+                UpdateUILog(logMessage.Message);
+            }
+            catch(Exception ex)
+            {
+                UpdateUILog(logMessage.Message += ex.ToString());
+            }
+        }
+        private void btn_ReaderIni_Click(object sender, EventArgs e)
+        {
+            InitUILog("waiting......\r\n");
+            UpdateUIControlFromIniFile();
+            UpdateUILog("read ini completed");
+        }
         //General: CopyPaste And Delete
         private async void btn_CopyPaste_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParaFromControl(para, true);
-            await excelOperation.CopyRangePaste(para.TargetPath, para).ConfigureAwait(false); // 复制 公式单元格
-            logMessage.Message += $"拷贝粘贴完成！";
+            UpdateParamFromControl(para, true);
+            await excelOperation.CopyRangePaste(para.TargetPath, para, logMessage).ConfigureAwait(false); // 复制 公式单元格
             UpdateUILog(logMessage.Message);
         }
 
@@ -137,9 +172,8 @@ namespace TestItemStatistics
             InitUILog("waiting......\r\n");
             //await Task.Delay(5000);
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParaFromControl(para, false);
-            await excelOperation.DeleteRangeData(para.TargetPath, para).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
-            logMessage.Message += $"删除：开始行{para.StartRow}，开始列{para.StartCol}，结束行{para.EndRow}，结束始列{para.EndtCol} 完成！";
+            UpdateParamFromControl(para, false);
+            await excelOperation.DeleteRangeData(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(logMessage.Message);
         }
 
@@ -147,7 +181,7 @@ namespace TestItemStatistics
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem parametersTestItem = new ParametersTestItem();
-            UpdateParaFromControl(parametersTestItem, false);
+            UpdateParamFromControl(parametersTestItem, false);
             if (parametersTestItem.ReserveSheetCount == -1)
             {
                 await excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, logMessage).ConfigureAwait(false);//删除SheetName中的工作表
@@ -164,7 +198,7 @@ namespace TestItemStatistics
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParaFromControl(para, false);
+            UpdateParamFromControl(para, false);
             await excelOperation.CreatSheet(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(logMessage.Message);
         }
@@ -173,13 +207,13 @@ namespace TestItemStatistics
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParaFromControl(para, false);
+            UpdateParamFromControl(para, false);
             await excelOperation.RenameSheet(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(logMessage.Message);
         }
         #endregion
 
-        #region function
+        #region private function
         private string SelectPath()
         {
             // 创建一个 FolderBrowserDialog 实例
@@ -244,8 +278,47 @@ namespace TestItemStatistics
             }
             return fullPath;
         }
+        private void MessagePop(string aa, bool mode = false)
+        {
+            if(mode)
+            {
+                DialogResult result = MessageBox.Show(this, "是否保存更改?", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    // 用户点击“是”
+                    MessageBox.Show("保存中...");
+                }
+                else
+                {
+                    // 用户点击“否”
+                    MessageBox.Show("未保存");
+                }
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show(this, "确定要删除文件吗?", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.OK)
+                {
+                    // 用户点击“确认”
+                    MessageBox.Show("文件已删除");
+                }
+                else
+                {
+                    // 用户点击“取消”
+                    MessageBox.Show("操作已取消");
+                }
+
+            }
+
+
+
+        }
+
+
         //GRR parameters
-        private void UpdateParaFromControl()
+        private void UpdateParamFromControl()
         {
             try
             {
@@ -254,7 +327,7 @@ namespace TestItemStatistics
                 testItem.StartCol = int.Parse(textB_StartCol.Text);
                 testItem.StartRowDest = int.Parse(textB_StartRowDest.Text);
                 testItem.StartColDest = int.Parse(textB_StartColDest.Text);
-                testItem.Span = int.Parse(textB_Repeat.Text);
+                testItem.Repeat = int.Parse(textB_Repeat.Text);
                 testItem.NumSN = int.Parse(textB_NumSN.Text);
                 testItem.TotalItemCount = int.Parse(textB_TotalItem.Text);
                 testItem.FromSheet = textB_FromSheet.Text;
@@ -266,7 +339,7 @@ namespace TestItemStatistics
                 testItemGRR.StartCol = int.Parse(textB_StartCol_GRR.Text);
                 testItemGRR.StartRowDest = int.Parse(textB_StartRowDest_GRR.Text);
                 testItemGRR.StartColDest = int.Parse(textB_StartColDest_GRR.Text);
-                testItemGRR.Span = int.Parse(textB_TrialsCount_GRR.Text);
+                testItemGRR.Repeat = int.Parse(textB_TrialsCount_GRR.Text);
                 testItemGRR.NumSN = int.Parse(textB_NumSN_GRR.Text);
                 //testItemGRR.TotalItemCount = int.Parse(textB_TotalItem_GRR.Text);
                 testItemGRR.FromSheet = textB_FromSheet_GRR.Text;
@@ -294,7 +367,7 @@ namespace TestItemStatistics
             
         }
         // General parameters
-        private void UpdateParaFromControl(ParametersTestItem parameters, bool copyPast)
+        private void UpdateParamFromControl(ParametersTestItem parameters, bool copyPast)
         {
             try
             {
@@ -364,6 +437,230 @@ namespace TestItemStatistics
             logMessage.Message = string.Empty;
             UpdateUILog(msg);
         }
+
+        // update INI file from UI Control
+        private void UpdateIniFileFromUIControl()
+        {
+            #region INI_FILE_WRITE
+            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
+            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+            IniFile iniFile = new IniFile(path);
+
+            // 写入数据  
+            // ExtractData
+            iniFile.Write("GRR_ExtractData", "SourcePath", textB_SourcePath.Text);
+            iniFile.Write("GRR_ExtractData", "StartRow", textB_StartRow.Text);
+            iniFile.Write("GRR_ExtractData", "StartCol", textB_StartCol.Text);
+            iniFile.Write("GRR_ExtractData", "FromSheet", textB_FromSheet.Text);
+            iniFile.Write("GRR_ExtractData", "StartRowDest", textB_StartRowDest.Text);
+            iniFile.Write("GRR_ExtractData", "StartColDest", textB_StartColDest.Text);
+            iniFile.Write("GRR_ExtractData", "ToSheet", textB_ToSheet.Text);
+            iniFile.Write("GRR_ExtractData", "Repeat", textB_Repeat.Text);
+            iniFile.Write("GRR_ExtractData", "NumSN", textB_NumSN.Text);
+            iniFile.Write("GRR_ExtractData", "TotalItem", textB_TotalItem.Text);
+
+            // PasteToGRR
+            iniFile.Write("GRR_PasteToGRR", "StartRow", textB_StartRow_GRR.Text);
+            iniFile.Write("GRR_PasteToGRR", "StartCol", textB_StartCol_GRR.Text);
+            iniFile.Write("GRR_PasteToGRR", "FromSheet", textB_FromSheet_GRR.Text);
+            iniFile.Write("GRR_PasteToGRR", "TargetPath", textB_TargetPath.Text);
+            iniFile.Write("GRR_PasteToGRR", "StartRowDest", textB_StartRowDest_GRR.Text);
+            iniFile.Write("GRR_PasteToGRR", "StartColDest", textB_StartColDest_GRR.Text);
+            iniFile.Write("GRR_PasteToGRR", "TrialsCount", textB_TrialsCount_GRR.Text);
+            iniFile.Write("GRR_PasteToGRR", "NumSN", textB_NumSN_GRR.Text);
+
+            // Limit
+            iniFile.Write("GRR_Limit", "StartRow", textB_StartRowLimit.Text);
+            iniFile.Write("GRR_Limit", "StartCol", textB_StartColLimit.Text);
+            iniFile.Write("GRR_Limit", "FromSheet", textB_FromSheetLimit.Text);
+            iniFile.Write("GRR_Limit", "StartRowDest", textB_StartRowDestLimit.Text);
+            iniFile.Write("GRR_Limit", "StartColDest", textB_StartColDestLimit.Text);
+
+            // General Excel parameter
+            iniFile.Write("General_ExcelParam", "ExcelPath", textB_ExcelPath.Text);
+            iniFile.Write("General_ExcelParam", "SheetName", richT_SheetName.Text.Replace("\r\n", "\\n").Replace("\n", "\\n"));
+            iniFile.Write("General_ExcelParam", "ReserveCnt", textB_ReserveSheetCount.Text);
+            iniFile.Write("General_ExcelParam", "PasteParam", textB_CopyPastePara.Text);
+            iniFile.Write("General_ExcelParam", "DeleteParam", textB_DeletePara.Text);
+            #endregion
+        }
+        // update UI Control from INI File
+        private void UpdateUIControlFromIniFile()
+        {
+            #region INI_FILE_READ
+            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
+            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+            IniFile iniFile = new IniFile(path);
+
+            // 读取数据  
+            // Extract Data 文本框控件 初始化
+            textB_SourcePath.Text = iniFile.Read("GRR_ExtractData", "SourcePath");
+            textB_StartRow.Text = iniFile.Read("GRR_ExtractData", "StartRow");
+            textB_StartCol.Text = iniFile.Read("GRR_ExtractData", "StartCol");
+            textB_FromSheet.Text = iniFile.Read("GRR_ExtractData", "FromSheet");
+            textB_StartRowDest.Text = iniFile.Read("GRR_ExtractData", "StartRowDest");
+            textB_StartColDest.Text = iniFile.Read("GRR_ExtractData", "StartColDest");
+            textB_ToSheet.Text = iniFile.Read("GRR_ExtractData", "ToSheet");
+            textB_Repeat.Text = iniFile.Read("GRR_ExtractData", "Repeat");
+            textB_NumSN.Text = iniFile.Read("GRR_ExtractData", "NumSN");
+            textB_TotalItem.Text = iniFile.Read("GRR_ExtractData", "TotalItem");
+
+            // Paste to GRR 文本框控件 初始化
+            textB_StartRow_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartRow");
+            textB_StartCol_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartCol");
+            textB_FromSheet_GRR.Text = iniFile.Read("GRR_PasteToGRR", "FromSheet");
+            textB_TargetPath.Text = iniFile.Read("GRR_PasteToGRR", "TargetPath");
+            textB_StartRowDest_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartRowDest");
+            textB_StartColDest_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartColDest");
+            textB_TrialsCount_GRR.Text = iniFile.Read("GRR_PasteToGRR", "TrialsCount");
+            textB_NumSN_GRR.Text = iniFile.Read("GRR_PasteToGRR", "NumSN");
+
+            // limit 文本框控件 初始化
+            textB_StartRowLimit.Text = iniFile.Read("GRR_Limit", "StartRow");
+            textB_StartColLimit.Text = iniFile.Read("GRR_Limit", "StartCol");
+            textB_FromSheetLimit.Text = iniFile.Read("GRR_Limit", "FromSheet");
+            textB_StartRowDestLimit.Text = iniFile.Read("GRR_Limit", "StartRowDest");
+            textB_StartColDestLimit.Text = iniFile.Read("GRR_Limit", "StartColDest");
+
+            // Genenal Excel parameter 初始化
+            textB_ExcelPath.Text = iniFile.Read("General_ExcelParam", "ExcelPath");
+            richT_SheetName.Text = iniFile.Read("General_ExcelParam", "SheetName").Replace(@"\n", Environment.NewLine);
+            textB_ReserveSheetCount.Text = iniFile.Read("General_ExcelParam", "ReserveCnt");
+            textB_CopyPastePara.Text = iniFile.Read("General_ExcelParam", "PasteParam");
+            textB_DeletePara.Text = iniFile.Read("General_ExcelParam", "DeleteParam");
+
+            //InitUILog("初始化完成......\r\n");
+            //string ss = richT_SheetName.Text.Replace(Environment.NewLine, "\n");
+            #endregion
+
+        }
+
+#if INIFILE
+        // read ini file
+        private Dictionary<string, string> ReadIni()
+        {
+            //BaseDirectory 返回的是应用程序的启动目录，通常是项目构建后生成的输出文件夹（如 bin\Debug 或 bin\Release 目录）。如果你在开发阶段使用它，路径可能是编译后的输出目录
+            //string projectPath = AppDomain.CurrentDomain.BaseDirectory;//获取应用程序的根目录路径
+            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
+            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+            var iniData = iniReaderWriter.ReadIniFile(path, Encoding.GetEncoding("GB2312"));// 使用 GB2312 编码读取
+            return iniData;
+        }
+
+        // update UI Control from INI File
+        private void UpdateUIControlFromIniFile_1()
+        {
+        #region IniReaderWriter
+            var iniData = ReadIni();
+            if (iniData.Count == 0)
+            {
+                InitUILog("配置文件读取失败......\r\n");
+                return;
+            }
+            // ExtractData 文本框控件 初始化
+            textB_SourcePath.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.SourcePath");
+            textB_StartRow.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartRow");
+            textB_StartCol.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartCol");
+            textB_FromSheet.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.FromSheet");
+            textB_StartRowDest.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartRowDest");
+            textB_StartColDest.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartColDest");
+            textB_ToSheet.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.ToSheet");
+            textB_Repeat.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.Repeat");
+            textB_NumSN.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.NumSN");
+            textB_TotalItem.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.TotalItem");
+
+            // Paste to GRR 文本框控件 初始化
+            textB_StartRow_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartRow");
+            textB_StartCol_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartCol");
+            textB_FromSheet_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.FromSheet");
+            textB_TargetPath.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.TargetPath");
+            textB_StartRowDest_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartRowDest");
+            textB_StartColDest_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartColDest");
+            textB_TrialsCount_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.TrialsCount");
+            textB_NumSN_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.NumSN");
+
+            // limit 文本框控件 初始化
+            textB_StartRowLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartRow");
+            textB_StartColLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartCol");
+            textB_FromSheetLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.FromSheet");
+            textB_StartRowDestLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartRowDest");
+            textB_StartColDestLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartColDest");
+
+            // Genenal Excel parameter 初始化
+            textB_ExcelPath.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.ExcelPath");
+            richT_SheetName.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.SheetName").Replace(@"\n", Environment.NewLine);
+            textB_ReserveSheetCount.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.ReserveCnt");
+            textB_CopyPastePara.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.PasteParam");
+            textB_DeletePara.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.DeleteParam");
+        #endregion
+            //InitUILog("初始化完成......\r\n");
+            string ss = richT_SheetName.Text.Replace(Environment.NewLine, "\n");
+        }
+        // update INI file from UI Control
+        private void UpdateIniFileFromUIControl_1()
+        {
+        #region IniReaderWriter
+            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
+            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+
+            // 创建一个字典来存储键值对
+            Dictionary<string, object> iniData = new Dictionary<string, object>();
+
+            // ExtractData
+            iniData.Add("GRR_ExtractData.SourcePath", textB_SourcePath.Text);
+            iniData.Add("GRR_ExtractData.StartRow", textB_StartRow.Text);
+            iniData.Add("GRR_ExtractData.StartCol", textB_StartCol.Text);
+            iniData.Add("GRR_ExtractData.FromSheet", textB_FromSheet.Text);
+            iniData.Add("GRR_ExtractData.StartRowDest", textB_StartRowDest.Text);
+            iniData.Add("GRR_ExtractData.StartColDest", textB_StartColDest.Text);
+            iniData.Add("GRR_ExtractData.ToSheet", textB_ToSheet.Text);
+            iniData.Add("GRR_ExtractData.Repeat", textB_Repeat.Text);
+            iniData.Add("GRR_ExtractData.NumSN", textB_NumSN.Text);
+            iniData.Add("GRR_ExtractData.TotalItem", textB_TotalItem.Text);
+
+            // PasteToGRR
+            iniData.Add("GRR_PasteToGRR.StartRow", textB_StartRow_GRR.Text);
+            iniData.Add("GRR_PasteToGRR.StartCol", textB_StartCol_GRR.Text);
+            iniData.Add("GRR_PasteToGRR.FromSheet", textB_FromSheet_GRR.Text);
+            iniData.Add("GRR_PasteToGRR.TargetPath", textB_TargetPath.Text);
+            iniData.Add("GRR_PasteToGRR.StartRowDest", textB_StartRowDest_GRR.Text);
+            iniData.Add("GRR_PasteToGRR.StartColDest", textB_StartColDest_GRR.Text);
+            iniData.Add("GRR_PasteToGRR.TrialsCount", textB_TrialsCount_GRR.Text);
+            iniData.Add("GRR_PasteToGRR.NumSN", textB_NumSN_GRR.Text);
+
+            // Limit
+            iniData.Add("GRR_Limit.StartRow", textB_StartRowLimit.Text);
+            iniData.Add("GRR_Limit.StartCol", textB_StartColLimit.Text);
+            iniData.Add("GRR_Limit.FromSheet", textB_FromSheetLimit.Text);
+            iniData.Add("GRR_Limit.StartRowDest", textB_StartRowDestLimit.Text);
+            iniData.Add("GRR_Limit.StartColDest", textB_StartColDestLimit.Text);
+
+            // General Excel parameter
+            iniData.Add("General_ExcelParam.ExcelPath", textB_ExcelPath.Text);
+            iniData.Add("General_ExcelParam.SheetName", richT_SheetName.Text.Replace("\r\n", "\\n").Replace("\n", "\\n"));
+            iniData.Add("General_ExcelParam.ReserveCnt", textB_ReserveSheetCount.Text);
+            iniData.Add("General_ExcelParam.PasteParam", textB_CopyPastePara.Text);
+            iniData.Add("General_ExcelParam.DeleteParam", textB_DeletePara.Text);
+
+            //var iniDataOld = ReadIni();
+            //if (iniDataOld.Count == 0)
+            //{
+            //    InitUILog("配置文件读取失败......\r\n");
+            //    return;
+            //}
+            //Dictionary<string, object> combinedDict = iniDataOld
+            //.Concat(iniData)
+            //.GroupBy(kvp => kvp.Key)
+            //.ToDictionary(g => g.Key, g => g.Last()); // 选择最后一个值，如果有重复键  
+
+            // 写入新的数据到 INI 文件
+            //iniReaderWriter.WriteIniFile(path, iniData, Encoding.GetEncoding("GB2312"));
+            iniReaderWriter.WriteIniFile(path, iniData, Encoding.GetEncoding("GB2312"), true);
+            //Console.WriteLine("\nUI Control data written to INI file!");
+        #endregion
+        }
+#endif
+
         #endregion
 
     }

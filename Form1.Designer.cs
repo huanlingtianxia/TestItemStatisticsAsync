@@ -1,4 +1,4 @@
-﻿namespace TestItemStatistics
+﻿namespace TestItemStatisticsAcync
 {
     partial class Form1
     {
@@ -94,6 +94,7 @@
             this.label26 = new System.Windows.Forms.Label();
             this.textB_CopyPastePara = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.textB_ExcelPath = new System.Windows.Forms.TextBox();
             this.btn_RemaneSheet = new System.Windows.Forms.Button();
             this.btn_CreatSheet = new System.Windows.Forms.Button();
             this.btn_DeleteSheet = new System.Windows.Forms.Button();
@@ -106,15 +107,18 @@
             this.label31 = new System.Windows.Forms.Label();
             this.textB_ReserveSheetCount = new System.Windows.Forms.TextBox();
             this.textB_DeletePara = new System.Windows.Forms.TextBox();
-            this.textB_ExcelPath = new System.Windows.Forms.TextBox();
             this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.label28 = new System.Windows.Forms.Label();
+            this.btn_WriterIni = new System.Windows.Forms.Button();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.btn_ReaderIni = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // label2
@@ -503,7 +507,7 @@
             this.groupBox1.ForeColor = System.Drawing.Color.Black;
             this.groupBox1.Location = new System.Drawing.Point(6, 59);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(270, 135);
+            this.groupBox1.Size = new System.Drawing.Size(270, 140);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Extract data: SourcePath";
@@ -539,7 +543,7 @@
             this.groupBox2.Controls.Add(this.label17);
             this.groupBox2.Location = new System.Drawing.Point(287, 59);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(259, 135);
+            this.groupBox2.Size = new System.Drawing.Size(259, 140);
             this.groupBox2.TabIndex = 18;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Paste to GRR: SourcePath to TargetPath";
@@ -650,14 +654,14 @@
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Location = new System.Drawing.Point(558, 59);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(217, 135);
+            this.groupBox3.Size = new System.Drawing.Size(217, 105);
             this.groupBox3.TabIndex = 19;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Paste to GRR: Limit";
             // 
             // btn_PasteLimit
             // 
-            this.btn_PasteLimit.Location = new System.Drawing.Point(135, 110);
+            this.btn_PasteLimit.Location = new System.Drawing.Point(135, 79);
             this.btn_PasteLimit.Name = "btn_PasteLimit";
             this.btn_PasteLimit.Size = new System.Drawing.Size(78, 22);
             this.btn_PasteLimit.TabIndex = 20;
@@ -687,7 +691,7 @@
             // 
             this.label34.AutoSize = true;
             this.label34.BackColor = System.Drawing.Color.Red;
-            this.label34.Location = new System.Drawing.Point(120, 114);
+            this.label34.Location = new System.Drawing.Point(120, 83);
             this.label34.Name = "label34";
             this.label34.Size = new System.Drawing.Size(13, 13);
             this.label34.TabIndex = 8;
@@ -722,7 +726,7 @@
             // 
             // textB_CopyPastePara
             // 
-            this.textB_CopyPastePara.Location = new System.Drawing.Point(61, 58);
+            this.textB_CopyPastePara.Location = new System.Drawing.Point(74, 58);
             this.textB_CopyPastePara.Name = "textB_CopyPastePara";
             this.textB_CopyPastePara.Size = new System.Drawing.Size(157, 20);
             this.textB_CopyPastePara.TabIndex = 15;
@@ -750,6 +754,14 @@
             this.groupBox4.TabIndex = 21;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "General: CopyPaste And Delete";
+            // 
+            // textB_ExcelPath
+            // 
+            this.textB_ExcelPath.Location = new System.Drawing.Point(61, 19);
+            this.textB_ExcelPath.Name = "textB_ExcelPath";
+            this.textB_ExcelPath.Size = new System.Drawing.Size(557, 20);
+            this.textB_ExcelPath.TabIndex = 15;
+            this.textB_ExcelPath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\TestCopyPasteAndDelete.xlsx";
             // 
             // btn_RemaneSheet
             // 
@@ -783,7 +795,7 @@
             // 
             // btn_DeleteRange
             // 
-            this.btn_DeleteRange.Location = new System.Drawing.Point(224, 81);
+            this.btn_DeleteRange.Location = new System.Drawing.Point(237, 81);
             this.btn_DeleteRange.Name = "btn_DeleteRange";
             this.btn_DeleteRange.Size = new System.Drawing.Size(82, 20);
             this.btn_DeleteRange.TabIndex = 17;
@@ -793,7 +805,7 @@
             // 
             // btn_CopyPaste
             // 
-            this.btn_CopyPaste.Location = new System.Drawing.Point(224, 58);
+            this.btn_CopyPaste.Location = new System.Drawing.Point(237, 58);
             this.btn_CopyPaste.Name = "btn_CopyPaste";
             this.btn_CopyPaste.Size = new System.Drawing.Size(82, 20);
             this.btn_CopyPaste.TabIndex = 17;
@@ -815,9 +827,9 @@
             this.label25.AutoSize = true;
             this.label25.Location = new System.Drawing.Point(24, 43);
             this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(332, 13);
+            this.label25.Size = new System.Drawing.Size(339, 13);
             this.label25.TabIndex = 8;
-            this.label25.Text = "格式：StartCol,StartCol,EndRow,EndCol,StartRowDest,StartColDest";
+            this.label25.Text = "格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest";
             // 
             // label37
             // 
@@ -831,20 +843,20 @@
             // label32
             // 
             this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(0, 84);
+            this.label32.Location = new System.Drawing.Point(5, 84);
             this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(60, 13);
+            this.label32.Size = new System.Drawing.Size(68, 13);
             this.label32.TabIndex = 8;
-            this.label32.Text = "DeletePara";
+            this.label32.Text = "DeleteParam";
             // 
             // label31
             // 
             this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(4, 61);
+            this.label31.Location = new System.Drawing.Point(5, 61);
             this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(56, 13);
+            this.label31.Size = new System.Drawing.Size(64, 13);
             this.label31.TabIndex = 8;
-            this.label31.Text = "PastePara";
+            this.label31.Text = "PasteParam";
             // 
             // textB_ReserveSheetCount
             // 
@@ -855,19 +867,11 @@
             // 
             // textB_DeletePara
             // 
-            this.textB_DeletePara.Location = new System.Drawing.Point(61, 81);
+            this.textB_DeletePara.Location = new System.Drawing.Point(74, 81);
             this.textB_DeletePara.Name = "textB_DeletePara";
             this.textB_DeletePara.Size = new System.Drawing.Size(157, 20);
             this.textB_DeletePara.TabIndex = 15;
             this.textB_DeletePara.Text = "23, 3, 32, 14";
-            // 
-            // textB_ExcelPath
-            // 
-            this.textB_ExcelPath.Location = new System.Drawing.Point(61, 19);
-            this.textB_ExcelPath.Name = "textB_ExcelPath";
-            this.textB_ExcelPath.Size = new System.Drawing.Size(557, 20);
-            this.textB_ExcelPath.TabIndex = 15;
-            this.textB_ExcelPath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\TestCopyPasteAndDelete.xlsx";
             // 
             // richT_SheetName
             // 
@@ -900,11 +904,45 @@
             this.label28.TabIndex = 8;
             this.label28.Text = "<--";
             // 
+            // btn_WriterIni
+            // 
+            this.btn_WriterIni.ForeColor = System.Drawing.SystemColors.ButtonShadow;
+            this.btn_WriterIni.Location = new System.Drawing.Point(155, 8);
+            this.btn_WriterIni.Name = "btn_WriterIni";
+            this.btn_WriterIni.Size = new System.Drawing.Size(55, 22);
+            this.btn_WriterIni.TabIndex = 23;
+            this.btn_WriterIni.Text = "WriterIni";
+            this.btn_WriterIni.UseVisualStyleBackColor = true;
+            this.btn_WriterIni.Click += new System.EventHandler(this.btn_WriterIni_Click);
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.btn_ReaderIni);
+            this.groupBox6.Controls.Add(this.btn_WriterIni);
+            this.groupBox6.Location = new System.Drawing.Point(558, 166);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(218, 33);
+            this.groupBox6.TabIndex = 23;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "ReadWriterIni";
+            // 
+            // btn_ReaderIni
+            // 
+            this.btn_ReaderIni.ForeColor = System.Drawing.SystemColors.ButtonShadow;
+            this.btn_ReaderIni.Location = new System.Drawing.Point(86, 10);
+            this.btn_ReaderIni.Name = "btn_ReaderIni";
+            this.btn_ReaderIni.Size = new System.Drawing.Size(63, 20);
+            this.btn_ReaderIni.TabIndex = 24;
+            this.btn_ReaderIni.Text = "ReaderIni";
+            this.btn_ReaderIni.UseVisualStyleBackColor = true;
+            this.btn_ReaderIni.Click += new System.EventHandler(this.btn_ReaderIni_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(779, 464);
+            this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.richTB_Log);
             this.Controls.Add(this.groupBox4);
@@ -929,6 +967,7 @@
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1018,6 +1057,9 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Button btn_RemaneSheet;
         private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Button btn_WriterIni;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Button btn_ReaderIni;
     }
 }
 
