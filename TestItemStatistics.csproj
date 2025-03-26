@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExcelOp\ExcelOperation.cs" />
+    <Compile Include="ExcelOp\LogMessage.cs" />
     <Compile Include="ExcelOp\ParametersTestItem.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

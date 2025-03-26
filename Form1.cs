@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TestItem.Excel;
+using TestItemStatistics.ExcelOp;
 
 namespace TestItemStatistics
 {
@@ -22,6 +22,7 @@ namespace TestItemStatistics
         {
             textB_SourcePath.Text = @"E:\labview\MSA\D474 D475\ProdDataMSA\ExtractData\done\";
             textB_TargetPath.Text = @"E:\labview\MSA\D474 D475\ProdDataMSA\ExtractData\done\";
+            logMessage.Message = String.Empty;
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
@@ -32,46 +33,51 @@ namespace TestItemStatistics
         ParametersTestItem testItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
         ParametersTestItem testItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
         ParametersTestItem testItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
-        string msg = string.Empty;
+        LogMessage logMessage { get; set; } = new LogMessage();
+
 
         #region Control Click event
         //Extract data, copy paste test data to GRR, copy paste limit to GRR
-        private void btn_SelectSourcePath_Click(object sender, EventArgs e)
+        //Button_Click 是一个事件处理程序，因此它返回 void，这使得它成为 async void 方法。
+        //这种情况下，虽然你不能使用 await 等待 Button_Click，但事件处理程序本身会异步执行，不会阻塞 UI 线程。
+        private async void btn_SelectSourcePath_Click(object sender, EventArgs e)
         {
+            await Task.CompletedTask;  // 模拟异步
             //string path1 = SelectfullPath();
             string path = SelectfullPath();
             if (path != String.Empty)
                 textB_SourcePath.Text = path;
         }
 
-        private void btn_SelectTargetPath_Click(object sender, EventArgs e)
+        private async void btn_SelectTargetPath_Click(object sender, EventArgs e)
         {
+            await Task.CompletedTask;  // 模拟异步
             //string path = SelectPath();
             string path = SelectfullPath();
             if (path != String.Empty)
                 textB_TargetPath.Text = path;
         }
        
-        private void btn_ExtractData_Click(object sender, EventArgs e)
+        private async void btn_ExtractData_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             UpdateParaFromControl();
-            excelOperation.ExtractDataFromTestItem(testItem.SourcePath, testItem, ref msg);
-            richTB_Log.Text += msg;
+            await excelOperation.ExtractDataFromTestItem(testItem.SourcePath, testItem, logMessage).ConfigureAwait(false);
+            UpdateUILog(logMessage.Message);
         }
 
-        private void btn_PasteToGRR_Click(object sender, EventArgs e)
+        private async void btn_PasteToGRR_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             UpdateParaFromControl();
-            excelOperation.PasteToGRRModuleFromExtractData(testItemGRR.SourcePath, testItemGRR.TargetPath, testItemGRR, ref msg);
-            richTB_Log.Text += msg;
+            await excelOperation.PasteToGRRModuleFromExtractData(testItemGRR.SourcePath, testItemGRR.TargetPath, testItemGRR, logMessage).ConfigureAwait(false);
+            UpdateUILog(logMessage.Message);
         }
 
-        private void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
+        private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
         {
+            InitUILog("waiting......\r\n");
+            UpdateParaFromControl();
             try
             {
                 UpdateParaFromControl();
@@ -83,98 +89,93 @@ namespace TestItemStatistics
                     path += pathArr[i] + "\\";
                 }
                 path += "GRRModuleSheetName.txt";
-                string[] sheetName = excelOperation.GetSheetName(testItemGRR.TargetPath, false, path);
-                msg += "提取GRR module中 test item sheet name 到GRRModuleSheetName.txt,\r\n path: " + path + "\r\n";
+                string[] sheetName = await excelOperation.GetSheetName(testItemGRR.TargetPath, false, path).ConfigureAwait(false);
+                logMessage.Message += "提取GRR module中 test item sheet name 到GRRModuleSheetName.txt,\r\n path: " + path + "\r\n";
                 if(sheetName != null)
                 {
                     for (int i = 0; i < sheetName.Length; i++)
                     {
-                        msg += $"序号：{i + 1,-6} {sheetName[i]}\r\n";
+                        logMessage.Message += $"序号：{i + 1,-6} {sheetName[i]}\r\n";
                     }
-                    msg += $"提取sheet name 完成！sheet count: {sheetName.Length} ----------------------\r\n";
+                    logMessage.Message += $"提取sheet name 完成！sheet count: {sheetName.Length} ----------------------\r\n";
                 }
                 else
                 {
-                    msg += $"未找到工作表\r\n";
+                    logMessage.Message += $"未找到工作表\r\n";
                 }
-                richTB_Log.Text += msg;
+                UpdateUILog(logMessage.Message);
             }
             catch(Exception ex)
             {
-                msg += $"异常: {ex.ToString()}\r\n";
-                richTB_Log.Text += msg;
+                logMessage.Message += $"异常: {ex.ToString()}\r\n";
+                UpdateUILog(logMessage.Message);
             }
             
         }
 
-        private void btn_PasteLimit_Click(object sender, EventArgs e)
+        private async void btn_PasteLimit_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             UpdateParaFromControl();
-            excelOperation.PasteToGRRModuleFromLimit(testItemGRRLimit.SourcePath, testItemGRRLimit.TargetPath, testItemGRRLimit, ref msg);
-            richTB_Log.Text += msg;
+            await excelOperation.PasteToGRRModuleFromLimit(testItemGRRLimit.SourcePath, testItemGRRLimit.TargetPath, testItemGRRLimit, logMessage).ConfigureAwait(false);
+            UpdateUILog(logMessage.Message);
         }
 
         //General: CopyPaste And Delete
-        private void btn_CopyPaste_Click(object sender, EventArgs e)
+        private async void btn_CopyPaste_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParaFromControl(para, true);
-            excelOperation.CopyRangePaste(para.TargetPath, para); // 复制 公式单元格
-            msg += $"拷贝粘贴完成！";
-            richTB_Log.Text = msg;
+            await excelOperation.CopyRangePaste(para.TargetPath, para).ConfigureAwait(false); // 复制 公式单元格
+            logMessage.Message += $"拷贝粘贴完成！";
+            UpdateUILog(logMessage.Message);
         }
 
-        private void btn_DeleteRange_Click(object sender, EventArgs e)
+        private async void btn_DeleteRange_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
+            //await Task.Delay(5000);
             ParametersTestItem para = new ParametersTestItem();
             UpdateParaFromControl(para, false);
-            excelOperation.DeleteRangeData(para.TargetPath, para); // 删除 17行单元格，作用域：11.xx测试项
-            msg += $"删除：开始行{para.StartRow}，开始列{para.StartCol}，结束行{para.EndRow}，结束始列{para.EndtCol} 完成！";
-            richTB_Log.Text = msg;
+            await excelOperation.DeleteRangeData(para.TargetPath, para).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            logMessage.Message += $"删除：开始行{para.StartRow}，开始列{para.StartCol}，结束行{para.EndRow}，结束始列{para.EndtCol} 完成！";
+            UpdateUILog(logMessage.Message);
         }
 
-        private void btn_DeleteSheet_Click(object sender, EventArgs e)
+        private async void btn_DeleteSheet_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             ParametersTestItem parametersTestItem = new ParametersTestItem();
             UpdateParaFromControl(parametersTestItem, false);
             if (parametersTestItem.ReserveSheetCount == -1)
             {
-                excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, ref msg);//删除SheetName中的工作表
+                await excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, logMessage).ConfigureAwait(false);//删除SheetName中的工作表
             }
             else
             {
-                excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, ref msg);//保留ReserveSheetCount个工作表
+                await excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, logMessage).ConfigureAwait(false);//保留ReserveSheetCount个工作表
             }
             //string[] sheet = excelOperation.GetSheetName(parametersTestItem.TargetPath,true);
-            richTB_Log.Text = msg;
+            UpdateUILog(logMessage.Message);
         }
 
-        private void btn_CreatSheet_Click(object sender, EventArgs e)
+        private async void btn_CreatSheet_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParaFromControl(para, false);
-            excelOperation.CreatSheet(para.TargetPath, para, ref msg); // 删除 17行单元格，作用域：11.xx测试项
-            richTB_Log.Text = msg;
+            await excelOperation.CreatSheet(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            UpdateUILog(logMessage.Message);
         }
 
-        private void btn_RemaneSheet_Click(object sender, EventArgs e)
+        private async void btn_RemaneSheet_Click(object sender, EventArgs e)
         {
-            richTB_Log.Clear();
-            msg = string.Empty;
+            InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParaFromControl(para, false);
-            excelOperation.RenameSheet(para.TargetPath, para, ref msg); // 删除 17行单元格，作用域：11.xx测试项
-            richTB_Log.Text = msg;
+            await excelOperation.RenameSheet(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            UpdateUILog(logMessage.Message);
         }
         #endregion
 
@@ -287,8 +288,8 @@ namespace TestItemStatistics
             }
             catch (Exception ex)
             {
-                msg += "输入控件不是数字：" + ex.ToString() + "\r\n";
-                richTB_Log.Text += msg;
+                logMessage.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                UpdateUILog(logMessage.Message);
             }
             
         }
@@ -337,11 +338,32 @@ namespace TestItemStatistics
             }
             catch (Exception ex)
             {
-                msg += "输入控件不是数字：" + ex.ToString() + "\r\n";
-                richTB_Log.Text += msg;
+                logMessage.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                UpdateUILog(logMessage.Message);
             }
         }
-
+        // update richtextbox log,BeginInvoke 是异步执行的，不会阻塞当前线程，而 Invoke 是同步执行的，会等待操作完成。
+        private void UpdateUILog(string msg)
+        {
+            if (richTB_Log.InvokeRequired)
+            {
+                // 调用 UI 线程来更新 RichTextBox
+                richTB_Log.BeginInvoke(new Action(() => {
+                    richTB_Log.AppendText(msg);
+                }));
+            }
+            else
+            {
+                richTB_Log.AppendText(msg);
+            }
+        }
+        // init richtextbox log
+        private void InitUILog(string msg)
+        {
+            richTB_Log.Clear();
+            logMessage.Message = string.Empty;
+            UpdateUILog(msg);
+        }
         #endregion
 
     }
