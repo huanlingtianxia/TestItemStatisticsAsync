@@ -1,3 +1,3 @@
-asynchronous
-copy test log item to GRR module 
-details: ExcelOp\readme.txt
+asynchronous;
+copy test log item to GRR module;
+details: ExcelOp\readme.txt;
