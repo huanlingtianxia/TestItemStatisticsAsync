@@ -11,7 +11,7 @@
 1.4 复制sort中的行：UUTSerialNumber行 + limit high + limit Low + 单位 + 比较 这5行。粘贴到limit中，将limit high 和 limit low调换行，即limit high在limit low上方；
 
 2.MSA模板整理：
-2.1 根据op01.xlsx中SortSelectTrans里的test item，在MSA模板中给每个test item创建单独的sheet，sheet名取test item 前8位。
+2.1 根据op01.xlsx中SortSelectTrans里的test item，在MSA模板中给每个test item创建单独的sheet，sheet名一般取test item 前8位（sheet名中最好保留数字+最少一个字母）。
 	必须确保所有的test item都有单独的sheet（空测试项除外）；测试sheet name 顺序：从右->左 对应 test item 小->大。
 2.2 MSA模板中的Summary中的数据需要手动整理。
 
