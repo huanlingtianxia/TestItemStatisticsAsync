@@ -129,7 +129,7 @@ namespace TestItemStatisticsAcync
             UpdateUILog(logMessage.Message);
         }
         // update ini file
-        private void btn_WriterIni_Click(object sender, EventArgs e)
+        private void btn_WriteIni_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             try
@@ -151,7 +151,7 @@ namespace TestItemStatisticsAcync
                 UpdateUILog(logMessage.Message += ex.ToString());
             }
         }
-        private void btn_ReaderIni_Click(object sender, EventArgs e)
+        private void btn_ReadIni_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             UpdateUIControlFromIniFile();
@@ -242,6 +242,7 @@ namespace TestItemStatisticsAcync
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             // 设置初始目录和过滤器（可选）
+            //openFileDialog.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             openFileDialog.InitialDirectory = "C:\\";  // 你可以设置你希望打开的默认目录
             openFileDialog.Filter = "所有文件 (*.*)|*.*";  // 允许选择所有文件类型
             openFileDialog.FilterIndex = 1;
@@ -315,7 +316,6 @@ namespace TestItemStatisticsAcync
 
 
         }
-
 
         //GRR parameters
         private void UpdateParamFromControl()

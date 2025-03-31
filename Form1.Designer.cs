@@ -110,9 +110,9 @@
             this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.label28 = new System.Windows.Forms.Label();
-            this.btn_WriterIni = new System.Windows.Forms.Button();
+            this.btn_WriteIni = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.btn_ReaderIni = new System.Windows.Forms.Button();
+            this.btn_ReadIni = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -146,8 +146,8 @@
             this.textB_TargetPath.Name = "textB_TargetPath";
             this.textB_TargetPath.Size = new System.Drawing.Size(607, 20);
             this.textB_TargetPath.TabIndex = 6;
-            this.textB_TargetPath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\GRR_20250317_D471_FCT1_No.1&2&" +
-    "3.xlsx";
+            this.textB_TargetPath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\GRR_20250317_D471_FCT1_Target." +
+    "xlsx";
             // 
             // textB_SourcePath
             // 
@@ -155,7 +155,7 @@
             this.textB_SourcePath.Name = "textB_SourcePath";
             this.textB_SourcePath.Size = new System.Drawing.Size(607, 20);
             this.textB_SourcePath.TabIndex = 7;
-            this.textB_SourcePath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\op4_B001_C001.xlsx";
+            this.textB_SourcePath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\ExtractData_B001_C001.xlsx";
             // 
             // richTB_Log
             // 
@@ -904,38 +904,38 @@
             this.label28.TabIndex = 8;
             this.label28.Text = "<--";
             // 
-            // btn_WriterIni
+            // btn_WriteIni
             // 
-            this.btn_WriterIni.ForeColor = System.Drawing.SystemColors.ButtonShadow;
-            this.btn_WriterIni.Location = new System.Drawing.Point(155, 8);
-            this.btn_WriterIni.Name = "btn_WriterIni";
-            this.btn_WriterIni.Size = new System.Drawing.Size(55, 22);
-            this.btn_WriterIni.TabIndex = 23;
-            this.btn_WriterIni.Text = "WriterIni";
-            this.btn_WriterIni.UseVisualStyleBackColor = true;
-            this.btn_WriterIni.Click += new System.EventHandler(this.btn_WriterIni_Click);
+            this.btn_WriteIni.ForeColor = System.Drawing.SystemColors.ButtonShadow;
+            this.btn_WriteIni.Location = new System.Drawing.Point(155, 8);
+            this.btn_WriteIni.Name = "btn_WriteIni";
+            this.btn_WriteIni.Size = new System.Drawing.Size(55, 22);
+            this.btn_WriteIni.TabIndex = 23;
+            this.btn_WriteIni.Text = "WriteIni";
+            this.btn_WriteIni.UseVisualStyleBackColor = true;
+            this.btn_WriteIni.Click += new System.EventHandler(this.btn_WriteIni_Click);
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.btn_ReaderIni);
-            this.groupBox6.Controls.Add(this.btn_WriterIni);
+            this.groupBox6.Controls.Add(this.btn_ReadIni);
+            this.groupBox6.Controls.Add(this.btn_WriteIni);
             this.groupBox6.Location = new System.Drawing.Point(558, 166);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(218, 33);
             this.groupBox6.TabIndex = 23;
             this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "ReadWriterIni";
+            this.groupBox6.Text = "ReadWriteIni";
             // 
-            // btn_ReaderIni
+            // btn_ReadIni
             // 
-            this.btn_ReaderIni.ForeColor = System.Drawing.SystemColors.ButtonShadow;
-            this.btn_ReaderIni.Location = new System.Drawing.Point(86, 10);
-            this.btn_ReaderIni.Name = "btn_ReaderIni";
-            this.btn_ReaderIni.Size = new System.Drawing.Size(63, 20);
-            this.btn_ReaderIni.TabIndex = 24;
-            this.btn_ReaderIni.Text = "ReaderIni";
-            this.btn_ReaderIni.UseVisualStyleBackColor = true;
-            this.btn_ReaderIni.Click += new System.EventHandler(this.btn_ReaderIni_Click);
+            this.btn_ReadIni.ForeColor = System.Drawing.SystemColors.ButtonShadow;
+            this.btn_ReadIni.Location = new System.Drawing.Point(86, 10);
+            this.btn_ReadIni.Name = "btn_ReadIni";
+            this.btn_ReadIni.Size = new System.Drawing.Size(63, 20);
+            this.btn_ReadIni.TabIndex = 24;
+            this.btn_ReadIni.Text = "ReadIni";
+            this.btn_ReadIni.UseVisualStyleBackColor = true;
+            this.btn_ReadIni.Click += new System.EventHandler(this.btn_ReadIni_Click);
             // 
             // Form1
             // 
@@ -1057,9 +1057,9 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Button btn_RemaneSheet;
         private System.Windows.Forms.Label label28;
-        private System.Windows.Forms.Button btn_WriterIni;
+        private System.Windows.Forms.Button btn_WriteIni;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.Button btn_ReaderIni;
+        private System.Windows.Forms.Button btn_ReadIni;
     }
 }
 
