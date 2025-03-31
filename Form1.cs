@@ -310,11 +310,7 @@ namespace TestItemStatisticsAcync
                     // 用户点击“取消”
                     MessageBox.Show("操作已取消");
                 }
-
             }
-
-
-
         }
 
         //GRR parameters
