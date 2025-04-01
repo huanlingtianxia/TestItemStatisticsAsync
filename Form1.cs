@@ -244,15 +244,8 @@ namespace TestItemStatisticsAcync
         private void lab_EnableMaskArrow_Click(object sender, EventArgs e)
         {
             flowLayoutP_Mask.Visible = !flowLayoutP_Mask.Visible;
-            if(flowLayoutP_Mask.Visible)
-            {
-                AdjustRichTextBoxSize(251, -1);
-            }
-            else
-            {
-                AdjustRichTextBoxSize(144, 1);
-            }
-            //Thread.Sleep(100);
+            Action action = flowLayoutP_Mask.Visible ? (Action)(() => { AdjustRichTextBoxSize(251, -1); }) : () => { AdjustRichTextBoxSize(144, 1); };
+            action();
         }
         #endregion
 
@@ -466,13 +459,13 @@ namespace TestItemStatisticsAcync
             }
             catch (Exception ex)
             {
-                LogMsg.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                LogMsg.Message += "UI非法数据输入：" + ex.ToString() + "\r\n";
                 UpdateUILog(LogMsg.Message);
             }
             
         }
         // General parameters
-        private void UpdateParamFromControl(ParametersTestItem parameters, bool copyPast)
+        private void UpdateParamFromControl(ParametersTestItem parameters, bool copyPaste)
         {
             try
             {
@@ -482,10 +475,20 @@ namespace TestItemStatisticsAcync
                 parameters.ReserveSheetCount = (cnt.Length == 2 && cnt[0] == ":") ? int.Parse(cnt[1]) : -1;
                 int[] CopyPastePara = textB_CopyPastePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 int[] DeletePara = textB_DeletePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
+                if(CopyPastePara.Length < 6)
+                {
+                    LogMsg.Message += "CopyPastePara 输入数据格式异常\r\n";
+                    return;
+                }
+                if (DeletePara.Length < 4)
+                {
+                    LogMsg.Message += "DeletePara 输入数据格式异常\r\n";
+                    return;
+                }
                 //parameters.CopyPastePara = textB_CopyPastePara.Text;
                 //parameters.DeletePara = textB_DeletePara.Text;
                 //parameters.SheetName = richT_SheetName.Text;
-                if (copyPast)
+                if (copyPaste)
                 {
                     for (int i = 0; i < CopyPastePara.Length; i++)
                     {
@@ -516,7 +519,7 @@ namespace TestItemStatisticsAcync
             }
             catch (Exception ex)
             {
-                LogMsg.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                LogMsg.Message += "UI非法数据输入：" + ex.ToString() + "\r\n";
                 UpdateUILog(LogMsg.Message);
             }
         }
