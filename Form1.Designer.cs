@@ -661,7 +661,7 @@
             // 
             // btn_PasteLimit
             // 
-            this.btn_PasteLimit.Location = new System.Drawing.Point(155, 109);
+            this.btn_PasteLimit.Location = new System.Drawing.Point(40, 112);
             this.btn_PasteLimit.Name = "btn_PasteLimit";
             this.btn_PasteLimit.Size = new System.Drawing.Size(78, 22);
             this.btn_PasteLimit.TabIndex = 20;
@@ -691,7 +691,7 @@
             // 
             this.label34.AutoSize = true;
             this.label34.BackColor = System.Drawing.Color.Red;
-            this.label34.Location = new System.Drawing.Point(139, 114);
+            this.label34.Location = new System.Drawing.Point(24, 117);
             this.label34.Name = "label34";
             this.label34.Size = new System.Drawing.Size(13, 13);
             this.label34.TabIndex = 8;
@@ -759,13 +759,13 @@
             // 
             this.textB_ExcelPath.Location = new System.Drawing.Point(66, 19);
             this.textB_ExcelPath.Name = "textB_ExcelPath";
-            this.textB_ExcelPath.Size = new System.Drawing.Size(490, 20);
+            this.textB_ExcelPath.Size = new System.Drawing.Size(539, 20);
             this.textB_ExcelPath.TabIndex = 15;
             this.textB_ExcelPath.Text = "E:\\labview\\MSA\\AllLoginOneSheet_C001D471\\testCreat\\TestCopyPasteAndDelete.xlsx";
             // 
             // btn_RemaneSheet
             // 
-            this.btn_RemaneSheet.Location = new System.Drawing.Point(455, 61);
+            this.btn_RemaneSheet.Location = new System.Drawing.Point(504, 59);
             this.btn_RemaneSheet.Name = "btn_RemaneSheet";
             this.btn_RemaneSheet.Size = new System.Drawing.Size(101, 20);
             this.btn_RemaneSheet.TabIndex = 24;
@@ -775,7 +775,7 @@
             // 
             // btn_CreatSheet
             // 
-            this.btn_CreatSheet.Location = new System.Drawing.Point(373, 61);
+            this.btn_CreatSheet.Location = new System.Drawing.Point(422, 59);
             this.btn_CreatSheet.Name = "btn_CreatSheet";
             this.btn_CreatSheet.Size = new System.Drawing.Size(76, 20);
             this.btn_CreatSheet.TabIndex = 23;
@@ -785,7 +785,7 @@
             // 
             // btn_DeleteSheet
             // 
-            this.btn_DeleteSheet.Location = new System.Drawing.Point(373, 83);
+            this.btn_DeleteSheet.Location = new System.Drawing.Point(422, 81);
             this.btn_DeleteSheet.Name = "btn_DeleteSheet";
             this.btn_DeleteSheet.Size = new System.Drawing.Size(76, 20);
             this.btn_DeleteSheet.TabIndex = 22;
@@ -834,7 +834,7 @@
             // label37
             // 
             this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(452, 87);
+            this.label37.Location = new System.Drawing.Point(501, 85);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(63, 13);
             this.label37.TabIndex = 8;
@@ -860,7 +860,7 @@
             // 
             // textB_ReserveSheetCount
             // 
-            this.textB_ReserveSheetCount.Location = new System.Drawing.Point(521, 84);
+            this.textB_ReserveSheetCount.Location = new System.Drawing.Point(570, 82);
             this.textB_ReserveSheetCount.Name = "textB_ReserveSheetCount";
             this.textB_ReserveSheetCount.Size = new System.Drawing.Size(35, 20);
             this.textB_ReserveSheetCount.TabIndex = 15;
@@ -907,7 +907,7 @@
             // btn_WriteIni
             // 
             this.btn_WriteIni.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.btn_WriteIni.Location = new System.Drawing.Point(7, 45);
+            this.btn_WriteIni.Location = new System.Drawing.Point(7, 52);
             this.btn_WriteIni.Name = "btn_WriteIni";
             this.btn_WriteIni.Size = new System.Drawing.Size(55, 22);
             this.btn_WriteIni.TabIndex = 23;
@@ -921,10 +921,10 @@
             this.groupBox6.Controls.Add(this.btn_ReadIni);
             this.groupBox6.Location = new System.Drawing.Point(1, 209);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(73, 105);
+            this.groupBox6.Size = new System.Drawing.Size(70, 105);
             this.groupBox6.TabIndex = 23;
             this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "RWIni";
+            this.groupBox6.Text = "RW: Ini";
             // 
             // btn_ReadIni
             // 
