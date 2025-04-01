@@ -7,6 +7,8 @@ using System.IO;
 
 namespace TestItemStatisticsAcync
 {
+    /* not use, using NLog
+     */
     internal class LoggerHander
     {
         public string LogFilePath { get; private set; }

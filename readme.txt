@@ -37,6 +37,7 @@
 	按钮：RemaneSheet：重命名工作表
 	按钮：ReadIni：读取INI配置文件到UI控件。
 	按钮：WriteIni：将UI控件数据写入INI配置文件
+	按钮：<-----：在General: SheetName中。单击可切换General功能是否使能。
 	SheetName：指定作用域:CopyPaste，DeleteRange，DeleteSheet，CreatSheet，RemaneSheet的工作表。
 	ReserveCnt：如果值是”:cnt“格式(cnt取正整数)，则表示只保留cnt个工作表格，其他的删除。如果不是”:cnt“格式，则删除SheetName中的工作表。
 	General: CopyPaste And Delete

@@ -11,12 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TestItemStatisticsAcync.ExcelOp;
 using TestItemStatisticsAcync.Ini;
-
-
 
 /* 程序包安装
 安装EPPlus：Install-Package EPPlus
@@ -27,6 +26,7 @@ namespace TestItemStatisticsAcync
 {
     public partial class Form1 : Form
     {
+        #region Init and FormClose
         public Form1()
         {
             InitializeComponent();
@@ -35,43 +35,38 @@ namespace TestItemStatisticsAcync
         private void InitParam()
         {
             
-            logMessage.Message = String.Empty;
+            LogMsg.Message = String.Empty;
             ConfigLog();
             Logger.Info(">>>>>>>>>>程序启动");
             UpdateUIControlFromIniFile();
             UpdateParamFromControl();
+            AdjustRichTextBoxSize(251, -1);
             // 取消选中状态并将光标移到文本框末尾
-            textB_SourcePath.SelectionStart = textB_TargetPath.Text.Length;
-            textB_SourcePath.SelectionLength = 0;
-            logMessage.Message += "初始化完成\r\n";
-            UpdateUILog(logMessage.Message);
+            textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
+            textB_TargetPath.SelectionLength = 0;
+            LogMsg.Message += "初始化完成\r\n";
+            UpdateUILog(LogMsg.Message);
 
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             Logger.Info("程序结束<<<<<<<<<<");
         }
-       
-        #region property
-        ExcelOperation excelOperation { get; set; } = new ExcelOperation();//Excel 操作
-        //IIniReaderWriter iniReaderWriter { get; set; } = new IniReaderWriter();
-        ParametersTestItem testItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
-        ParametersTestItem testItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
-        ParametersTestItem testItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
-        LogMessage logMessage { get; set; } = new LogMessage();
-        //LoggerHander loggerHander { get; set; } = new LoggerHander("log.txt");
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        #endregion
 
-        private const long MaxLogSize = 1 * 1024 * 1024; // 50 MB
-        //private static Logger? logger; // 定义 logger 属性  
-        //public static Logger Logger
-        //{
-        //    get
-        //    {
-        //        // 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例  
-        //        return logger ?? (logger = LogManager.GetCurrentClassLogger());
-        //    }
-        //}
+        #region property
+        internal ExcelOperation ExcelOp { get; set; } = new ExcelOperation();//Excel 操作
+        //IIniReaderWriter iniReaderWriter { get; set; } = new IniReaderWriter();
+        //LoggerHander loggerHander { get; set; } = new LoggerHander("log.txt");
+        internal ParametersTestItem TestItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
+        internal ParametersTestItem TestItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
+        internal ParametersTestItem TestItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
+        internal LogMessage LogMsg { get; set; } = new LogMessage();// log message
+        internal long MaxLogSize { get; set; } = 1 * 1024 * 1024; // 10 MB
+
+        private static Logger? logger; // 定义 logger 属性  
+        internal static Logger Logger => logger ?? (logger = LogManager.GetCurrentClassLogger());// 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例
+
         #endregion
 
         #region Control Click event
@@ -100,16 +95,16 @@ namespace TestItemStatisticsAcync
         {
             InitUILog("waiting......\r\n");
             UpdateParamFromControl();
-            await excelOperation.ExtractDataFromTestItem(testItem.SourcePath, testItem, logMessage).ConfigureAwait(false);
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.ExtractDataFromTestItem(TestItem.SourcePath, TestItem, LogMsg).ConfigureAwait(false);
+            UpdateUILog(LogMsg.Message);
         }
 
         private async void btn_PasteToGRR_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             UpdateParamFromControl();
-            await excelOperation.PasteToGRRModuleFromExtractData(testItemGRR.SourcePath, testItemGRR.TargetPath, testItemGRR, logMessage).ConfigureAwait(false);
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR.SourcePath, TestItemGRR.TargetPath, TestItemGRR, LogMsg).ConfigureAwait(false);
+            UpdateUILog(LogMsg.Message);
         }
 
         private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
@@ -121,34 +116,34 @@ namespace TestItemStatisticsAcync
                 UpdateParamFromControl();
                 string[] str = { "\\" };
                 string path = string.Empty;
-                string[] pathArr = testItemGRR.TargetPath.Split(str, StringSplitOptions.None);
+                string[] pathArr = TestItemGRR.TargetPath.Split(str, StringSplitOptions.None);
                 for (int i = 0; i < pathArr.Length - 1; i++)
                 {
                     path += pathArr[i] + "\\";
                 }
                 path += "GRRModuleSheetName.txt";
-                string[] sheetName = await excelOperation.GetSheetName(testItemGRR.TargetPath, false, path).ConfigureAwait(false);
-                logMessage.Message += "提取GRR module中 sheet name 到GRRModuleSheetName.txt,\r\n" + "path: " + path + "\r\n";
-                logMessage.Message += $"Total sheet count: {sheetName.Length}\r\n";
-                logMessage.Message += $"Count{string.Empty,-5}, sheet name\r\n";
+                string[] sheetName = await ExcelOp.GetSheetName(TestItemGRR.TargetPath, false, path).ConfigureAwait(false);
+                LogMsg.Message += "提取GRR module中 sheet name 到GRRModuleSheetName.txt,\r\n" + "path: " + path + "\r\n";
+                LogMsg.Message += $"Total sheet count: {sheetName.Length}\r\n";
+                LogMsg.Message += $"Count{string.Empty,-5}, sheet name\r\n";
                 if (sheetName != null)
                 {
                     for (int i = 0; i < sheetName.Length; i++)
                     {
-                        logMessage.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
+                        LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
                     }
-                    logMessage.Message += $"提取sheet name 完成！ ----------------------\r\n";
+                    LogMsg.Message += $"提取sheet name 完成！ ----------------------\r\n";
                 }
                 else
                 {
-                    logMessage.Message += $"未找到工作表\r\n";
+                    LogMsg.Message += $"未找到工作表\r\n";
                 }
-                UpdateUILog(logMessage.Message);
+                UpdateUILog(LogMsg.Message);
             }
             catch(Exception ex)
             {
-                logMessage.Message += $"异常: {ex.ToString()}\r\n";
-                UpdateUILog(logMessage.Message);
+                LogMsg.Message += $"异常: {ex.ToString()}\r\n";
+                UpdateUILog(LogMsg.Message);
             }
             
         }
@@ -157,8 +152,8 @@ namespace TestItemStatisticsAcync
         {
             InitUILog("waiting......\r\n");
             UpdateParamFromControl();
-            await excelOperation.PasteToGRRModuleFromLimit(testItemGRRLimit.SourcePath, testItemGRRLimit.TargetPath, testItemGRRLimit, logMessage).ConfigureAwait(false);
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit.SourcePath, TestItemGRRLimit.TargetPath, TestItemGRRLimit, LogMsg).ConfigureAwait(false);
+            UpdateUILog(LogMsg.Message);
         }
         // update ini file
         private void btn_WriteIni_Click(object sender, EventArgs e)
@@ -170,26 +165,26 @@ namespace TestItemStatisticsAcync
                 if (result == DialogResult.OK)
                 {
                     bool state = UpdateIniFileFromUIControl();
-                    logMessage.Message += state ? "已将UI数据更新到Ini文件\r\n" : "UI数据更新到Ini文件 异常\r\n";
-                    MessageBox.Show(logMessage.Message);// 用户点击“确认”
+                    LogMsg.Message += state ? "已将UI数据更新到Ini文件\r\n" : "UI数据更新到Ini文件 异常\r\n";
+                    MessageBox.Show(LogMsg.Message);// 用户点击“确认”
                 }
                 else
                 {
-                    MessageBox.Show(this, logMessage.Message += "操作已取消\r\n");// 用户点击“取消”
+                    MessageBox.Show(this, LogMsg.Message += "操作已取消\r\n");// 用户点击“取消”
                 }
-                UpdateUILog(logMessage.Message);
+                UpdateUILog(LogMsg.Message);
             }
             catch(Exception ex)
             {
-                UpdateUILog(logMessage.Message += ex.ToString());
+                UpdateUILog(LogMsg.Message += ex.ToString());
             }
         }
         private void btn_ReadIni_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             bool state = UpdateUIControlFromIniFile();
-            logMessage.Message += state ? "read ini completed\r\n" : "read ini failed\r\n";
-            UpdateUILog(logMessage.Message);
+            LogMsg.Message += state ? "read ini file and update to UI Control completed\r\n" : "read ini file failed\r\n";
+            UpdateUILog(LogMsg.Message);
         }
         //General: CopyPaste And Delete
         private async void btn_CopyPaste_Click(object sender, EventArgs e)
@@ -197,8 +192,8 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromControl(para, true);
-            await excelOperation.CopyRangePaste(para.TargetPath, para, logMessage).ConfigureAwait(false); // 复制 公式单元格
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.CopyRangePaste(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 复制 公式单元格
+            UpdateUILog(LogMsg.Message);
         }
 
         private async void btn_DeleteRange_Click(object sender, EventArgs e)
@@ -207,8 +202,8 @@ namespace TestItemStatisticsAcync
             //await Task.Delay(5000);
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromControl(para, false);
-            await excelOperation.DeleteRangeData(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.DeleteRangeData(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            UpdateUILog(LogMsg.Message);
         }
 
         private async void btn_DeleteSheet_Click(object sender, EventArgs e)
@@ -218,14 +213,14 @@ namespace TestItemStatisticsAcync
             UpdateParamFromControl(parametersTestItem, false);
             if (parametersTestItem.ReserveSheetCount == -1)
             {
-                await excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, logMessage).ConfigureAwait(false);//删除SheetName中的工作表
+                await ExcelOp.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
             }
             else
             {
-                await excelOperation.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, logMessage).ConfigureAwait(false);//保留ReserveSheetCount个工作表
+                await ExcelOp.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, LogMsg).ConfigureAwait(false);//保留ReserveSheetCount个工作表
             }
-            //string[] sheet = excelOperation.GetSheetName(parametersTestItem.TargetPath,true);
-            UpdateUILog(logMessage.Message);
+            //string[] sheet = ExcelOp.GetSheetName(parametersTestItem.TargetPath,true);
+            UpdateUILog(LogMsg.Message);
         }
 
         private async void btn_CreatSheet_Click(object sender, EventArgs e)
@@ -233,8 +228,8 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromControl(para, false);
-            await excelOperation.CreatSheet(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.CreatSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            UpdateUILog(LogMsg.Message);
         }
 
         private async void btn_RemaneSheet_Click(object sender, EventArgs e)
@@ -242,8 +237,22 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromControl(para, false);
-            await excelOperation.RenameSheet(para.TargetPath, para, logMessage).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
-            UpdateUILog(logMessage.Message);
+            await ExcelOp.RenameSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            UpdateUILog(LogMsg.Message);
+        }
+
+        private void lab_EnableMaskArrow_Click(object sender, EventArgs e)
+        {
+            flowLayoutP_Mask.Visible = !flowLayoutP_Mask.Visible;
+            if(flowLayoutP_Mask.Visible)
+            {
+                AdjustRichTextBoxSize(251, -1);
+            }
+            else
+            {
+                AdjustRichTextBoxSize(144, 1);
+            }
+            //Thread.Sleep(100);
         }
         #endregion
 
@@ -348,12 +357,9 @@ namespace TestItemStatisticsAcync
         }
         // config log
         private void ConfigLog()
-        {
-            // 明确配置 NLog，包含内部日志设置  
-            var config = new LoggingConfiguration();
-
-            // 创建文件目标  
-            var logfile = new FileTarget("logfile")
+        {  
+            var config = new LoggingConfiguration();// 明确配置 NLog，包含内部日志设置             
+            var logfile = new FileTarget("logfile")// 创建文件目标
             {
                 FileName = "${basedir}/logs/log.txt",
                 Layout = "${longdate} ${level} ${message}"
@@ -366,17 +372,12 @@ namespace TestItemStatisticsAcync
             //ConfigSetting.SetInternalLogLevel(LogLevel.Debug);
             //ConfigSetting.SetInternalLogFile("${basedir}/nlog-internal.log");
 
-
             LogManager.Configuration = config;// 应用配置 
 
             string logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
             Directory.CreateDirectory(logDir); // 确保 logs 目录存在 
             string logFilePath = Path.Combine(logDir, "log.txt");
             CheckLogFileSizeAndRecreate(logFilePath);
-            //// 记录日志 测试
-            //Logger.Info("程序启动");
-            //Logger.Info("执行某个操作");
-            //Logger.Info("程序结束");
         }
         private void CheckLogFileSizeAndRecreate(string logFilePath)
         {
@@ -386,57 +387,78 @@ namespace TestItemStatisticsAcync
                 FileInfo fileInfo = new FileInfo(logFilePath);
                 if (fileInfo.Length > MaxLogSize)
                 {
-                    // 删除日志文件  
-                    File.Delete(logFilePath);
-                    Console.WriteLine(logMessage.Message += $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，已被删除。\r\n");
-
-                    // 重新创建日志文件  
-                    using (File.Create(logFilePath))
+                    DialogResult result = MessageBox.Show(this, $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，是否删除并创建新日志？", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    if (result == DialogResult.OK)
                     {
-                        // 空文件创建，不需要任何操作  
+                        // 删除日志文件  
+                        File.Delete(logFilePath);
+                        Console.WriteLine(LogMsg.Message += $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，已被删除。\r\n");
+
+                        // 重新创建日志文件  
+                        using (File.Create(logFilePath))
+                        {
+                            // 空文件创建，不需要任何操作  
+                        }
+                        Console.WriteLine(LogMsg.Message += $"日志文件 {logFilePath} 已重新创建。\r\n");
+                        MessageBox.Show(LogMsg.Message);// 用户点击“确认”
                     }
-                    Console.WriteLine(logMessage.Message += $"日志文件 {logFilePath} 已重新创建。\r\n");
+                    else
+                    {
+                        MessageBox.Show(this, LogMsg.Message += "操作已取消\r\n");// 用户点击“取消”
+                    }
                 }
             }
         }
+        private void AdjustRichTextBoxSize(int newHeight, int stretch)
+        {
+            // 获取当前的尺寸和位置  
+            int currentHeight = richTB_Log.Height;
+            int dtHeight = Math.Abs(newHeight - currentHeight) * stretch; // 向上拉伸或缩放 xx 像素  
 
+              
+            richTB_Log.Size = new Size(richTB_Log.Width, newHeight);// 更新 RichTextBox 的高度
+
+            Point currentLocation = richTB_Log.Location;
+            richTB_Log.Location = new Point(currentLocation.X, currentLocation.Y + dtHeight); // 向上或向下移动 xx 像素
+            //this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + (251 - 144));// 可选：更新窗口尺寸以适应新大小  
+        }
         //GRR parameters
         private void UpdateParamFromControl()
         {
             try
             {
                 //Extract data
-                testItem.StartRow = int.Parse(textB_StartRow.Text);
-                testItem.StartCol = int.Parse(textB_StartCol.Text);
-                testItem.StartRowDest = int.Parse(textB_StartRowDest.Text);
-                testItem.StartColDest = int.Parse(textB_StartColDest.Text);
-                testItem.Repeat = int.Parse(textB_Repeat.Text);
-                testItem.NumSN = int.Parse(textB_NumSN.Text);
-                testItem.TotalItemCount = int.Parse(textB_TotalItem.Text);
-                testItem.FromSheet = textB_FromSheet.Text;
-                testItem.ToSheet = textB_ToSheet.Text;
-                testItem.SourcePath = textB_SourcePath.Text;
+                TestItem.StartRow = int.Parse(textB_StartRow.Text);
+                TestItem.StartCol = int.Parse(textB_StartCol.Text);
+                TestItem.StartRowDest = int.Parse(textB_StartRowDest.Text);
+                TestItem.StartColDest = int.Parse(textB_StartColDest.Text);
+                TestItem.Repeat = int.Parse(textB_Repeat.Text);
+                TestItem.NumSN = int.Parse(textB_NumSN.Text);
+                TestItem.TotalItemCount = int.Parse(textB_TotalItem.Text);
+                TestItem.FromSheet = textB_FromSheet.Text;
+                TestItem.ToSheet = textB_ToSheet.Text;
+                TestItem.SourcePath = textB_SourcePath.Text;
 
                 //Paste to GRR module test item
-                testItemGRR.StartRow = int.Parse(textB_StartRow_GRR.Text);
-                testItemGRR.StartCol = int.Parse(textB_StartCol_GRR.Text);
-                testItemGRR.StartRowDest = int.Parse(textB_StartRowDest_GRR.Text);
-                testItemGRR.StartColDest = int.Parse(textB_StartColDest_GRR.Text);
-                testItemGRR.Repeat = int.Parse(textB_TrialsCount_GRR.Text);
-                testItemGRR.NumSN = int.Parse(textB_NumSN_GRR.Text);
-                //testItemGRR.TotalItemCount = int.Parse(textB_TotalItem_GRR.Text);
-                testItemGRR.FromSheet = textB_FromSheet_GRR.Text;
-                testItemGRR.SourcePath = textB_SourcePath.Text;
-                testItemGRR.TargetPath = textB_TargetPath.Text;
+                TestItemGRR.StartRow = int.Parse(textB_StartRow_GRR.Text);
+                TestItemGRR.StartCol = int.Parse(textB_StartCol_GRR.Text);
+                TestItemGRR.StartRowDest = int.Parse(textB_StartRowDest_GRR.Text);
+                TestItemGRR.StartColDest = int.Parse(textB_StartColDest_GRR.Text);
+                TestItemGRR.Repeat = int.Parse(textB_TrialsCount_GRR.Text);
+                TestItemGRR.NumSN = int.Parse(textB_NumSN_GRR.Text);
+                //TestItemGRR.TotalItemCount = int.Parse(textB_TotalItem_GRR.Text);
+                TestItemGRR.FromSheet = textB_FromSheet_GRR.Text;
+                TestItemGRR.SourcePath = textB_SourcePath.Text;
+                TestItemGRR.TargetPath = textB_TargetPath.Text;
 
                 //Paste to GRR module Limit
-                testItemGRRLimit.StartRow = int.Parse(textB_StartRowLimit.Text);
-                testItemGRRLimit.StartCol = int.Parse(textB_StartColLimit.Text);
-                testItemGRRLimit.StartRowDest = int.Parse(textB_StartRowDestLimit.Text);
-                testItemGRRLimit.StartColDest = int.Parse(textB_StartColDestLimit.Text);
-                testItemGRRLimit.FromSheet = textB_FromSheetLimit.Text;
-                testItemGRRLimit.SourcePath = textB_SourcePath.Text;
-                testItemGRRLimit.TargetPath = textB_TargetPath.Text;
+                TestItemGRRLimit.StartRow = int.Parse(textB_StartRowLimit.Text);
+                TestItemGRRLimit.StartCol = int.Parse(textB_StartColLimit.Text);
+                TestItemGRRLimit.StartRowDest = int.Parse(textB_StartRowDestLimit.Text);
+                TestItemGRRLimit.StartColDest = int.Parse(textB_StartColDestLimit.Text);
+                TestItemGRRLimit.FromSheet = textB_FromSheetLimit.Text;
+                TestItemGRRLimit.SourcePath = textB_SourcePath.Text;
+                TestItemGRRLimit.TargetPath = textB_TargetPath.Text;
 
                 // option
 
@@ -444,8 +466,8 @@ namespace TestItemStatisticsAcync
             }
             catch (Exception ex)
             {
-                logMessage.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
-                UpdateUILog(logMessage.Message);
+                LogMsg.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                UpdateUILog(LogMsg.Message);
             }
             
         }
@@ -494,8 +516,8 @@ namespace TestItemStatisticsAcync
             }
             catch (Exception ex)
             {
-                logMessage.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
-                UpdateUILog(logMessage.Message);
+                LogMsg.Message += "输入控件不是数字：" + ex.ToString() + "\r\n";
+                UpdateUILog(LogMsg.Message);
             }
         }
         // update richtextbox log,BeginInvoke 是异步执行的，不会阻塞当前线程，而 Invoke 是同步执行的，会等待操作完成。
@@ -520,7 +542,7 @@ namespace TestItemStatisticsAcync
         private void InitUILog(string msg)
         {
             richTB_Log.Clear();
-            logMessage.Message = string.Empty;
+            LogMsg.Message = string.Empty;
             UpdateUILog(msg);
         }
 
@@ -532,7 +554,7 @@ namespace TestItemStatisticsAcync
             string path = executablePath + "\\Ini\\TestItemStatistics.ini";
             if (!File.Exists(path))
             {
-                logMessage.Message += $"文件：'{path}' 不存在\r\n";
+                LogMsg.Message += $"文件：'{path}' 不存在\r\n";
                 return false;
             }
             IniFile iniFile = new IniFile(path);
@@ -585,7 +607,7 @@ namespace TestItemStatisticsAcync
             string path = executablePath + "\\Ini\\TestItemStatistics.ini";
             if (!File.Exists(path))
             {
-                logMessage.Message += $"文件：'{path}' 不存在\r\n";
+                LogMsg.Message += $"文件：'{path}' 不存在\r\n";
                 return false;
             }
             IniFile iniFile = new IniFile(path);
@@ -627,12 +649,15 @@ namespace TestItemStatisticsAcync
             textB_CopyPastePara.Text = iniFile.Read("General_ExcelParam", "PasteParam");
             textB_DeletePara.Text = iniFile.Read("General_ExcelParam", "DeleteParam");
 
-            //InitUILog("初始化完成......\r\n");
-            //string ss = richT_SheetName.Text.Replace(Environment.NewLine, "\n");
+            // Max Log Size
+            long logSize;
+            MaxLogSize = long.TryParse(iniFile.Read("Setting", "MaxLogSize"),out logSize) ? logSize : MaxLogSize;
+
             return true;
             #endregion
 
         }
+
 
 #if INIFILE
         // read ini file

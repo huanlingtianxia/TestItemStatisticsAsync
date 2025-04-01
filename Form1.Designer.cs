@@ -109,10 +109,11 @@
             this.textB_DeletePara = new System.Windows.Forms.TextBox();
             this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.label28 = new System.Windows.Forms.Label();
+            this.lab_EnableMaskArrow = new System.Windows.Forms.Label();
             this.btn_WriteIni = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.btn_ReadIni = new System.Windows.Forms.Button();
+            this.flowLayoutP_Mask = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -885,7 +886,7 @@
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.label26);
-            this.groupBox5.Controls.Add(this.label28);
+            this.groupBox5.Controls.Add(this.lab_EnableMaskArrow);
             this.groupBox5.Controls.Add(this.richT_SheetName);
             this.groupBox5.Location = new System.Drawing.Point(691, 209);
             this.groupBox5.Name = "groupBox5";
@@ -894,15 +895,17 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "General: SheetName";
             // 
-            // label28
+            // lab_EnableMaskArrow
             // 
-            this.label28.AutoSize = true;
-            this.label28.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label28.Location = new System.Drawing.Point(66, 19);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(22, 13);
-            this.label28.TabIndex = 8;
-            this.label28.Text = "<--";
+            this.lab_EnableMaskArrow.AutoSize = true;
+            this.lab_EnableMaskArrow.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.lab_EnableMaskArrow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lab_EnableMaskArrow.Location = new System.Drawing.Point(66, 17);
+            this.lab_EnableMaskArrow.Name = "lab_EnableMaskArrow";
+            this.lab_EnableMaskArrow.Size = new System.Drawing.Size(34, 13);
+            this.lab_EnableMaskArrow.TabIndex = 8;
+            this.lab_EnableMaskArrow.Text = "<-----";
+            this.lab_EnableMaskArrow.Click += new System.EventHandler(this.lab_EnableMaskArrow_Click);
             // 
             // btn_WriteIni
             // 
@@ -937,14 +940,22 @@
             this.btn_ReadIni.UseVisualStyleBackColor = true;
             this.btn_ReadIni.Click += new System.EventHandler(this.btn_ReadIni_Click);
             // 
+            // flowLayoutP_Mask
+            // 
+            this.flowLayoutP_Mask.Location = new System.Drawing.Point(1, 209);
+            this.flowLayoutP_Mask.Name = "flowLayoutP_Mask";
+            this.flowLayoutP_Mask.Size = new System.Drawing.Size(690, 106);
+            this.flowLayoutP_Mask.TabIndex = 28;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(852, 464);
+            this.ClientSize = new System.Drawing.Size(849, 464);
+            this.Controls.Add(this.richTB_Log);
+            this.Controls.Add(this.flowLayoutP_Mask);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
-            this.Controls.Add(this.richTB_Log);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -1057,10 +1068,11 @@
         private System.Windows.Forms.Button btn_CreatSheet;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Button btn_RemaneSheet;
-        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label lab_EnableMaskArrow;
         private System.Windows.Forms.Button btn_WriteIni;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.Button btn_ReadIni;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutP_Mask;
     }
 }
 
