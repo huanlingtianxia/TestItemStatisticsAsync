@@ -1,4 +1,7 @@
 ﻿//#define INIFILE
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +17,12 @@ using TestItemStatisticsAcync.ExcelOp;
 using TestItemStatisticsAcync.Ini;
 
 
+
+/* 程序包安装
+安装EPPlus：Install-Package EPPlus
+安装NLog：Install-Package NLog
+ */
+
 namespace TestItemStatisticsAcync
 {
     public partial class Form1 : Form
@@ -25,16 +34,24 @@ namespace TestItemStatisticsAcync
         }
         private void InitParam()
         {
+            
             logMessage.Message = String.Empty;
-
+            ConfigLog();
+            Logger.Info(">>>>>>>>>>程序启动");
             UpdateUIControlFromIniFile();
             UpdateParamFromControl();
             // 取消选中状态并将光标移到文本框末尾
-            textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
-            textB_TargetPath.SelectionLength = 0;
-            
-        }
+            textB_SourcePath.SelectionStart = textB_TargetPath.Text.Length;
+            textB_SourcePath.SelectionLength = 0;
+            logMessage.Message += "初始化完成\r\n";
+            UpdateUILog(logMessage.Message);
 
+        }
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Logger.Info("程序结束<<<<<<<<<<");
+        }
+       
         #region property
         ExcelOperation excelOperation { get; set; } = new ExcelOperation();//Excel 操作
         //IIniReaderWriter iniReaderWriter { get; set; } = new IniReaderWriter();
@@ -42,6 +59,19 @@ namespace TestItemStatisticsAcync
         ParametersTestItem testItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
         ParametersTestItem testItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
         LogMessage logMessage { get; set; } = new LogMessage();
+        //LoggerHander loggerHander { get; set; } = new LoggerHander("log.txt");
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        private const long MaxLogSize = 1 * 1024 * 1024; // 50 MB
+        //private static Logger? logger; // 定义 logger 属性  
+        //public static Logger Logger
+        //{
+        //    get
+        //    {
+        //        // 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例  
+        //        return logger ?? (logger = LogManager.GetCurrentClassLogger());
+        //    }
+        //}
         #endregion
 
         #region Control Click event
@@ -98,14 +128,16 @@ namespace TestItemStatisticsAcync
                 }
                 path += "GRRModuleSheetName.txt";
                 string[] sheetName = await excelOperation.GetSheetName(testItemGRR.TargetPath, false, path).ConfigureAwait(false);
-                logMessage.Message += "提取GRR module中 test item sheet name 到GRRModuleSheetName.txt,\r\n path: " + path + "\r\n";
-                if(sheetName != null)
+                logMessage.Message += "提取GRR module中 sheet name 到GRRModuleSheetName.txt,\r\n" + "path: " + path + "\r\n";
+                logMessage.Message += $"Total sheet count: {sheetName.Length}\r\n";
+                logMessage.Message += $"Count{string.Empty,-5}, sheet name\r\n";
+                if (sheetName != null)
                 {
                     for (int i = 0; i < sheetName.Length; i++)
                     {
-                        logMessage.Message += $"序号：{i + 1,-6} {sheetName[i]}\r\n";
+                        logMessage.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
                     }
-                    logMessage.Message += $"提取sheet name 完成！sheet count: {sheetName.Length} ----------------------\r\n";
+                    logMessage.Message += $"提取sheet name 完成！ ----------------------\r\n";
                 }
                 else
                 {
@@ -136,9 +168,10 @@ namespace TestItemStatisticsAcync
             {
                 DialogResult result = MessageBox.Show(this, "确定将UI中的数据更新到 Ini 文件?", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                 if (result == DialogResult.OK)
-                {                 
-                    UpdateIniFileFromUIControl();
-                    MessageBox.Show(logMessage.Message += "已将UI数据更新到Ini文件\r\n");// 用户点击“确认”
+                {
+                    bool state = UpdateIniFileFromUIControl();
+                    logMessage.Message += state ? "已将UI数据更新到Ini文件\r\n" : "UI数据更新到Ini文件 异常\r\n";
+                    MessageBox.Show(logMessage.Message);// 用户点击“确认”
                 }
                 else
                 {
@@ -154,8 +187,9 @@ namespace TestItemStatisticsAcync
         private void btn_ReadIni_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateUIControlFromIniFile();
-            UpdateUILog("read ini completed");
+            bool state = UpdateUIControlFromIniFile();
+            logMessage.Message += state ? "read ini completed\r\n" : "read ini failed\r\n";
+            UpdateUILog(logMessage.Message);
         }
         //General: CopyPaste And Delete
         private async void btn_CopyPaste_Click(object sender, EventArgs e)
@@ -312,6 +346,59 @@ namespace TestItemStatisticsAcync
                 }
             }
         }
+        // config log
+        private void ConfigLog()
+        {
+            // 明确配置 NLog，包含内部日志设置  
+            var config = new LoggingConfiguration();
+
+            // 创建文件目标  
+            var logfile = new FileTarget("logfile")
+            {
+                FileName = "${basedir}/logs/log.txt",
+                Layout = "${longdate} ${level} ${message}"
+            };
+
+            config.AddTarget(logfile);
+            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, logfile));
+
+            // 定义内部日志文件  
+            //ConfigSetting.SetInternalLogLevel(LogLevel.Debug);
+            //ConfigSetting.SetInternalLogFile("${basedir}/nlog-internal.log");
+
+
+            LogManager.Configuration = config;// 应用配置 
+
+            string logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
+            Directory.CreateDirectory(logDir); // 确保 logs 目录存在 
+            string logFilePath = Path.Combine(logDir, "log.txt");
+            CheckLogFileSizeAndRecreate(logFilePath);
+            //// 记录日志 测试
+            //Logger.Info("程序启动");
+            //Logger.Info("执行某个操作");
+            //Logger.Info("程序结束");
+        }
+        private void CheckLogFileSizeAndRecreate(string logFilePath)
+        {
+            // 如果日志文件存在，检查大小  
+            if (File.Exists(logFilePath))
+            {
+                FileInfo fileInfo = new FileInfo(logFilePath);
+                if (fileInfo.Length > MaxLogSize)
+                {
+                    // 删除日志文件  
+                    File.Delete(logFilePath);
+                    Console.WriteLine(logMessage.Message += $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，已被删除。\r\n");
+
+                    // 重新创建日志文件  
+                    using (File.Create(logFilePath))
+                    {
+                        // 空文件创建，不需要任何操作  
+                    }
+                    Console.WriteLine(logMessage.Message += $"日志文件 {logFilePath} 已重新创建。\r\n");
+                }
+            }
+        }
 
         //GRR parameters
         private void UpdateParamFromControl()
@@ -419,11 +506,14 @@ namespace TestItemStatisticsAcync
                 // 调用 UI 线程来更新 RichTextBox
                 richTB_Log.BeginInvoke(new Action(() => {
                     richTB_Log.AppendText(msg);
+                    Logger.Info(msg);
                 }));
+                
             }
             else
             {
                 richTB_Log.AppendText(msg);
+                Logger.Info(msg);
             }
         }
         // init richtextbox log
@@ -435,11 +525,16 @@ namespace TestItemStatisticsAcync
         }
 
         // update INI file from UI Control
-        private void UpdateIniFileFromUIControl()
+        private bool UpdateIniFileFromUIControl()
         {
             #region INI_FILE_WRITE
             string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
             string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+            if (!File.Exists(path))
+            {
+                logMessage.Message += $"文件：'{path}' 不存在\r\n";
+                return false;
+            }
             IniFile iniFile = new IniFile(path);
 
             // 写入数据  
@@ -478,14 +573,21 @@ namespace TestItemStatisticsAcync
             iniFile.Write("General_ExcelParam", "ReserveCnt", textB_ReserveSheetCount.Text);
             iniFile.Write("General_ExcelParam", "PasteParam", textB_CopyPastePara.Text);
             iniFile.Write("General_ExcelParam", "DeleteParam", textB_DeletePara.Text);
+
+            return true;
             #endregion
         }
         // update UI Control from INI File
-        private void UpdateUIControlFromIniFile()
+        private bool UpdateUIControlFromIniFile()
         {
             #region INI_FILE_READ
             string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
             string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+            if (!File.Exists(path))
+            {
+                logMessage.Message += $"文件：'{path}' 不存在\r\n";
+                return false;
+            }
             IniFile iniFile = new IniFile(path);
 
             // 读取数据  
@@ -527,6 +629,7 @@ namespace TestItemStatisticsAcync
 
             //InitUILog("初始化完成......\r\n");
             //string ss = richT_SheetName.Text.Replace(Environment.NewLine, "\n");
+            return true;
             #endregion
 
         }
@@ -658,6 +761,7 @@ namespace TestItemStatisticsAcync
 #endif
 
         #endregion
+
 
     }
 }
