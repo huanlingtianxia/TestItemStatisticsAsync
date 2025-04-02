@@ -62,7 +62,7 @@ namespace TestItemStatisticsAcync
         internal ParametersTestItem TestItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
         internal ParametersTestItem TestItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
         internal LogMessage LogMsg { get; set; } = new LogMessage();// log message
-        internal long MaxLogSize { get; set; } = 1 * 1024 * 1024; // 10 MB
+        internal long MaxLogSize { get; set; } = 10 * 1024 * 1024; // 10 MB
 
         private static Logger? logger; // 定义 logger 属性  
         internal static Logger Logger => logger ?? (logger = LogManager.GetCurrentClassLogger());// 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例
