@@ -23,7 +23,7 @@
 3.2 参数：根据名称理解
 	Extract data: SourcePath：将op01.xlsx中工作表SortSelectTrans中的数据提取到 toSheetAll中；功能按钮：ExtractData
 	Paste to GRR: SourcePath to TargetPath：将op01.xlsx中工资表toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
-	Paste to GRR: Limit：将op01.xlsx中工资表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
+	Paste to GRR: Limit：将op01.xlsx中工作表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
 
 =======================================================================================================
 	下面是扩展功能，可跳过：
@@ -42,8 +42,8 @@
 	ReserveCnt：如果值是”:cnt“格式(cnt取正整数)，则表示只保留cnt个工作表格，其他的删除。如果不是”:cnt“格式，则删除SheetName中的工作表。
 	General: CopyPaste And Delete
 		ExcelPath:excel路径，作用域：General
-		PastePara参数格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest// 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数）
-		DeletePara参数格式：StartCol,StartCol,EndRow,EndCol							// 开始行，开始列，结束行，结束列（行列都是正整数）
+		PasteParam参数格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest// 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数,从1开始）
+		DeleteParam参数格式：StartCol,StartCol,EndRow,EndCol							// 开始行，开始列，结束行，结束列（行列都是正整数）
 		ReserveCnt参数格式：:cnt													// 保留cnt个sheet。注意最后一个sheet不在统计范围（保留Summary工作表）。
 =======================================================================================================
 
