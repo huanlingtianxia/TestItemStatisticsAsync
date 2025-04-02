@@ -39,8 +39,8 @@ namespace TestItemStatisticsAcync
             ConfigLog();
             Logger.Info(">>>>>>>>>>程序启动");
             UpdateUIControlFromIniFile();
-            UpdateParamFromControl();
-            AdjustRichTextBoxSize(251, -1);
+            UpdateParamFromUIControl();
+            AdjustRichTextBoxUILogSize(251, -1);
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
@@ -94,7 +94,7 @@ namespace TestItemStatisticsAcync
         private async void btn_ExtractData_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParamFromControl();
+            UpdateParamFromUIControl();
             await ExcelOp.ExtractDataFromTestItem(TestItem.SourcePath, TestItem, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
         }
@@ -102,7 +102,7 @@ namespace TestItemStatisticsAcync
         private async void btn_PasteToGRR_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParamFromControl();
+            UpdateParamFromUIControl();
             await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR.SourcePath, TestItemGRR.TargetPath, TestItemGRR, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
         }
@@ -110,10 +110,10 @@ namespace TestItemStatisticsAcync
         private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParamFromControl();
+            UpdateParamFromUIControl();
             try
             {
-                UpdateParamFromControl();
+                UpdateParamFromUIControl();
                 string[] str = { "\\" };
                 string path = string.Empty;
                 string[] pathArr = TestItemGRR.TargetPath.Split(str, StringSplitOptions.None);
@@ -151,10 +151,11 @@ namespace TestItemStatisticsAcync
         private async void btn_PasteLimit_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
-            UpdateParamFromControl();
+            UpdateParamFromUIControl();
             await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit.SourcePath, TestItemGRRLimit.TargetPath, TestItemGRRLimit, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
         }
+        
         // update ini file
         private void btn_WriteIni_Click(object sender, EventArgs e)
         {
@@ -186,12 +187,13 @@ namespace TestItemStatisticsAcync
             LogMsg.Message += state ? "read ini file and update to UI Control completed\r\n" : "read ini file failed\r\n";
             UpdateUILog(LogMsg.Message);
         }
+        
         //General: CopyPaste And Delete
         private async void btn_CopyPaste_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromControl(para, true);
+            UpdateParamFromUIControl(para, true);
             await ExcelOp.CopyRangePaste(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 复制 公式单元格
             UpdateUILog(LogMsg.Message);
         }
@@ -201,7 +203,7 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             //await Task.Delay(5000);
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromControl(para, false);
+            UpdateParamFromUIControl(para, false);
             await ExcelOp.DeleteRangeData(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
         }
@@ -210,7 +212,7 @@ namespace TestItemStatisticsAcync
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem parametersTestItem = new ParametersTestItem();
-            UpdateParamFromControl(parametersTestItem, false);
+            UpdateParamFromUIControl(parametersTestItem, false);
             if (parametersTestItem.ReserveSheetCount == -1)
             {
                 await ExcelOp.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
@@ -227,7 +229,7 @@ namespace TestItemStatisticsAcync
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromControl(para, false);
+            UpdateParamFromUIControl(para, false);
             await ExcelOp.CreatSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
         }
@@ -236,7 +238,7 @@ namespace TestItemStatisticsAcync
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromControl(para, false);
+            UpdateParamFromUIControl(para, false);
             await ExcelOp.RenameSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
         }
@@ -244,12 +246,33 @@ namespace TestItemStatisticsAcync
         private void lab_EnableMaskArrow_Click(object sender, EventArgs e)
         {
             flowLayoutP_Mask.Visible = !flowLayoutP_Mask.Visible;
-            Action action = flowLayoutP_Mask.Visible ? (Action)(() => { AdjustRichTextBoxSize(251, -1); }) : () => { AdjustRichTextBoxSize(144, 1); };
+            Action action = flowLayoutP_Mask.Visible ? (Action)(() => { AdjustRichTextBoxUILogSize(251, -1); }) : () => { AdjustRichTextBoxUILogSize(144, 1); };
             action();
         }
         #endregion
 
         #region private function
+        private string SelectfullPath()
+        {
+            // 创建 OpenFileDialog 实例
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            // 设置初始目录和过滤器（可选）
+            //openFileDialog.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            openFileDialog.InitialDirectory = "C:\\";  // 你可以设置你希望打开的默认目录
+            openFileDialog.Filter = "所有文件 (*.*)|*.*";  // 允许选择所有文件类型
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            string fullPath = string.Empty;
+
+            // 显示对话框并检查用户是否选择了文件
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // 获取选择的文件路径
+                fullPath = openFileDialog.FileName;
+            }
+            return fullPath;
+        }
         private string SelectPath()
         {
             // 创建一个 FolderBrowserDialog 实例
@@ -271,27 +294,6 @@ namespace TestItemStatisticsAcync
                 return folderPath;
             }
             return string.Empty;
-        }
-        private string SelectfullPath()
-        {
-            // 创建 OpenFileDialog 实例
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            // 设置初始目录和过滤器（可选）
-            //openFileDialog.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            openFileDialog.InitialDirectory = "C:\\";  // 你可以设置你希望打开的默认目录
-            openFileDialog.Filter = "所有文件 (*.*)|*.*";  // 允许选择所有文件类型
-            openFileDialog.FilterIndex = 1;
-            openFileDialog.RestoreDirectory = true;
-            string fullPath = string.Empty;
-
-            // 显示对话框并检查用户是否选择了文件
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                // 获取选择的文件路径
-                fullPath = openFileDialog.FileName;
-            }
-            return fullPath;
         }
         private string SaveFile()
         {
@@ -348,7 +350,8 @@ namespace TestItemStatisticsAcync
                 }
             }
         }
-        // config log
+
+        /* config log */
         private void ConfigLog()
         {  
             var config = new LoggingConfiguration();// 明确配置 NLog，包含内部日志设置             
@@ -402,21 +405,45 @@ namespace TestItemStatisticsAcync
                 }
             }
         }
-        private void AdjustRichTextBoxSize(int newHeight, int stretch)
+        
+        /* UI Control update */
+        private void AdjustRichTextBoxUILogSize(int newHeight, int stretch)
         {
             // 获取当前的尺寸和位置  
             int currentHeight = richTB_Log.Height;
-            int dtHeight = Math.Abs(newHeight - currentHeight) * stretch; // 向上拉伸或缩放 xx 像素  
-
-              
+            int dtHeight = Math.Abs(newHeight - currentHeight) * stretch; // 向上拉伸或缩放 dtHeight 像素  
             richTB_Log.Size = new Size(richTB_Log.Width, newHeight);// 更新 RichTextBox 的高度
-
             Point currentLocation = richTB_Log.Location;
-            richTB_Log.Location = new Point(currentLocation.X, currentLocation.Y + dtHeight); // 向上或向下移动 xx 像素
-            //this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + (251 - 144));// 可选：更新窗口尺寸以适应新大小  
+            richTB_Log.Location = new Point(currentLocation.X, currentLocation.Y + dtHeight); // 向上或向下移动 dtHeight 像素
+            //this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + dtHeight);// 可选：更新窗口尺寸以适应新大小  
+        }
+        // update richtextbox log,BeginInvoke 是异步执行的，不会阻塞当前线程，而 Invoke 是同步执行的，会等待操作完成。
+        private void UpdateUILog(string msg)
+        {
+            if (richTB_Log.InvokeRequired)
+            {
+                // 调用 UI 线程来更新 RichTextBox
+                richTB_Log.BeginInvoke(new Action(() => {
+                    richTB_Log.AppendText(msg);
+                    Logger.Info(msg);
+                }));
+
+            }
+            else
+            {
+                richTB_Log.AppendText(msg);
+                Logger.Info(msg);
+            }
+        }
+        // init richtextbox log
+        private void InitUILog(string msg)
+        {
+            richTB_Log.Clear();
+            LogMsg.Message = string.Empty;
+            UpdateUILog(msg);
         }
         //GRR parameters
-        private void UpdateParamFromControl()
+        private void UpdateParamFromUIControl()
         {
             try
             {
@@ -465,7 +492,7 @@ namespace TestItemStatisticsAcync
             
         }
         // General parameters
-        private void UpdateParamFromControl(ParametersTestItem parameters, bool copyPaste)
+        private void UpdateParamFromUIControl(ParametersTestItem parameters, bool copyPaste)
         {
             try
             {
@@ -523,32 +550,6 @@ namespace TestItemStatisticsAcync
                 UpdateUILog(LogMsg.Message);
             }
         }
-        // update richtextbox log,BeginInvoke 是异步执行的，不会阻塞当前线程，而 Invoke 是同步执行的，会等待操作完成。
-        private void UpdateUILog(string msg)
-        {
-            if (richTB_Log.InvokeRequired)
-            {
-                // 调用 UI 线程来更新 RichTextBox
-                richTB_Log.BeginInvoke(new Action(() => {
-                    richTB_Log.AppendText(msg);
-                    Logger.Info(msg);
-                }));
-                
-            }
-            else
-            {
-                richTB_Log.AppendText(msg);
-                Logger.Info(msg);
-            }
-        }
-        // init richtextbox log
-        private void InitUILog(string msg)
-        {
-            richTB_Log.Clear();
-            LogMsg.Message = string.Empty;
-            UpdateUILog(msg);
-        }
-
         // update INI file from UI Control
         private bool UpdateIniFileFromUIControl()
         {
@@ -660,7 +661,6 @@ namespace TestItemStatisticsAcync
             #endregion
 
         }
-
 
 #if INIFILE
         // read ini file
@@ -789,7 +789,5 @@ namespace TestItemStatisticsAcync
 #endif
 
         #endregion
-
-
     }
 }
