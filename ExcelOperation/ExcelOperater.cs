@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using OfficeOpenXml;
 using TestItemStatisticsAcync.ExcelOperation;
@@ -18,7 +19,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
     internal class ExcelOperater
     {
         #region Extract data and copy paste to GRR module
-
         // 从测试项中提取数据
         public async Task ExtractDataFromTestItem(string WorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
         {
@@ -53,21 +53,23 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     ExcelWorksheet destSheet = Package.Workbook.Worksheets[toSheet];  // Sheet2
 
                     LogMsg.Message += $"数据提取: '{fromSheet}'  -->  '{toSheet}'\r\n";
-                    LogMsg.Message += $"Count{string.Empty,-5}, test item name\r\n";                                                                  //for (var i = 0; i < 5; i++)
-                    for (int i = 0; i < count; i++) // total:i = 229
+                    LogMsg.Message += $"Count{string.Empty,-5}, test item name\r\n";
+                    await Task.Run(() =>
                     {
-                        CopyRange(sourceSheet, stRow + i, stCol, stRow + i, stCol, destSheet, stRowDest + i * numSN, stColDest);
-                        for (int j = 0; j < repeat+1; j++) // SN1~SN9
+                        for (int i = 0; i < count; i++) // total:i = 229
                         {
-                            // 拷贝区域 1:fromSheet numSN 个test itme 粘贴到 toSheet中
-                            CopyRange(sourceSheet, stRow + i, stCol + j * repeat + 1, stRow + i, stCol + (j + 1) * repeat, destSheet, stRowDest + ++num, stColDest + 1);
+                            CopyRange(sourceSheet, stRow + i, stCol, stRow + i, stCol, destSheet, stRowDest + i * numSN, stColDest);
+                            for (int j = 0; j < repeat + 1; j++) // SN1~SN9
+                            {
+                                // 拷贝区域 1:fromSheet numSN 个test itme 粘贴到 toSheet中
+                                CopyRange(sourceSheet, stRow + i, stCol + j * repeat + 1, stRow + i, stCol + (j + 1) * repeat, destSheet, stRowDest + ++num, stColDest + 1);
+                            }
+                            num++;
+                            //Console.WriteLine($"序号：{i + 1} 数据提取中......，提取test item 个数:{i + 1}, 剩余test item个数: {count - (i + 1)}, item name: {sourceSheet.Cells[stRow + i, stCol].Value}\r\n");
+                            LogMsg.Message += $"{i + 1,-10}, {sourceSheet.Cells[stRow + i, stCol].Value}\r\n";
                         }
-                        num++;
-                        //Console.WriteLine($"序号：{i + 1} 数据提取中......，提取test item 个数:{i + 1}, 剩余test item个数: {count - (i + 1)}, item name: {sourceSheet.Cells[stRow + i, stCol].Value}\r\n");
-                        LogMsg.Message += $"{i + 1,-10}, {sourceSheet.Cells[stRow + i, stCol].Value}\r\n";
-                    }
-                    // 保存目标文件
-                    Package.Save();
+                        Package.Save();// 保存目标文件
+                    });
                 }
             }
             catch(Exception ex)
@@ -117,20 +119,22 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     ExcelWorksheet sourceSheet = sourcePackage.Workbook.Worksheets[fromSheet];  // Sheet1
                     LogMsg.Message += $"提取数据 '{fromSheet}' --> GRR模板\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, GRR module sheet name\r\n";
-                    for (var i = 0; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        ExcelWorksheet destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-
-                        for (int j = 0; j < TrialsCount; j++)
+                        for (var i = 0; i < sheetName.Length; i++)
                         {
-                            // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
-                            CopyRange(sourceSheet, stRow + i * numSN, stCol + j * 3, stRow + i * numSN + (numSN - 3), stCol + j * 3 + 2, destSheet, stRowDest, stColDest + j * 4);
+                            ExcelWorksheet destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+
+                            for (int j = 0; j < TrialsCount; j++)
+                            {
+                                // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
+                                CopyRange(sourceSheet, stRow + i * numSN, stCol + j * 3, stRow + i * numSN + (numSN - 3), stCol + j * 3 + 2, destSheet, stRowDest, stColDest + j * 4);
+                            }
+                            //Console.WriteLine( $"序号：{i +1} 数据拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n");
+                            LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
                         }
-                        //Console.WriteLine( $"序号：{i +1} 数据拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n");
-                        LogMsg.Message += $"{i +1,-10}, {sheetName[i]}\r\n";
-                    }
-                    // 保存目标文件
-                    destPackage.Save();
+                        destPackage.Save();// 保存目标文件
+                    });
                 }
             }
             catch (Exception ex)
@@ -177,16 +181,18 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     ExcelWorksheet sourceSheet = sourcePackage.Workbook.Worksheets[fromSheet];  // Sheet1
                     LogMsg.Message += $"limit '{fromSheet}' --> GRR模板\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, GRR module sheet name\r\n";
-                    for (var i = 0; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        ExcelWorksheet destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                                                                                                   // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
-                        CopyRange(sourceSheet, stRow, stCol + i, stRow + 1, stCol + i, destSheet, stRowDest, stColDest);
+                        for (var i = 0; i < sheetName.Length; i++)
+                        {
+                            ExcelWorksheet destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                                                                                                       // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
+                            CopyRange(sourceSheet, stRow, stCol + i, stRow + 1, stCol + i, destSheet, stRowDest, stColDest);
 
-                        LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
-                    }
-                    // 保存目标文件
-                    destPackage.Save();
+                            LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
+                        }
+                        destPackage.Save();// 保存目标文件
+                    });
                 }
             }
             catch (Exception ex)
@@ -198,6 +204,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
         }
         #endregion
         
+
         #region internal
         // 新建sheet
         internal async Task CreatSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg, bool before = false)
@@ -212,35 +219,41 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 string[] sheetName = ParaTestItem.SheetName;
                 var sheetNa = await GetSheetName(targetWorkbookPath, false).ConfigureAwait(false);
                 string summary = sheetNa.Last();
-                
+
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
                     LogMsg.Message += $"创建新工作表\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, New sheet name\r\n";
-                    for (int i = 0; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        var destSheet = destPackage.Workbook.Worksheets.Add(sheetName[i]);  // // 创建一个新的工作表，名称为 "NewSheet"
-
-                       
-                        var workbook = destPackage.Workbook; // 获取工作表集合
-                        var targetSheet = workbook.Worksheets[summary];                       
-                        int targetSheetIndex = targetSheet.Index;// 获取工作表的索引
-
-
-                        if (before)
+                        for (int i = 0; i < sheetName.Length; i++)
                         {
-                            workbook.Worksheets.MoveBefore(destSheet.Index, targetSheetIndex - i);// 将工作表移到目标位置前（插入位置）
+                            var existingSheet = destPackage.Workbook.Worksheets.FirstOrDefault(sheet => sheet.Name == sheetName[i]);
+                            if (existingSheet != null)
+                            {
+                                LogMsg.Message += $"{i + 1,-10}, 工作表 '{sheetName[i]}' 已经存在\r\n";
+                                continue;
+                            }
+                            var destSheet = destPackage.Workbook.Worksheets.Add(sheetName[i]);  // // 创建一个新的工作表，名称为 "NewSheet"
+                            var workbook = destPackage.Workbook; // 获取工作表集合
+                            var targetSheet = workbook.Worksheets[summary];
+                            int targetSheetIndex = targetSheet.Index;// 获取工作表的索引
+
+                            if (before)
+                            {
+                                workbook.Worksheets.MoveBefore(destSheet.Index, targetSheetIndex - i);// 将工作表移到目标位置前（插入位置）
+                            }
+                            else
+                            {
+                                workbook.Worksheets.MoveAfter(destSheet.Index, targetSheetIndex - i);// 将工作表移到目标位置后（插入位置）
+                            }
+                            //var newSheet = package.Workbook.Worksheets.Add("NewSheet");
+                            LogMsg.Message += $"{i + 1,-10}, '{sheetName[i]}'\r\n";
                         }
-                        else
-                        {
-                            workbook.Worksheets.MoveAfter(destSheet.Index, targetSheetIndex - i);// 将工作表移到目标位置后（插入位置）
-                        }
-                        //var newSheet = package.Workbook.Worksheets.Add("NewSheet");
-                        LogMsg.Message += $"{i + 1,-10}, '{sheetName[i]}'\r\n";
-                    }
-                    destPackage.Save();
+                        destPackage.Save();
+                    });
                 }
                 if (LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "创建工作表 异常！\r\n";
@@ -251,7 +264,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
             {
                 LogMsg.Message += $"{ex.ToString()}\r\n";
             }
-
         }
         // rename sheet
         internal async Task RenameSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
@@ -274,22 +286,25 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
                     LogMsg.Message += $"重命名工作表\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, old sheet name --> New sheet name\r\n";
-                    for (int i = 0; i < len; i++)
+                    await Task.Run(() =>
                     {
-                        // 获取指定名称的工作表
-                        ExcelWorksheet worksheet = destPackage.Workbook.Worksheets[oldSheetName[i]];
-
-                        if (worksheet != null)
-                        {                          
-                            worksheet.Name = newSheetName[i];// 重命名工作表
-                            LogMsg.Message += $"{i + 1,-10}, '{oldSheetName[i]} ' --> '{newSheetName[i]}'\r\n";
-                        }
-                        else
+                        for (int i = 0; i < len; i++)
                         {
-                            LogMsg.Message += $"{i + 1,-10}, 工作表 '{oldSheetName}' 不存在！\r\n";
+                            // 获取指定名称的工作表
+                            ExcelWorksheet worksheet = destPackage.Workbook.Worksheets[oldSheetName[i]];
+
+                            if (worksheet != null)
+                            {
+                                worksheet.Name = newSheetName[i];// 重命名工作表
+                                LogMsg.Message += $"{i + 1,-10}, '{oldSheetName[i]} ' --> '{newSheetName[i]}'\r\n";
+                            }
+                            else
+                            {
+                                LogMsg.Message += $"{i + 1,-10}, 工作表 '{oldSheetName[i]}' 不存在！\r\n";
+                            }
                         }
-                    }
-                    destPackage.Save();
+                        destPackage.Save();
+                    });
                 }
                 if (LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "重命名工作表 异常！\r\n";
@@ -300,12 +315,10 @@ namespace TestItemStatisticsAcync.ExcelOperation
             {
                 LogMsg.Message += $"{ex.ToString()}\r\n";
             }
-
         }
         //删除sheet
         internal async Task DeleteSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
         {
-            await Task.Run(() => { /* 空操作 */ }); // 使用 Task.Run 来启动一个无操作的异步任务
             try
             {
                 if (!File.Exists(targetWorkbookPath))
@@ -325,21 +338,23 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     var workbook = destPackage.Workbook;
                     LogMsg.Message += $"删除工作表\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, 已删除工作表\r\n";
-                    for (int i = 0; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        var sheetToRemove = workbook.Worksheets[sheetName[i]];
-                        if (sheetToRemove != null)
+                        for (int i = 0; i < sheetName.Length; i++)
                         {
-                            workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
-                            LogMsg.Message += $"{i + 1,-10}, '{sheetToRemove}'\r\n";
+                            var sheetToRemove = workbook.Worksheets[sheetName[i]];
+                            if (sheetToRemove != null)
+                            {
+                                workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
+                                LogMsg.Message += $"{i + 1,-10}, '{sheetToRemove}'\r\n";
+                            }
+                            else
+                            {
+                                LogMsg.Message += $"{i + 1,-10}, 未找到工作表 '{sheetName[i]}'\r\n";
+                            }
                         }
-                        else
-                        {
-                            LogMsg.Message += $"{i + 1,-10}, 未找到工作表 '{sheetToRemove}'\r\n";
-                        }
-                    }
-
-                    destPackage.Save();
+                        destPackage.Save();
+                    });
                 }
                 if (LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "删除工作表 异常！\r\n";
@@ -350,7 +365,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
             {
                 LogMsg.Message += $"{ex.ToString()}\r\n";
             }
-
         }
         //删除sheet
         internal async Task DeleteSheet(string targetWorkbookPath, int reserveSheetCount,LogMessage LogMsg)
@@ -380,21 +394,23 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     }
                     LogMsg.Message += $"删除工作表\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, 已删除工作表\r\n";
-                    for (int i = reserveSheetCount; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        var sheetToRemove = workbook.Worksheets[sheetName[i]];
-                        if (sheetToRemove != null)
+                        for (int i = reserveSheetCount; i < sheetName.Length; i++)
                         {
-                            workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
-                            LogMsg.Message += $"{i - reserveSheetCount + 1,-10}, '{sheetToRemove}'\r\n";
+                            var sheetToRemove = workbook.Worksheets[sheetName[i]];
+                            if (sheetToRemove != null)
+                            {
+                                workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
+                                LogMsg.Message += $"{i - reserveSheetCount + 1,-10}, '{sheetToRemove}'\r\n";
+                            }
+                            else
+                            {
+                                LogMsg.Message += $"{i - reserveSheetCount + 1,-10}， 未找到工作表 '{sheetToRemove}'\r\n";
+                            }
                         }
-                        else
-                        {
-                            LogMsg.Message += $"{i - reserveSheetCount + 1,-10}， 未找到工作表 '{sheetToRemove}'\r\n";
-                        }
-                    }
-
-                    destPackage.Save();
+                        destPackage.Save();
+                    });
                 }
                 if (LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "删除工作表 异常！\r\n";
@@ -405,7 +421,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
             {
                 LogMsg.Message += $"{ex.ToString()}\r\n";
             }
-            
         }
         //删除range单元格
         internal async Task DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
@@ -416,7 +431,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
             int endCol = ParaTestItem.EndtCol;//数据源列结束:14
             string[] sheetName = ParaTestItem.SheetName;
 
-            await Task.Run(() => { /* 空操作 */ }); // 使用 Task.Run 来启动一个无操作的异步任务
             try
             {
                 if (!File.Exists(targetWorkbookPath))
@@ -430,32 +444,33 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 {
                     LogMsg.Message += $"删除工作表中range里的内容\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, 删除工作表中range里的内容\r\n";
-                    for (int i = 0; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                        if (destSheet != null)
+                        for (int i = 0; i < sheetName.Length; i++)
                         {
-                            DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
-                            LogMsg.Message += $"{i + 1,-10}, '{sheetName[i]}'\r\n";
+                            var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                            if (destSheet != null)
+                            {
+                                DeleteRangeData(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol);
+                                LogMsg.Message += $"{i + 1,-10}, '{sheetName[i]}'\r\n";
+                            }
+                            else
+                            {
+                                Console.WriteLine(LogMsg.Message += $"{i + 1,-10}, 未找到工作表'{sheetName[i]}'\r\n");
+                            }
                         }
-                        else
-                        {
-                            Console.WriteLine(LogMsg.Message += $"{i + 1,-10}, 未找到工作表'{sheetName[i]}'\r\n");
-                        }
-                    }
-
-                    destPackage.Save();
+                        destPackage.Save();
+                    });
                 }
                 if (LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "数据删除 异常！";
                 else
-                    LogMsg.Message += $"删除：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束列{endCol}， 完成！";
+                    LogMsg.Message += $"删除：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束列{endCol}， 完成！\r\n";
                 
                 
                 //Console.WriteLine(LogMsg.Message += "删除数据完成！");
             }
             catch(Exception ex) {LogMsg.Message += ex.ToString(); throw;}
-            
         }
         //复制粘贴range单元格
         internal async Task CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
@@ -468,7 +483,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
             int stColDest = ParaTestItem.StartColDest;//目标列开始
             string[] sheetName = ParaTestItem.SheetName;
 
-            await Task.Run(() => { /* 空操作 */ }); // 使用 Task.Run 来启动一个无操作的异步任务
             try
             {
                 if (!File.Exists(targetWorkbookPath))
@@ -482,36 +496,40 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 {
                     LogMsg.Message += $"拷贝粘贴工作表中range里的内容\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, 拷贝粘贴工作表中range里的内容\r\n";
-                    for (int i = 0; i < sheetName.Length; i++)
+                    await Task.Run(() =>
                     {
-                        var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
-                        if (destSheet != null)
+                        for (int i = 0; i < sheetName.Length; i++)
                         {
-                            CopyRange(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol, destSheet, destStartRow: stRowDest, destStartCol: stColDest);
-                            LogMsg.Message += $"{i + 1,-10}, '{sheetName[i]}'\r\n";
-                        }
-                        else
-                        {
-                            Console.WriteLine(LogMsg.Message += $"{i + 1,-10}, 未找到工作表'{sheetName[i]}'\r\n");
-                        }
+                            var destSheet = destPackage.Workbook.Worksheets[sheetName[i]];  // Sheet2
+                            if (destSheet != null)
+                            {
+                                CopyRange(destSheet, startRow: stRow, startCol: stCol, endRow: endRow, endCol: endCol, destSheet, destStartRow: stRowDest, destStartCol: stColDest);
+                                LogMsg.Message += $"{i + 1,-10}, '{sheetName[i]}'\r\n";
+                            }
+                            else
+                            {
+                                Console.WriteLine(LogMsg.Message += $"{i + 1,-10}, 未找到工作表'{sheetName[i]}'\r\n");
+                            }
 
-                    }
-                    destPackage.Save();
+                        }
+                        destPackage.Save();
+                    });
+
+                    
                 }
                 if(LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "数据拷贝粘贴 异常！";
                 else
-                    LogMsg.Message += $"拷贝：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束列{endCol}，粘贴： 目标开始行{stRowDest}，目标开始列{stColDest}， 完成！";
+                    LogMsg.Message += $"拷贝：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束列{endCol}，粘贴： 目标开始行{stRowDest}，目标开始列{stColDest}， 完成！\r\n";
                 //LogMsg.Message += "数据拷贝粘贴 完成！";
             }
             catch(Exception ex) { LogMsg.Message += ex.ToString(); throw; }
-            
         }
         // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
         internal async Task<string[]> GetSheetName(string excelFilePaht, bool allSheet, string outputFilePath = null)
         {
-            string[] sheetNames;
 
+            string[] sheetNames;
             try
             {
                 if (!File.Exists(excelFilePaht)) return null;// new string[1] { $"文件: {excelFilePaht}不存在" };
@@ -536,10 +554,13 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     using (StreamWriter writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
                     {
                         writer.WriteLine($"sheet name:all count: {sheetNames.Length}");
-                        foreach (var sheet in sheetNames)
+                        await Task.Run(() =>
                         {
-                            writer.WriteLine($"{sheet}");
-                        }
+                            foreach (var sheet in sheetNames)
+                            {
+                                writer.WriteLine($"{sheet}");
+                            }
+                        });
                     }
                 }
             }
@@ -556,7 +577,6 @@ namespace TestItemStatisticsAcync.ExcelOperation
         {
             try
             {
-
                 outputFilePath = GetTextFileName(outputFilePath);
                 int span = 9;//单个SN的一个测试项的测试次数，即单个测试项跨度单元格数量
                 // 打开文件流进行写入
@@ -671,11 +691,18 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     // 如果源单元格有公式，则将公式复制到目标单元格
                     if (!string.IsNullOrEmpty(formula))
                     {
-                        // 根据目标位置调整公式
-                        string adjustedFormula = AdjustFormulaForNewLocation(formula, row, col, destStartRow, destStartCol);
+                        // 遍历目标区域的每个单元格，确保公式的调整是针对每个单元格的
+                        for (int destRowIdx = destStartRow; destRowIdx <= destStartRow + (endRow - startRow); destRowIdx++)
+                        {
+                            for (int destColIdx = destStartCol; destColIdx <= destStartCol + (endCol - startCol); destColIdx++)
+                            {
+                                // 根据目标位置调整公式
+                                string adjustedFormula = AdjustFormulaForNewLocation(formula, row, col, destRowIdx, destColIdx);
 
-                        // 将调整后的公式复制到目标单元格
-                        destSheet.Cells[destStartRow + (row - startRow), destStartCol + (col - startCol)].Formula = adjustedFormula;
+                                // 将调整后的公式复制到目标单元格
+                                destSheet.Cells[destRowIdx, destColIdx].Formula = adjustedFormula;
+                            }
+                        }
                     }
                     else
                     {
@@ -686,6 +713,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 }
             }
         }
+
         // 根据目标单元格的位置调整公式
         private string AdjustFormulaForNewLocation(string formula, int sourceRow, int sourceCol, int destRow, int destCol)
         {
@@ -714,6 +742,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
             return adjustedFormula;
         }
+
 
         // 根据列名返回列索引
         private int GetColumnIndex(string columnName)

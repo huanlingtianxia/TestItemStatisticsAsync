@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace TestItemStatisticsAcync
             Logger.Info(">>>>>>>>>>程序启动");
             UpdateUIControlFromIniFile();
             UpdateParamFromUIControl();
-            AdjustRichTextBoxUILogSize(251, -1);
+            RichUILogAdjustSize(251, -1);
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
@@ -57,6 +58,8 @@ namespace TestItemStatisticsAcync
         #region private member        
         private bool _richLogHightStretch = true;
         private static Logger? _logger; // 定义 logger 属性
+        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 只允许一个异步操作
+        private Stopwatch _stopwatch = new Stopwatch();
         #endregion
 
         #region internal property
@@ -93,25 +96,37 @@ namespace TestItemStatisticsAcync
             if (path != String.Empty)
                 textB_TargetPath.Text = path;
         }
-       
+
+        // Extract Data & GRR Paste
+
         private async void btn_ExtractData_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             UpdateParamFromUIControl();
             await ExcelOp.ExtractDataFromTestItem(TestItem.SourcePath, TestItem, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_PasteToGRR_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             UpdateParamFromUIControl();
             await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR.SourcePath, TestItemGRR.TargetPath, TestItemGRR, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             UpdateParamFromUIControl();
             try
@@ -148,71 +163,98 @@ namespace TestItemStatisticsAcync
                 LogMsg.Message += $"异常: {ex.ToString()}\r\n";
                 UpdateUILog(LogMsg.Message);
             }
-            
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_PasteLimit_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             UpdateParamFromUIControl();
             await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit.SourcePath, TestItemGRRLimit.TargetPath, TestItemGRRLimit, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
         
         // update ini file
-        private void btn_WriteIni_Click(object sender, EventArgs e)
+        private async void btn_ReadIni_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
+            try
+            {
+                InitUILog("waiting......\r\n");
+                bool state = UpdateUIControlFromIniFile();
+                LogMsg.Message += state ? "read ini file and update to UI Control completed\r\n" : "read ini file failed\r\n";
+                UpdateUILog(LogMsg.Message);
+            }
+            catch (Exception ex) { UpdateUILog(LogMsg.Message += ex.ToString()); }
+            finally { _semaphore.Release(); }// 释放信号量，允许下一个操作执行
+            StopWatchTime();
+        }
+        private async void btn_WriteIni_Click(object sender, EventArgs e)
+        {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             InitUILog("waiting......\r\n");
             try
             {
                 DialogResult result = MessageBox.Show(this, "确定将UI中的数据更新到 Ini 文件?", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                StartWatchTime();
                 if (result == DialogResult.OK)
                 {
                     bool state = UpdateIniFileFromUIControl();
                     LogMsg.Message += state ? "已将UI数据更新到Ini文件\r\n" : "UI数据更新到Ini文件 异常\r\n";
+                    _stopwatch.Stop();
                     MessageBox.Show(LogMsg.Message);// 用户点击“确认”
                 }
                 else
                 {
+                    
+                    _stopwatch.Stop();
                     MessageBox.Show(this, LogMsg.Message += "操作已取消\r\n");// 用户点击“取消”
                 }
                 UpdateUILog(LogMsg.Message);
             }
-            catch(Exception ex)
-            {
-                UpdateUILog(LogMsg.Message += ex.ToString());
-            }
+            catch (Exception ex) { UpdateUILog(LogMsg.Message += ex.ToString()); }
+            finally { _semaphore.Release(); }// 释放信号量，允许下一个操作执行
+            StopWatchTime();
         }
-        private void btn_ReadIni_Click(object sender, EventArgs e)
-        {
-            InitUILog("waiting......\r\n");
-            bool state = UpdateUIControlFromIniFile();
-            LogMsg.Message += state ? "read ini file and update to UI Control completed\r\n" : "read ini file failed\r\n";
-            UpdateUILog(LogMsg.Message);
-        }
-        
+       
         //General: CopyPaste And Delete
         private async void btn_CopyPaste_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromUIControl(para, true);
             await ExcelOp.CopyRangePaste(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 复制 公式单元格
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_DeleteRange_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             //await Task.Delay(5000);
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromUIControl(para, false);
             await ExcelOp.DeleteRangeData(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_DeleteSheet_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             ParametersTestItem parametersTestItem = new ParametersTestItem();
             UpdateParamFromUIControl(parametersTestItem, false);
@@ -226,31 +268,41 @@ namespace TestItemStatisticsAcync
             }
             //string[] sheet = ExcelOp.GetSheetName(parametersTestItem.TargetPath,true);
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_CreatSheet_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromUIControl(para, false);
             await ExcelOp.CreatSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         private async void btn_RemaneSheet_Click(object sender, EventArgs e)
         {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
             InitUILog("waiting......\r\n");
             ParametersTestItem para = new ParametersTestItem();
             UpdateParamFromUIControl(para, false);
             await ExcelOp.RenameSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
 
         // UI log size adjust
         private void lab_EnableMaskArrow_Click(object sender, EventArgs e)
         {
             _richLogHightStretch = !_richLogHightStretch;
-            Action action = _richLogHightStretch ? (Action)(() => { AdjustRichTextBoxUILogSize(251, -1); }) : () => { AdjustRichTextBoxUILogSize(144, 1); };
+            Action action = _richLogHightStretch ? (Action)(() => { RichUILogAdjustSize(251, -1); }) : () => { RichUILogAdjustSize(144, 1); };
             action();
         }
         #endregion
@@ -356,6 +408,18 @@ namespace TestItemStatisticsAcync
             }
         }
 
+        /* Stopwatch */
+        private void StartWatchTime()
+        {
+            _stopwatch.Reset();
+            _stopwatch.Start();
+        }
+        private void StopWatchTime()
+        {
+            _stopwatch.Stop();
+            UpdateUILog($"耗时: {_stopwatch.ElapsedMilliseconds} ms\r\n");
+        }
+
         /* config log */
         private void ConfigLog()
         {  
@@ -410,9 +474,16 @@ namespace TestItemStatisticsAcync
                 }
             }
         }
-        
+
         /* UI Control update */
-        private void AdjustRichTextBoxUILogSize(int newHeight, int stretch)
+        private void RichUILogScrollToEnd()
+        {
+            // 将光标移动到文本末尾
+            richTB_Log.SelectionStart = richTB_Log.Text.Length;
+            // 滚动到光标所在的位置
+            richTB_Log.ScrollToCaret();
+        }
+        private void RichUILogAdjustSize(int newHeight, int stretch)
         {
             // 获取当前的尺寸和位置  
             int currentHeight = richTB_Log.Height;
@@ -430,6 +501,7 @@ namespace TestItemStatisticsAcync
                 // 调用 UI 线程来更新 RichTextBox
                 richTB_Log.BeginInvoke(new Action(() => {
                     richTB_Log.AppendText(msg);
+                    RichUILogScrollToEnd();
                     Logger.Info(msg);
                 }));
 
@@ -437,6 +509,7 @@ namespace TestItemStatisticsAcync
             else
             {
                 richTB_Log.AppendText(msg);
+                RichUILogScrollToEnd();
                 Logger.Info(msg);
             }
         }

@@ -30,7 +30,7 @@
 
 3.3 其他功能
 	按钮：ExtracSheetToTxt：将Target路径下模板中的所有sheet名（Summary除外），提取出来并生成txt文件
-	按钮：CopyPaste：拷贝粘贴PastePara中的值
+	按钮：CopyPaste：拷贝粘贴PastePara中的值,注意：值和公式不能一起复制粘贴，否则手动打开excel异常；请将值和公式分两次分别复制粘贴。
 	按钮：DeleteRange：删除DeletePara中的值
 	按钮：DeleteSheet：删除工作表，保留ReserveCnt个或删除SheetName个。
 	按钮：CreatSheet：新建工作表。
