@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TestItemStatisticsAcync.ExcelOp;
+using TestItemStatisticsAcync.ExcelOperation;
 using TestItemStatisticsAcync.Ini;
 
 /* 程序包安装
@@ -44,7 +44,7 @@ namespace TestItemStatisticsAcync
             // 取消选中状态并将光标移到文本框末尾
             textB_TargetPath.SelectionStart = textB_TargetPath.Text.Length;
             textB_TargetPath.SelectionLength = 0;
-            LogMsg.Message += "初始化完成\r\n";
+            LogMsg.Message += "Initialization completed...\r\n";
             UpdateUILog(LogMsg.Message);
 
         }
@@ -54,18 +54,21 @@ namespace TestItemStatisticsAcync
         }
         #endregion
 
-        #region property
-        internal ExcelOperation ExcelOp { get; set; } = new ExcelOperation();//Excel 操作
+        #region private member        
+        private bool _richLogHightStretch = true;
+        private static Logger? _logger; // 定义 logger 属性
+        #endregion
+
+        #region internal property
         //IIniReaderWriter iniReaderWriter { get; set; } = new IniReaderWriter();
         //LoggerHander loggerHander { get; set; } = new LoggerHander("log.txt");
+        internal ExcelOperater ExcelOp { get; set; } = new ExcelOperater();//Excel 操作
         internal ParametersTestItem TestItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
         internal ParametersTestItem TestItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
         internal ParametersTestItem TestItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
         internal LogMessage LogMsg { get; set; } = new LogMessage();// log message
         internal long MaxLogSize { get; set; } = 10 * 1024 * 1024; // 10 MB
-
-        private static Logger? logger; // 定义 logger 属性  
-        internal static Logger Logger => logger ?? (logger = LogManager.GetCurrentClassLogger());// 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例
+        internal static Logger Logger => _logger ?? (_logger = LogManager.GetCurrentClassLogger());// 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例
 
         #endregion
 
@@ -243,15 +246,17 @@ namespace TestItemStatisticsAcync
             UpdateUILog(LogMsg.Message);
         }
 
+        // UI log size adjust
         private void lab_EnableMaskArrow_Click(object sender, EventArgs e)
         {
-            flowLayoutP_Mask.Visible = !flowLayoutP_Mask.Visible;
-            Action action = flowLayoutP_Mask.Visible ? (Action)(() => { AdjustRichTextBoxUILogSize(251, -1); }) : () => { AdjustRichTextBoxUILogSize(144, 1); };
+            _richLogHightStretch = !_richLogHightStretch;
+            Action action = _richLogHightStretch ? (Action)(() => { AdjustRichTextBoxUILogSize(251, -1); }) : () => { AdjustRichTextBoxUILogSize(144, 1); };
             action();
         }
         #endregion
 
         #region private function
+        /* path */ 
         private string SelectfullPath()
         {
             // 创建 OpenFileDialog 实例

@@ -6,16 +6,16 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OfficeOpenXml;
-using TestItemStatisticsAcync.ExcelOp;
+using TestItemStatisticsAcync.ExcelOperation;
 
-namespace TestItemStatisticsAcync.ExcelOp
+namespace TestItemStatisticsAcync.ExcelOperation
 {
     /// <summary>
     /// 要在nuget里安装EPPlus：Install-Package EPPlus;
     /// excel必须是.xlsx格式,旧的.xls格式不支持;
     /// 整理出的测试项顺序必须和GRR的excel里的sheet顺序一致，否则会错位;  
     /// </summary>
-    internal class ExcelOperation
+    internal class ExcelOperater
     {
         #region Extract data and copy paste to GRR module
 

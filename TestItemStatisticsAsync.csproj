@@ -99,7 +99,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExcelOperation\ExcelOperation.cs" />
+    <Compile Include="ExcelOperation\ExcelOperater.cs" />
     <Compile Include="Ini\IIniReaderWriter.cs" />
     <Compile Include="Ini\IniFile.cs" />
     <Compile Include="Ini\IniReaderWriter.cs" />

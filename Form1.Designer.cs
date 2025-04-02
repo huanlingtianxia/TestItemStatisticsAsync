@@ -113,7 +113,6 @@
             this.btn_WriteIni = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.btn_ReadIni = new System.Windows.Forms.Button();
-            this.flowLayoutP_Mask = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -940,20 +939,12 @@
             this.btn_ReadIni.UseVisualStyleBackColor = true;
             this.btn_ReadIni.Click += new System.EventHandler(this.btn_ReadIni_Click);
             // 
-            // flowLayoutP_Mask
-            // 
-            this.flowLayoutP_Mask.Location = new System.Drawing.Point(1, 209);
-            this.flowLayoutP_Mask.Name = "flowLayoutP_Mask";
-            this.flowLayoutP_Mask.Size = new System.Drawing.Size(690, 106);
-            this.flowLayoutP_Mask.TabIndex = 28;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(849, 464);
             this.Controls.Add(this.richTB_Log);
-            this.Controls.Add(this.flowLayoutP_Mask);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
@@ -1072,7 +1063,6 @@
         private System.Windows.Forms.Button btn_WriteIni;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.Button btn_ReadIni;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutP_Mask;
     }
 }
 
