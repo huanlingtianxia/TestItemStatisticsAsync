@@ -22,7 +22,7 @@
 
 3.2 参数：根据名称理解
 	Extract data: SourcePath：将op01.xlsx中工作表SortSelectTrans中的数据提取到 toSheetAll中；功能按钮：ExtractData
-	Paste to GRR: SourcePath to TargetPath：将op01.xlsx中工资表toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
+	Paste to GRR: SourcePath to TargetPath：将op01.xlsx中工作表toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
 	Paste to GRR: Limit：将op01.xlsx中工作表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
 
 =======================================================================================================
