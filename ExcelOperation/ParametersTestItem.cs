@@ -48,6 +48,8 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
         // sheet name
         public string[] SheetName { get; set; }
+        // position sheet name
+        public string PosSheetName { get; set; }
 
         // 删除sheet时保留sheet个数
         public int ReserveSheetCount { get; set; }

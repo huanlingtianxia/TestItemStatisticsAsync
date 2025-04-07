@@ -20,17 +20,17 @@ namespace TestItemStatisticsAcync.ExcelOperation
     {
         #region Extract data and copy paste to GRR module
         // 从测试项中提取数据
-        public async Task ExtractDataFromTestItem(string WorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        public async Task ExtractDataFromTestItem(string WorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
-            int numSN = ParaTestItem.NumSN;//SN个数:8
-            int stRow = ParaTestItem.StartRow;//数据源行开始:9
-            int stCol = ParaTestItem.StartCol;//数据源列开始:1
-            int stRowDest = ParaTestItem.StartRowDest;//目标行开始:1
-            int stColDest = ParaTestItem.StartColDest;//目标列开始:2
-            int repeat = ParaTestItem.Repeat;//单个SN的测试次数，即单个SN测试项跨度单元格数量:9
-            int count = ParaTestItem.TotalItemCount;// test item count:229
-            string fromSheet = ParaTestItem.FromSheet;
-            string toSheet = ParaTestItem.ToSheet;
+            int numSN = ParamTestItem.NumSN;//SN个数:8
+            int stRow = ParamTestItem.StartRow;//数据源行开始:9
+            int stCol = ParamTestItem.StartCol;//数据源列开始:1
+            int stRowDest = ParamTestItem.StartRowDest;//目标行开始:1
+            int stColDest = ParamTestItem.StartColDest;//目标列开始:2
+            int repeat = ParamTestItem.Repeat;//单个SN的测试次数，即单个SN测试项跨度单元格数量:9
+            int count = ParamTestItem.TotalItemCount;// test item count:229
+            string fromSheet = ParamTestItem.FromSheet;
+            string toSheet = ParamTestItem.ToSheet;
             numSN += 2;// 添加标题行和空行
             int num = 0;// row count
 
@@ -80,17 +80,17 @@ namespace TestItemStatisticsAcync.ExcelOperation
             LogMsg.Message += "测试项数据 提取 完成！------------------------------\r\n";
         }
         //将提取数据拷贝粘贴到GRR module
-        public async Task PasteToGRRModuleFromExtractData(string sourceWorkbookPath, string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        public async Task PasteToGRRModuleFromExtractData(string sourceWorkbookPath, string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
-            int numSN = ParaTestItem.NumSN;//SN个数
-            int stRow = ParaTestItem.StartRow;//数据源行开始:2
-            int stCol = ParaTestItem.StartCol;//数据源列开始:3
-            int stRowDest = ParaTestItem.StartRowDest;//目标行开始:9
-            int stColDest = ParaTestItem.StartColDest;//目标列开始:3
-            int TrialsCount= ParaTestItem.Repeat;//模板单组列数量:3
-            int count = ParaTestItem.TotalItemCount;// test item count:229
-            string fromSheet = ParaTestItem.FromSheet;
-            //string toSheet = ParaTestItem.ToSheet;
+            int numSN = ParamTestItem.NumSN;//SN个数
+            int stRow = ParamTestItem.StartRow;//数据源行开始:2
+            int stCol = ParamTestItem.StartCol;//数据源列开始:3
+            int stRowDest = ParamTestItem.StartRowDest;//目标行开始:9
+            int stColDest = ParamTestItem.StartColDest;//目标列开始:3
+            int TrialsCount= ParamTestItem.Repeat;//模板单组列数量:3
+            int count = ParamTestItem.TotalItemCount;// test item count:229
+            string fromSheet = ParamTestItem.FromSheet;
+            //string toSheet = ParamTestItem.ToSheet;
             numSN += 2;// 添加标题行和空行
                       
             try
@@ -145,15 +145,15 @@ namespace TestItemStatisticsAcync.ExcelOperation
             LogMsg.Message += "提取数据 拷贝到 GRR模板完成！------------------------------\r\n";
         }
         //将limit数据拷贝粘贴到GRR module
-        public async Task PasteToGRRModuleFromLimit(string sourceWorkbookPath, string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        public async Task PasteToGRRModuleFromLimit(string sourceWorkbookPath, string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
-            int stRow = ParaTestItem.StartRow;//数据源行开始:2
-            int stCol = ParaTestItem.StartCol;//数据源列开始:3
-            int stRowDest = ParaTestItem.StartRowDest;//目标行开始:9
-            int stColDest = ParaTestItem.StartColDest;//目标列开始:3
+            int stRow = ParamTestItem.StartRow;//数据源行开始:2
+            int stCol = ParamTestItem.StartCol;//数据源列开始:3
+            int stRowDest = ParamTestItem.StartRowDest;//目标行开始:9
+            int stColDest = ParamTestItem.StartColDest;//目标列开始:3
             //int limitNum = 2;//limit 数量：L + H:2
-            //int count = ParaTestItem.TotalItemCount;// test item count:229
-            string fromSheet = ParaTestItem.FromSheet;
+            //int count = ParamTestItem.TotalItemCount;// test item count:229
+            string fromSheet = ParamTestItem.FromSheet;
 
             try
             {
@@ -207,7 +207,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
         #region internal
         // 新建sheet
-        internal async Task CreatSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg, bool before = false)
+        internal async Task CreatSheet(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg, bool before = false)
         {
             try
             {
@@ -216,16 +216,23 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     Console.WriteLine(LogMsg.Message += $"文件：{targetWorkbookPath}不存在\r\n");
                     return;
                 }
-                string[] sheetName = ParaTestItem.SheetName;
-                var sheetNa = await GetSheetName(targetWorkbookPath, false).ConfigureAwait(false);
-                string summary = sheetNa.Last();
+                string[] sheetName = ParamTestItem.SheetName;
+                string posFrontSheetName = ParamTestItem.PosSheetName;
+                //var sheetNa = await GetSheetName(targetWorkbookPath, false).ConfigureAwait(false);
+                //string summary = sheetNa.Last();
 
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
                 using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
                 {
-                    LogMsg.Message += $"创建新工作表\r\n";
+                    LogMsg.Message += $"创建新工作表: 在'{posFrontSheetName}'工作表左侧创建新工作表\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, New sheet name\r\n";
+                    var existingSht = destPackage.Workbook.Worksheets.FirstOrDefault(sheet => sheet.Name == posFrontSheetName);
+                    if (existingSht == null)
+                    {
+                        LogMsg.Message += $"{"",-10}, 定位工作表 '{posFrontSheetName}' 不经存在\r\n";
+                        return;
+                    }
                     await Task.Run(() =>
                     {
                         for (int i = 0; i < sheetName.Length; i++)
@@ -238,7 +245,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                             }
                             var destSheet = destPackage.Workbook.Worksheets.Add(sheetName[i]);  // // 创建一个新的工作表，名称为 "NewSheet"
                             var workbook = destPackage.Workbook; // 获取工作表集合
-                            var targetSheet = workbook.Worksheets[summary];
+                            var targetSheet = workbook.Worksheets[posFrontSheetName];
                             int targetSheetIndex = targetSheet.Index;// 获取工作表的索引
 
                             if (before)
@@ -266,7 +273,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
             }
         }
         // rename sheet
-        internal async Task RenameSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        internal async Task RenameSheet(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
             try
             {
@@ -275,7 +282,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     Console.WriteLine(LogMsg.Message += $"文件：{targetWorkbookPath}不存在\r\n");
                     return;
                 }
-                string[] newSheetName = ParaTestItem.SheetName;
+                string[] newSheetName = ParamTestItem.SheetName;
                 string[] oldSheetName = await GetSheetName(targetWorkbookPath, false).ConfigureAwait(false);
                 int len = Math.Min(newSheetName.Length, oldSheetName.Length);
 
@@ -317,7 +324,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
             }
         }
         //删除sheet
-        internal async Task DeleteSheet(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        internal async Task DeleteSheet(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
             try
             {
@@ -328,7 +335,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 }
 
                 //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
-                string[] sheetName = ParaTestItem.SheetName;
+                string[] sheetName = ParamTestItem.SheetName;
 
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
@@ -423,13 +430,13 @@ namespace TestItemStatisticsAcync.ExcelOperation
             }
         }
         //删除range单元格
-        internal async Task DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        internal async Task DeleteRangeData(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
-            int stRow = ParaTestItem.StartRow;//数据源行开始:17
-            int stCol = ParaTestItem.StartCol;//数据源列开始:3
-            int endRow = ParaTestItem.EndRow;//数据源行结束:17
-            int endCol = ParaTestItem.EndtCol;//数据源列结束:14
-            string[] sheetName = ParaTestItem.SheetName;
+            int stRow = ParamTestItem.StartRow;//数据源行开始:17
+            int stCol = ParamTestItem.StartCol;//数据源列开始:3
+            int endRow = ParamTestItem.EndRow;//数据源行结束:17
+            int endCol = ParamTestItem.EndtCol;//数据源列结束:14
+            string[] sheetName = ParamTestItem.SheetName;
 
             try
             {
@@ -473,15 +480,15 @@ namespace TestItemStatisticsAcync.ExcelOperation
             catch(Exception ex) {LogMsg.Message += ex.ToString(); throw;}
         }
         //复制粘贴range单元格
-        internal async Task CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParaTestItem, LogMessage LogMsg)
+        internal async Task CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
-            int stRow = ParaTestItem.StartRow;//数据源行开始
-            int stCol = ParaTestItem.StartCol;//数据源列开始
-            int endRow = ParaTestItem.EndRow;//数据源行结束
-            int endCol = ParaTestItem.EndtCol;//数据源列结束
-            int stRowDest = ParaTestItem.StartRowDest;//目标行开始
-            int stColDest = ParaTestItem.StartColDest;//目标列开始
-            string[] sheetName = ParaTestItem.SheetName;
+            int stRow = ParamTestItem.StartRow;//数据源行开始
+            int stCol = ParamTestItem.StartCol;//数据源列开始
+            int endRow = ParamTestItem.EndRow;//数据源行结束
+            int endCol = ParamTestItem.EndtCol;//数据源列结束
+            int stRowDest = ParamTestItem.StartRowDest;//目标行开始
+            int stColDest = ParamTestItem.StartColDest;//目标列开始
+            string[] sheetName = ParamTestItem.SheetName;
 
             try
             {

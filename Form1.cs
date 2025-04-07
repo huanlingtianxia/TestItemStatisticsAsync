@@ -578,6 +578,7 @@ namespace TestItemStatisticsAcync
                 parameters.SheetName = richT_SheetName.Text.Trim().Split(new string[1] { "\n" }, StringSplitOptions.None);
                 string[] cnt = textB_ReserveSheetCount.Text.Trim().Split(new string[1] { ":" }, StringSplitOptions.None);
                 parameters.ReserveSheetCount = (cnt.Length == 2 && cnt[0] == ":") ? int.Parse(cnt[1]) : -1;
+                parameters.PosSheetName = textB_PosSheet.Text;
                 int[] CopyPastePara = textB_CopyPastePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 int[] DeletePara = textB_DeletePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
                 if(CopyPastePara.Length < 6)
@@ -677,6 +678,7 @@ namespace TestItemStatisticsAcync
             iniFile.Write("General_ExcelParam", "ReserveCnt", textB_ReserveSheetCount.Text);
             iniFile.Write("General_ExcelParam", "PasteParam", textB_CopyPastePara.Text);
             iniFile.Write("General_ExcelParam", "DeleteParam", textB_DeletePara.Text);
+            iniFile.Write("General_ExcelParam", "PosSheetName", textB_PosSheet.Text);
 
             return true;
             #endregion
@@ -730,6 +732,7 @@ namespace TestItemStatisticsAcync
             textB_ReserveSheetCount.Text = iniFile.Read("General_ExcelParam", "ReserveCnt");
             textB_CopyPastePara.Text = iniFile.Read("General_ExcelParam", "PasteParam");
             textB_DeletePara.Text = iniFile.Read("General_ExcelParam", "DeleteParam");
+            textB_PosSheet.Text = iniFile.Read("General_ExcelParam", "PosSheetName");
 
             // Max Log Size
             long logSize;

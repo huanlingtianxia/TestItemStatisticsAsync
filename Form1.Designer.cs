@@ -113,6 +113,11 @@
             this.btn_WriteIni = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.btn_ReadIni = new System.Windows.Forms.Button();
+            this.textB_PosSheet = new System.Windows.Forms.TextBox();
+            this.label28 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.label36 = new System.Windows.Forms.Label();
+            this.label39 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -744,8 +749,13 @@
             this.groupBox4.Controls.Add(this.label25);
             this.groupBox4.Controls.Add(this.label37);
             this.groupBox4.Controls.Add(this.label32);
+            this.groupBox4.Controls.Add(this.label35);
+            this.groupBox4.Controls.Add(this.label39);
+            this.groupBox4.Controls.Add(this.label36);
+            this.groupBox4.Controls.Add(this.label28);
             this.groupBox4.Controls.Add(this.label31);
             this.groupBox4.Controls.Add(this.textB_ReserveSheetCount);
+            this.groupBox4.Controls.Add(this.textB_PosSheet);
             this.groupBox4.Controls.Add(this.textB_DeletePara);
             this.groupBox4.Controls.Add(this.textB_CopyPastePara);
             this.groupBox4.Location = new System.Drawing.Point(80, 209);
@@ -757,7 +767,7 @@
             // 
             // textB_ExcelPath
             // 
-            this.textB_ExcelPath.Location = new System.Drawing.Point(66, 19);
+            this.textB_ExcelPath.Location = new System.Drawing.Point(66, 16);
             this.textB_ExcelPath.Name = "textB_ExcelPath";
             this.textB_ExcelPath.Size = new System.Drawing.Size(539, 20);
             this.textB_ExcelPath.TabIndex = 15;
@@ -765,9 +775,9 @@
             // 
             // btn_RemaneSheet
             // 
-            this.btn_RemaneSheet.Location = new System.Drawing.Point(504, 59);
+            this.btn_RemaneSheet.Location = new System.Drawing.Point(398, 82);
             this.btn_RemaneSheet.Name = "btn_RemaneSheet";
-            this.btn_RemaneSheet.Size = new System.Drawing.Size(101, 20);
+            this.btn_RemaneSheet.Size = new System.Drawing.Size(83, 20);
             this.btn_RemaneSheet.TabIndex = 24;
             this.btn_RemaneSheet.Text = "RemaneSheet";
             this.btn_RemaneSheet.UseVisualStyleBackColor = true;
@@ -775,9 +785,9 @@
             // 
             // btn_CreatSheet
             // 
-            this.btn_CreatSheet.Location = new System.Drawing.Point(422, 59);
+            this.btn_CreatSheet.Location = new System.Drawing.Point(398, 61);
             this.btn_CreatSheet.Name = "btn_CreatSheet";
-            this.btn_CreatSheet.Size = new System.Drawing.Size(76, 20);
+            this.btn_CreatSheet.Size = new System.Drawing.Size(83, 20);
             this.btn_CreatSheet.TabIndex = 23;
             this.btn_CreatSheet.Text = "CreatSheet";
             this.btn_CreatSheet.UseVisualStyleBackColor = true;
@@ -785,9 +795,9 @@
             // 
             // btn_DeleteSheet
             // 
-            this.btn_DeleteSheet.Location = new System.Drawing.Point(422, 81);
+            this.btn_DeleteSheet.Location = new System.Drawing.Point(398, 39);
             this.btn_DeleteSheet.Name = "btn_DeleteSheet";
-            this.btn_DeleteSheet.Size = new System.Drawing.Size(76, 20);
+            this.btn_DeleteSheet.Size = new System.Drawing.Size(83, 20);
             this.btn_DeleteSheet.TabIndex = 22;
             this.btn_DeleteSheet.Text = "DeleteSheet";
             this.btn_DeleteSheet.UseVisualStyleBackColor = true;
@@ -816,7 +826,7 @@
             // label30
             // 
             this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(5, 22);
+            this.label30.Location = new System.Drawing.Point(5, 19);
             this.label30.Name = "label30";
             this.label30.Size = new System.Drawing.Size(55, 13);
             this.label30.TabIndex = 8;
@@ -825,7 +835,7 @@
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(24, 43);
+            this.label25.Location = new System.Drawing.Point(7, 43);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(339, 13);
             this.label25.TabIndex = 8;
@@ -938,6 +948,52 @@
             this.btn_ReadIni.Text = "ReadIni";
             this.btn_ReadIni.UseVisualStyleBackColor = true;
             this.btn_ReadIni.Click += new System.EventHandler(this.btn_ReadIni_Click);
+            // 
+            // textB_PosSheet
+            // 
+            this.textB_PosSheet.Location = new System.Drawing.Point(547, 61);
+            this.textB_PosSheet.Name = "textB_PosSheet";
+            this.textB_PosSheet.Size = new System.Drawing.Size(57, 20);
+            this.textB_PosSheet.TabIndex = 15;
+            this.textB_PosSheet.Text = "Summary";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(488, 65);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(53, 13);
+            this.label28.TabIndex = 8;
+            this.label28.Text = "PosSheet";
+            // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Location = new System.Drawing.Point(375, 38);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(9, 65);
+            this.label35.TabIndex = 8;
+            this.label35.Text = "|\r\n|\r\n|\r\n|\r\n|";
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            this.label36.Location = new System.Drawing.Point(352, 43);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(24, 13);
+            this.label36.TabIndex = 8;
+            this.label36.Text = "Cell";
+            // 
+            // label39
+            // 
+            this.label39.AutoSize = true;
+            this.label39.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            this.label39.Location = new System.Drawing.Point(570, 43);
+            this.label39.Name = "label39";
+            this.label39.Size = new System.Drawing.Size(35, 13);
+            this.label39.TabIndex = 8;
+            this.label39.Text = "Sheet";
             // 
             // Form1
             // 
@@ -1063,6 +1119,11 @@
         private System.Windows.Forms.Button btn_WriteIni;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.Button btn_ReadIni;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.TextBox textB_PosSheet;
+        private System.Windows.Forms.Label label35;
+        private System.Windows.Forms.Label label39;
+        private System.Windows.Forms.Label label36;
     }
 }
 
