@@ -104,8 +104,13 @@
             this.label25 = new System.Windows.Forms.Label();
             this.label37 = new System.Windows.Forms.Label();
             this.label32 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.label39 = new System.Windows.Forms.Label();
+            this.label36 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
             this.label31 = new System.Windows.Forms.Label();
             this.textB_ReserveSheetCount = new System.Windows.Forms.TextBox();
+            this.textB_PosSheet = new System.Windows.Forms.TextBox();
             this.textB_DeletePara = new System.Windows.Forms.TextBox();
             this.richT_SheetName = new System.Windows.Forms.RichTextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
@@ -113,11 +118,6 @@
             this.btn_WriteIni = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.btn_ReadIni = new System.Windows.Forms.Button();
-            this.textB_PosSheet = new System.Windows.Forms.TextBox();
-            this.label28 = new System.Windows.Forms.Label();
-            this.label35 = new System.Windows.Forms.Label();
-            this.label36 = new System.Windows.Forms.Label();
-            this.label39 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -733,7 +733,7 @@
             // 
             this.textB_CopyPastePara.Location = new System.Drawing.Point(74, 58);
             this.textB_CopyPastePara.Name = "textB_CopyPastePara";
-            this.textB_CopyPastePara.Size = new System.Drawing.Size(157, 20);
+            this.textB_CopyPastePara.Size = new System.Drawing.Size(214, 20);
             this.textB_CopyPastePara.TabIndex = 15;
             this.textB_CopyPastePara.Text = "9, 3, 18, 14, 23, 3";
             // 
@@ -805,7 +805,7 @@
             // 
             // btn_DeleteRange
             // 
-            this.btn_DeleteRange.Location = new System.Drawing.Point(237, 81);
+            this.btn_DeleteRange.Location = new System.Drawing.Point(294, 81);
             this.btn_DeleteRange.Name = "btn_DeleteRange";
             this.btn_DeleteRange.Size = new System.Drawing.Size(82, 20);
             this.btn_DeleteRange.TabIndex = 17;
@@ -815,7 +815,7 @@
             // 
             // btn_CopyPaste
             // 
-            this.btn_CopyPaste.Location = new System.Drawing.Point(237, 58);
+            this.btn_CopyPaste.Location = new System.Drawing.Point(294, 58);
             this.btn_CopyPaste.Name = "btn_CopyPaste";
             this.btn_CopyPaste.Size = new System.Drawing.Size(82, 20);
             this.btn_CopyPaste.TabIndex = 17;
@@ -844,7 +844,7 @@
             // label37
             // 
             this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(501, 85);
+            this.label37.Location = new System.Drawing.Point(501, 42);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(63, 13);
             this.label37.TabIndex = 8;
@@ -859,6 +859,44 @@
             this.label32.TabIndex = 8;
             this.label32.Text = "DeleteParam";
             // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Location = new System.Drawing.Point(383, 37);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(9, 65);
+            this.label35.TabIndex = 8;
+            this.label35.Text = "|\r\n|\r\n|\r\n|\r\n|";
+            // 
+            // label39
+            // 
+            this.label39.AutoSize = true;
+            this.label39.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            this.label39.Location = new System.Drawing.Point(569, 89);
+            this.label39.Name = "label39";
+            this.label39.Size = new System.Drawing.Size(35, 13);
+            this.label39.TabIndex = 8;
+            this.label39.Text = "Sheet";
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            this.label36.Location = new System.Drawing.Point(353, 39);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(24, 13);
+            this.label36.TabIndex = 8;
+            this.label36.Text = "Cell";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(488, 65);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(53, 13);
+            this.label28.TabIndex = 8;
+            this.label28.Text = "PosSheet";
+            // 
             // label31
             // 
             this.label31.AutoSize = true;
@@ -870,16 +908,24 @@
             // 
             // textB_ReserveSheetCount
             // 
-            this.textB_ReserveSheetCount.Location = new System.Drawing.Point(570, 82);
+            this.textB_ReserveSheetCount.Location = new System.Drawing.Point(569, 39);
             this.textB_ReserveSheetCount.Name = "textB_ReserveSheetCount";
             this.textB_ReserveSheetCount.Size = new System.Drawing.Size(35, 20);
             this.textB_ReserveSheetCount.TabIndex = 15;
+            // 
+            // textB_PosSheet
+            // 
+            this.textB_PosSheet.Location = new System.Drawing.Point(547, 61);
+            this.textB_PosSheet.Name = "textB_PosSheet";
+            this.textB_PosSheet.Size = new System.Drawing.Size(57, 20);
+            this.textB_PosSheet.TabIndex = 15;
+            this.textB_PosSheet.Text = "Summary";
             // 
             // textB_DeletePara
             // 
             this.textB_DeletePara.Location = new System.Drawing.Point(74, 81);
             this.textB_DeletePara.Name = "textB_DeletePara";
-            this.textB_DeletePara.Size = new System.Drawing.Size(157, 20);
+            this.textB_DeletePara.Size = new System.Drawing.Size(214, 20);
             this.textB_DeletePara.TabIndex = 15;
             this.textB_DeletePara.Text = "23, 3, 32, 14";
             // 
@@ -948,52 +994,6 @@
             this.btn_ReadIni.Text = "ReadIni";
             this.btn_ReadIni.UseVisualStyleBackColor = true;
             this.btn_ReadIni.Click += new System.EventHandler(this.btn_ReadIni_Click);
-            // 
-            // textB_PosSheet
-            // 
-            this.textB_PosSheet.Location = new System.Drawing.Point(547, 61);
-            this.textB_PosSheet.Name = "textB_PosSheet";
-            this.textB_PosSheet.Size = new System.Drawing.Size(57, 20);
-            this.textB_PosSheet.TabIndex = 15;
-            this.textB_PosSheet.Text = "Summary";
-            // 
-            // label28
-            // 
-            this.label28.AutoSize = true;
-            this.label28.Location = new System.Drawing.Point(488, 65);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(53, 13);
-            this.label28.TabIndex = 8;
-            this.label28.Text = "PosSheet";
-            // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(375, 38);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(9, 65);
-            this.label35.TabIndex = 8;
-            this.label35.Text = "|\r\n|\r\n|\r\n|\r\n|";
-            // 
-            // label36
-            // 
-            this.label36.AutoSize = true;
-            this.label36.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
-            this.label36.Location = new System.Drawing.Point(352, 43);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(24, 13);
-            this.label36.TabIndex = 8;
-            this.label36.Text = "Cell";
-            // 
-            // label39
-            // 
-            this.label39.AutoSize = true;
-            this.label39.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
-            this.label39.Location = new System.Drawing.Point(570, 43);
-            this.label39.Name = "label39";
-            this.label39.Size = new System.Drawing.Size(35, 13);
-            this.label39.TabIndex = 8;
-            this.label39.Text = "Sheet";
             // 
             // Form1
             // 

@@ -229,9 +229,12 @@ namespace TestItemStatisticsAcync
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
             InitUILog("waiting......\r\n");
-            ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromUIControl(para, true);
-            await ExcelOp.CopyRangePaste(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 复制 公式单元格
+            ParametersTestItem[] param = null;
+            UpdateParamFromUIControl(ref param, GeneralMode.CellCopyPaste);
+            for(int i = 0; i < param.Length; i++)
+            {
+                await ExcelOp.CopyRangePaste(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 复制 公式单元格
+            }            
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -239,13 +242,21 @@ namespace TestItemStatisticsAcync
 
         private async void btn_DeleteRange_Click(object sender, EventArgs e)
         {
+            InitUILog("waiting......\r\n");
+            DialogResult result = MessageBox.Show(this, "确定删除 DeleteParam 参数中的数据？", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            if (result == DialogResult.Cancel)
+            {
+                LogMsg.Message += "取消删除 DeleteParam 操作\r\n";
+                UpdateUILog(LogMsg.Message);
+                return;
+            }
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
-            InitUILog("waiting......\r\n");
             //await Task.Delay(5000);
-            ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromUIControl(para, false);
-            await ExcelOp.DeleteRangeData(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            ParametersTestItem[] param = null;
+            UpdateParamFromUIControl(ref param, GeneralMode.CellDelete);
+            for (int i = 0; i < param.Length; i++)
+                await ExcelOp.DeleteRangeData(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -253,19 +264,31 @@ namespace TestItemStatisticsAcync
 
         private async void btn_DeleteSheet_Click(object sender, EventArgs e)
         {
+            InitUILog("waiting......\r\n");
+            ParametersTestItem[] param = null;
+            UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
+            string content = param.ElementAtOrDefault(0).ReserveSheetCount == -1 ? "确定删除SheetName中的所有sheet？" :
+                            $"确定删除sheet,仅保留最右侧 {param.ElementAtOrDefault(0).ReserveSheetCount} 个sheet？\r\n注意：最左侧的sheet（Summary）不计算在内";
+            DialogResult result = MessageBox.Show(this, content, "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            if (result == DialogResult.Cancel)
+            {
+                LogMsg.Message += "取消删除Sheet操作\r\n";
+                UpdateUILog(LogMsg.Message);
+                return;
+            }
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
-            InitUILog("waiting......\r\n");
-            ParametersTestItem parametersTestItem = new ParametersTestItem();
-            UpdateParamFromUIControl(parametersTestItem, false);
-            if (parametersTestItem.ReserveSheetCount == -1)
+ 
+            if (param.ElementAtOrDefault(0).ReserveSheetCount == -1)
             {
-                await ExcelOp.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem, LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
+                await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
             }
             else
             {
-                await ExcelOp.DeleteSheet(parametersTestItem.TargetPath, parametersTestItem.ReserveSheetCount, LogMsg).ConfigureAwait(false);//保留ReserveSheetCount个工作表
+                await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0).ReserveSheetCount, LogMsg).ConfigureAwait(false);//保留ReserveSheetCount个工作表
             }
+            
+                
             //string[] sheet = ExcelOp.GetSheetName(parametersTestItem.TargetPath,true);
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
@@ -277,9 +300,9 @@ namespace TestItemStatisticsAcync
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
             InitUILog("waiting......\r\n");
-            ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromUIControl(para, false);
-            await ExcelOp.CreatSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            ParametersTestItem[] param = null;
+            UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
+            await ExcelOp.CreatSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -287,12 +310,19 @@ namespace TestItemStatisticsAcync
 
         private async void btn_RemaneSheet_Click(object sender, EventArgs e)
         {
+            InitUILog("waiting......\r\n");
+            DialogResult result = MessageBox.Show(this, "确定将excel中从右->左的所有sheet\r\n按SheetName中从上->下的字符重命名？\r\n注意：sheet数量必须要相等", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            if (result == DialogResult.Cancel)
+            {
+                LogMsg.Message += "取消重命名Sheet操作\r\n";
+                UpdateUILog(LogMsg.Message);
+                return;
+            }
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
-            InitUILog("waiting......\r\n");
-            ParametersTestItem para = new ParametersTestItem();
-            UpdateParamFromUIControl(para, false);
-            await ExcelOp.RenameSheet(para.TargetPath, para, LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            ParametersTestItem[] param = null;
+            UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
+            await ExcelOp.RenameSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -569,58 +599,73 @@ namespace TestItemStatisticsAcync
             }
             
         }
+        
+        // private parameters
+        private int[][] GetParam(string param)
+        {
+
+
+            int[][] result = param
+                            .Split(new[] { "\\n" }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(line => line
+                                .Split(',')
+                                .Select(s => int.Parse(s.Trim()))
+                                .ToArray())
+                            .ToArray();
+            return result;
+        }
+
         // General parameters
-        private void UpdateParamFromUIControl(ParametersTestItem parameters, bool copyPaste)
+        private void UpdateParamFromUIControl(ref ParametersTestItem[] testItems, GeneralMode mode)
         {
             try
             {
-                parameters.TargetPath = textB_ExcelPath.Text;
-                parameters.SheetName = richT_SheetName.Text.Trim().Split(new string[1] { "\n" }, StringSplitOptions.None);
-                string[] cnt = textB_ReserveSheetCount.Text.Trim().Split(new string[1] { ":" }, StringSplitOptions.None);
-                parameters.ReserveSheetCount = (cnt.Length == 2 && cnt[0] == ":") ? int.Parse(cnt[1]) : -1;
-                parameters.PosSheetName = textB_PosSheet.Text;
-                int[] CopyPastePara = textB_CopyPastePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
-                int[] DeletePara = textB_DeletePara.Text.Trim().Split(new string[1] { "," }, StringSplitOptions.None).Select(item => int.Parse(item)).ToArray();
-                if(CopyPastePara.Length < 6)
+                // 处理 ReserveSheetCount 和 SheetName
+                string[] cnt = textB_ReserveSheetCount.Text.Trim().Split(':');
+                if (mode == GeneralMode.SheetOperater) // sheet operater
                 {
-                    LogMsg.Message += "CopyPastePara 输入数据格式异常\r\n";
-                    return;
-                }
-                if (DeletePara.Length < 4)
-                {
-                    LogMsg.Message += "DeletePara 输入数据格式异常\r\n";
-                    return;
-                }
-                //parameters.CopyPastePara = textB_CopyPastePara.Text;
-                //parameters.DeletePara = textB_DeletePara.Text;
-                //parameters.SheetName = richT_SheetName.Text;
-                if (copyPaste)
-                {
-                    for (int i = 0; i < CopyPastePara.Length; i++)
+                    testItems = new ParametersTestItem[]
                     {
-                        switch (i)
+                        new ParametersTestItem
                         {
-                            case 0: parameters.StartRow = CopyPastePara[i]; break;
-                            case 1: parameters.StartCol = CopyPastePara[i]; break;
-                            case 2: parameters.EndRow = CopyPastePara[i]; break;
-                            case 3: parameters.EndtCol = CopyPastePara[i]; break;
-                            case 4: parameters.StartRowDest = CopyPastePara[i]; break;
-                            case 5: parameters.StartColDest = CopyPastePara[i]; break;
+                            TargetPath = textB_ExcelPath.Text,
+                            SheetName = richT_SheetName.Text.Trim().Split('\n'),
+                            ReserveSheetCount = (cnt.Length == 2 && cnt[0] == "") ? int.Parse(cnt[1]) : -1,
+                            PosSheetName = textB_PosSheet.Text.Trim()
                         }
-                    }
+                    };
                 }
-                else
+                else if(mode == GeneralMode.CellCopyPaste || mode == GeneralMode.CellDelete) // cell operater
                 {
-                    for (int i = 0; i < DeletePara.Length; i++)
+                    // 获取参数输入数据
+                    string rawInput = mode == GeneralMode.CellCopyPaste ? textB_CopyPastePara.Text : textB_DeletePara.Text;
+                    int[][] paramsArray = GetParam(rawInput);
+                    int expectedLength = (mode == GeneralMode.CellCopyPaste) ? 6 : 4;
+
+                    // 检查数据格式
+                    if (paramsArray.Any(arr => arr.Length < expectedLength))
                     {
-                        switch (i)
-                        {
-                            case 0: parameters.StartRow = DeletePara[i]; break;
-                            case 1: parameters.StartCol = DeletePara[i]; break;
-                            case 2: parameters.EndRow = DeletePara[i]; break;
-                            case 3: parameters.EndtCol = DeletePara[i]; break;
-                        }
+                        LogMsg.Message += (mode == GeneralMode.CellCopyPaste)
+                            ? "CopyPasteParam 输入数据格式异常\r\n"
+                            : "DeletePara 输入数据格式异常\r\n";
+                        return;
                     }
+                    testItems = paramsArray
+                    .Select(arr => new ParametersTestItem
+                    {
+                        StartRow = arr.ElementAtOrDefault(0),
+                        StartCol = arr.ElementAtOrDefault(1),
+                        EndRow = arr.ElementAtOrDefault(2),
+                        EndtCol = arr.ElementAtOrDefault(3),
+                        StartRowDest = (mode == GeneralMode.CellCopyPaste) ? arr.ElementAtOrDefault(4) : 0,
+                        StartColDest = (mode == GeneralMode.CellCopyPaste) ? arr.ElementAtOrDefault(5) : 0,
+
+                        TargetPath = textB_ExcelPath.Text,
+                        SheetName = richT_SheetName.Text.Trim().Split('\n'),
+                        ReserveSheetCount = (cnt.Length == 2 && cnt[0] == "") ? int.Parse(cnt[1]) : -1,
+                        PosSheetName = textB_PosSheet.Text.Trim()
+                    })
+                    .ToArray();
                 }
             }
             catch (Exception ex)
@@ -632,115 +677,141 @@ namespace TestItemStatisticsAcync
         // update INI file from UI Control
         private bool UpdateIniFileFromUIControl()
         {
-            #region INI_FILE_WRITE
-            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
-            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
-            if (!File.Exists(path))
+            try
             {
-                LogMsg.Message += $"文件：'{path}' 不存在\r\n";
+                string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string path = Path.Combine(executablePath, "Ini", "TestItemStatistics.ini");
+                if (!File.Exists(path))
+                {
+                    LogMsg.Message += $"文件：'{path}' 不存在\r\n";
+                    return false;
+                }
+
+                IniFile iniFile = new IniFile(path);
+
+                // Define the sections and keys for the INI file
+                var sectionsAndKeys = new (string Section, string Key, string Value)[]
+                {
+                    ("GRR_ExtractData", "SourcePath", textB_SourcePath.Text),
+                    ("GRR_ExtractData", "StartRow", textB_StartRow.Text),
+                    ("GRR_ExtractData", "StartCol", textB_StartCol.Text),
+                    ("GRR_ExtractData", "FromSheet", textB_FromSheet.Text),
+                    ("GRR_ExtractData", "StartRowDest", textB_StartRowDest.Text),
+                    ("GRR_ExtractData", "StartColDest", textB_StartColDest.Text),
+                    ("GRR_ExtractData", "ToSheet", textB_ToSheet.Text),
+                    ("GRR_ExtractData", "Repeat", textB_Repeat.Text),
+                    ("GRR_ExtractData", "NumSN", textB_NumSN.Text),
+                    ("GRR_ExtractData", "TotalItem", textB_TotalItem.Text),
+
+                    ("GRR_PasteToGRR", "StartRow", textB_StartRow_GRR.Text),
+                    ("GRR_PasteToGRR", "StartCol", textB_StartCol_GRR.Text),
+                    ("GRR_PasteToGRR", "FromSheet", textB_FromSheet_GRR.Text),
+                    ("GRR_PasteToGRR", "TargetPath", textB_TargetPath.Text),
+                    ("GRR_PasteToGRR", "StartRowDest", textB_StartRowDest_GRR.Text),
+                    ("GRR_PasteToGRR", "StartColDest", textB_StartColDest_GRR.Text),
+                    ("GRR_PasteToGRR", "TrialsCount", textB_TrialsCount_GRR.Text),
+                    ("GRR_PasteToGRR", "NumSN", textB_NumSN_GRR.Text),
+
+                    ("GRR_Limit", "StartRow", textB_StartRowLimit.Text),
+                    ("GRR_Limit", "StartCol", textB_StartColLimit.Text),
+                    ("GRR_Limit", "FromSheet", textB_FromSheetLimit.Text),
+                    ("GRR_Limit", "StartRowDest", textB_StartRowDestLimit.Text),
+                    ("GRR_Limit", "StartColDest", textB_StartColDestLimit.Text),
+
+                    ("General_ExcelParam", "ExcelPath", textB_ExcelPath.Text),
+                    ("General_ExcelParam", "SheetName", richT_SheetName.Text.Replace("\r\n", "\\n").Replace("\n", "\\n")),
+                    ("General_ExcelParam", "ReserveCnt", textB_ReserveSheetCount.Text),
+                    ("General_ExcelParam", "PasteParam", textB_CopyPastePara.Text),
+                    ("General_ExcelParam", "DeleteParam", textB_DeletePara.Text),
+                    ("General_ExcelParam", "PosSheetName", textB_PosSheet.Text)
+                };
+
+                // Loop through the sections and write values
+                foreach (var item in sectionsAndKeys)
+                {
+                    iniFile.Write(item.Section, item.Key, item.Value);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMsg.Message += "UI非法数据输入：" + ex.ToString() + "\r\n";
+                UpdateUILog(LogMsg.Message);
                 return false;
             }
-            IniFile iniFile = new IniFile(path);
-
-            // 写入数据  
-            // ExtractData
-            iniFile.Write("GRR_ExtractData", "SourcePath", textB_SourcePath.Text);
-            iniFile.Write("GRR_ExtractData", "StartRow", textB_StartRow.Text);
-            iniFile.Write("GRR_ExtractData", "StartCol", textB_StartCol.Text);
-            iniFile.Write("GRR_ExtractData", "FromSheet", textB_FromSheet.Text);
-            iniFile.Write("GRR_ExtractData", "StartRowDest", textB_StartRowDest.Text);
-            iniFile.Write("GRR_ExtractData", "StartColDest", textB_StartColDest.Text);
-            iniFile.Write("GRR_ExtractData", "ToSheet", textB_ToSheet.Text);
-            iniFile.Write("GRR_ExtractData", "Repeat", textB_Repeat.Text);
-            iniFile.Write("GRR_ExtractData", "NumSN", textB_NumSN.Text);
-            iniFile.Write("GRR_ExtractData", "TotalItem", textB_TotalItem.Text);
-
-            // PasteToGRR
-            iniFile.Write("GRR_PasteToGRR", "StartRow", textB_StartRow_GRR.Text);
-            iniFile.Write("GRR_PasteToGRR", "StartCol", textB_StartCol_GRR.Text);
-            iniFile.Write("GRR_PasteToGRR", "FromSheet", textB_FromSheet_GRR.Text);
-            iniFile.Write("GRR_PasteToGRR", "TargetPath", textB_TargetPath.Text);
-            iniFile.Write("GRR_PasteToGRR", "StartRowDest", textB_StartRowDest_GRR.Text);
-            iniFile.Write("GRR_PasteToGRR", "StartColDest", textB_StartColDest_GRR.Text);
-            iniFile.Write("GRR_PasteToGRR", "TrialsCount", textB_TrialsCount_GRR.Text);
-            iniFile.Write("GRR_PasteToGRR", "NumSN", textB_NumSN_GRR.Text);
-
-            // Limit
-            iniFile.Write("GRR_Limit", "StartRow", textB_StartRowLimit.Text);
-            iniFile.Write("GRR_Limit", "StartCol", textB_StartColLimit.Text);
-            iniFile.Write("GRR_Limit", "FromSheet", textB_FromSheetLimit.Text);
-            iniFile.Write("GRR_Limit", "StartRowDest", textB_StartRowDestLimit.Text);
-            iniFile.Write("GRR_Limit", "StartColDest", textB_StartColDestLimit.Text);
-
-            // General Excel parameter
-            iniFile.Write("General_ExcelParam", "ExcelPath", textB_ExcelPath.Text);
-            iniFile.Write("General_ExcelParam", "SheetName", richT_SheetName.Text.Replace("\r\n", "\\n").Replace("\n", "\\n"));
-            iniFile.Write("General_ExcelParam", "ReserveCnt", textB_ReserveSheetCount.Text);
-            iniFile.Write("General_ExcelParam", "PasteParam", textB_CopyPastePara.Text);
-            iniFile.Write("General_ExcelParam", "DeleteParam", textB_DeletePara.Text);
-            iniFile.Write("General_ExcelParam", "PosSheetName", textB_PosSheet.Text);
-
-            return true;
-            #endregion
         }
         // update UI Control from INI File
         private bool UpdateUIControlFromIniFile()
         {
-            #region INI_FILE_READ
-            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
-            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
-            if (!File.Exists(path))
+            try
             {
-                LogMsg.Message += $"文件：'{path}' 不存在\r\n";
+                string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string path = Path.Combine(executablePath, "Ini", "TestItemStatistics.ini");
+                if (!File.Exists(path))
+                {
+                    LogMsg.Message += $"文件：'{path}' 不存在\r\n";
+                    return false;
+                }
+
+                IniFile iniFile = new IniFile(path);
+
+                // Define the sections and keys for the INI file
+                var sectionsAndKeys = new (string Section, string Key, Action<string> SetValue)[]
+                {
+                    ("GRR_ExtractData", "SourcePath", value => textB_SourcePath.Text = value),
+                    ("GRR_ExtractData", "StartRow", value => textB_StartRow.Text = value),
+                    ("GRR_ExtractData", "StartCol", value => textB_StartCol.Text = value),
+                    ("GRR_ExtractData", "FromSheet", value => textB_FromSheet.Text = value),
+                    ("GRR_ExtractData", "StartRowDest", value => textB_StartRowDest.Text = value),
+                    ("GRR_ExtractData", "StartColDest", value => textB_StartColDest.Text = value),
+                    ("GRR_ExtractData", "ToSheet", value => textB_ToSheet.Text = value),
+                    ("GRR_ExtractData", "Repeat", value => textB_Repeat.Text = value),
+                    ("GRR_ExtractData", "NumSN", value => textB_NumSN.Text = value),
+                    ("GRR_ExtractData", "TotalItem", value => textB_TotalItem.Text = value),
+
+                    ("GRR_PasteToGRR", "StartRow", value => textB_StartRow_GRR.Text = value),
+                    ("GRR_PasteToGRR", "StartCol", value => textB_StartCol_GRR.Text = value),
+                    ("GRR_PasteToGRR", "FromSheet", value => textB_FromSheet_GRR.Text = value),
+                    ("GRR_PasteToGRR", "TargetPath", value => textB_TargetPath.Text = value),
+                    ("GRR_PasteToGRR", "StartRowDest", value => textB_StartRowDest_GRR.Text = value),
+                    ("GRR_PasteToGRR", "StartColDest", value => textB_StartColDest_GRR.Text = value),
+                    ("GRR_PasteToGRR", "TrialsCount", value => textB_TrialsCount_GRR.Text = value),
+                    ("GRR_PasteToGRR", "NumSN", value => textB_NumSN_GRR.Text = value),
+
+                    ("GRR_Limit", "StartRow", value => textB_StartRowLimit.Text = value),
+                    ("GRR_Limit", "StartCol", value => textB_StartColLimit.Text = value),
+                    ("GRR_Limit", "FromSheet", value => textB_FromSheetLimit.Text = value),
+                    ("GRR_Limit", "StartRowDest", value => textB_StartRowDestLimit.Text = value),
+                    ("GRR_Limit", "StartColDest", value => textB_StartColDestLimit.Text = value),
+
+                    ("General_ExcelParam", "ExcelPath", value => textB_ExcelPath.Text = value),
+                    ("General_ExcelParam", "SheetName", value => richT_SheetName.Text = value.Replace(@"\n", Environment.NewLine)),
+                    ("General_ExcelParam", "ReserveCnt", value => textB_ReserveSheetCount.Text = value),
+                    ("General_ExcelParam", "PasteParam", value => textB_CopyPastePara.Text = value),
+                    ("General_ExcelParam", "DeleteParam", value => textB_DeletePara.Text = value),
+                    ("General_ExcelParam", "PosSheetName", value => textB_PosSheet.Text = value)
+                };
+
+                // Loop through the sections and read values
+                foreach (var item in sectionsAndKeys)
+                {
+                    string value = iniFile.Read(item.Section, item.Key);
+                    item.SetValue(value);
+                }
+
+                // Max Log Size
+                long logSize;
+                MaxLogSize = long.TryParse(iniFile.Read("Setting", "MaxLogSize"), out logSize) ? logSize : MaxLogSize;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMsg.Message += "UI非法数据输入：" + ex.ToString() + "\r\n";
+                UpdateUILog(LogMsg.Message);
                 return false;
             }
-            IniFile iniFile = new IniFile(path);
-
-            // 读取数据  
-            // Extract Data 文本框控件 初始化
-            textB_SourcePath.Text = iniFile.Read("GRR_ExtractData", "SourcePath");
-            textB_StartRow.Text = iniFile.Read("GRR_ExtractData", "StartRow");
-            textB_StartCol.Text = iniFile.Read("GRR_ExtractData", "StartCol");
-            textB_FromSheet.Text = iniFile.Read("GRR_ExtractData", "FromSheet");
-            textB_StartRowDest.Text = iniFile.Read("GRR_ExtractData", "StartRowDest");
-            textB_StartColDest.Text = iniFile.Read("GRR_ExtractData", "StartColDest");
-            textB_ToSheet.Text = iniFile.Read("GRR_ExtractData", "ToSheet");
-            textB_Repeat.Text = iniFile.Read("GRR_ExtractData", "Repeat");
-            textB_NumSN.Text = iniFile.Read("GRR_ExtractData", "NumSN");
-            textB_TotalItem.Text = iniFile.Read("GRR_ExtractData", "TotalItem");
-
-            // Paste to GRR 文本框控件 初始化
-            textB_StartRow_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartRow");
-            textB_StartCol_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartCol");
-            textB_FromSheet_GRR.Text = iniFile.Read("GRR_PasteToGRR", "FromSheet");
-            textB_TargetPath.Text = iniFile.Read("GRR_PasteToGRR", "TargetPath");
-            textB_StartRowDest_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartRowDest");
-            textB_StartColDest_GRR.Text = iniFile.Read("GRR_PasteToGRR", "StartColDest");
-            textB_TrialsCount_GRR.Text = iniFile.Read("GRR_PasteToGRR", "TrialsCount");
-            textB_NumSN_GRR.Text = iniFile.Read("GRR_PasteToGRR", "NumSN");
-
-            // limit 文本框控件 初始化
-            textB_StartRowLimit.Text = iniFile.Read("GRR_Limit", "StartRow");
-            textB_StartColLimit.Text = iniFile.Read("GRR_Limit", "StartCol");
-            textB_FromSheetLimit.Text = iniFile.Read("GRR_Limit", "FromSheet");
-            textB_StartRowDestLimit.Text = iniFile.Read("GRR_Limit", "StartRowDest");
-            textB_StartColDestLimit.Text = iniFile.Read("GRR_Limit", "StartColDest");
-
-            // Genenal Excel parameter 初始化
-            textB_ExcelPath.Text = iniFile.Read("General_ExcelParam", "ExcelPath");
-            richT_SheetName.Text = iniFile.Read("General_ExcelParam", "SheetName").Replace(@"\n", Environment.NewLine);
-            textB_ReserveSheetCount.Text = iniFile.Read("General_ExcelParam", "ReserveCnt");
-            textB_CopyPastePara.Text = iniFile.Read("General_ExcelParam", "PasteParam");
-            textB_DeletePara.Text = iniFile.Read("General_ExcelParam", "DeleteParam");
-            textB_PosSheet.Text = iniFile.Read("General_ExcelParam", "PosSheetName");
-
-            // Max Log Size
-            long logSize;
-            MaxLogSize = long.TryParse(iniFile.Read("Setting", "MaxLogSize"),out logSize) ? logSize : MaxLogSize;
-
-            return true;
-            #endregion
-
         }
 
 #if INIFILE

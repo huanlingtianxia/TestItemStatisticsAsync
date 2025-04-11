@@ -56,4 +56,10 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
     }
 
+    public enum GeneralMode
+    {
+        CellCopyPaste = 0,
+        CellDelete = 1,
+        SheetOperater = 2
+    }
 }
