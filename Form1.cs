@@ -67,8 +67,9 @@ namespace TestItemStatisticsAcync
         //LoggerHander loggerHander { get; set; } = new LoggerHander("log.txt");
         internal ExcelOperater ExcelOp { get; set; } = new ExcelOperater();//Excel 操作
         internal ParametersTestItem TestItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
-        internal ParametersTestItem TestItemGRR { get; set; } = new ParametersTestItem();// copy paste 提取数据到GRR module 参数
-        internal ParametersTestItem TestItemGRRLimit { get; set; } = new ParametersTestItem();// copy paste Limit到GRR module 参数
+        internal ParametersTestItem TestItemGRR { get; set; } = new ParametersTestItem();
+        internal ParametersTestItem TestItemGRRLimit { get; set; } = new ParametersTestItem();
+        internal ParametersTestItem TestItemGRRSummary { get; set; } = new ParametersTestItem();
         internal LogMessage LogMsg { get; set; } = new LogMessage();// log message
         internal long MaxLogSize { get; set; } = 10 * 1024 * 1024; // 10 MB
         internal static Logger Logger => _logger ?? (_logger = LogManager.GetCurrentClassLogger());// 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例
@@ -211,6 +212,29 @@ namespace TestItemStatisticsAcync
                 {
                     LogMsg.Message += $"未找到工作表\r\n";
                 }
+                UpdateUILog(LogMsg.Message);
+            }
+            catch (Exception ex)
+            {
+                LogMsg.Message += $"异常: {ex.ToString()}\r\n";
+                UpdateUILog(LogMsg.Message);
+            }
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
+        }
+        private async void Btn_SummaryFormula_Click(object sender, EventArgs e)
+        {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
+            InitUILog("waiting......\r\n");
+            bool state = UpdateParamFromUIControl();
+            try
+            {
+                string[] paramsArr = textB_SummaryParam.Text.Split(new[] { "\\n" }, StringSplitOptions.RemoveEmptyEntries);
+                int[][] paramsArray = GetParam(paramsArr.ElementAtOrDefault(0) + "\\n" + paramsArr.ElementAtOrDefault(1));
+                string targetSheet = paramsArr.ElementAtOrDefault(2);
+                if (state)
+                    await ExcelOp.PasteToGRRModuleForSummaryFormula(TestItemGRR.TargetPath, TestItemGRR, paramsArray, LogMsg, targetSheet).ConfigureAwait(false);
                 UpdateUILog(LogMsg.Message);
             }
             catch (Exception ex)
@@ -434,6 +458,7 @@ namespace TestItemStatisticsAcync
                     { "SourcePath", "textB_SourcePath" },
                     { "TargetPath", "textB_TargetPath" }
                 });
+                //TestItemGRRSummary
                 return true;
             }
             catch (Exception ex)
@@ -548,6 +573,8 @@ namespace TestItemStatisticsAcync
                     ("GRR_Limit", "StartRowDest", textB_StartRowDestLimit.Text),
                     ("GRR_Limit", "StartColDest", textB_StartColDestLimit.Text),
 
+                    ("GRR_Summary", "TargetParam", textB_SummaryParam.Text),
+
                     ("General_ExcelParam", "ExcelPath", textB_ExcelPath.Text),
                     ("General_ExcelParam", "SheetName", richT_SheetName.Text.Replace("\r\n", "\\n").Replace("\n", "\\n")),
                     ("General_ExcelParam", "ReserveCnt", textB_ReserveSheetCount.Text),
@@ -614,6 +641,8 @@ namespace TestItemStatisticsAcync
                     ("GRR_Limit", "FromSheet", value => textB_FromSheetLimit.Text = value),
                     ("GRR_Limit", "StartRowDest", value => textB_StartRowDestLimit.Text = value),
                     ("GRR_Limit", "StartColDest", value => textB_StartColDestLimit.Text = value),
+
+                    ("GRR_Summary", "TargetParam", value => textB_SummaryParam.Text = value),
 
                     ("General_ExcelParam", "ExcelPath", value => textB_ExcelPath.Text = value),
                     ("General_ExcelParam", "SheetName", value => richT_SheetName.Text = value.Replace(@"\n", Environment.NewLine)),
@@ -867,5 +896,7 @@ namespace TestItemStatisticsAcync
         #endregion
 
         #endregion
+
+
     }
 }

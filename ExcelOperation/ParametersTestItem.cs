@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace TestItemStatisticsAcync.ExcelOperation
 {
-
     public class ParametersTestItem
     {
         // 测试SN个数
@@ -53,13 +52,27 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
         // 删除sheet时保留sheet个数
         public int ReserveSheetCount { get; set; }
-
+        // cell parameters
+        public int[][] CellParams { get; set; }
+        /* formula param*/
+        // Low limit
+        public string LowLimit { get; set; } = $"!G4";
+        // High limit 
+        public string HighLimit { get; set; } = $"!G3";
+        // CP
+        public string CPValue { get; set; } = $"!L20";
+        // CPK 
+        public string CPKValue { get; set; } = $"!N20";
+        // GRR Value
+        public string GRRValue { get; set; } = $"!L24";
     }
 
     public enum GeneralMode
     {
         CellCopyPaste = 0,
         CellDelete = 1,
-        SheetOperater = 2
+        CellSummary = 2,
+        SheetOperater = 3,
+        
     }
 }

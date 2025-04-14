@@ -91,6 +91,7 @@
             this.label34 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.Btn_SummaryFormula = new System.Windows.Forms.Button();
             this.label26 = new System.Windows.Forms.Label();
             this.textB_CopyPastePara = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -118,12 +119,17 @@
             this.btn_WriteIni = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.btn_ReadIni = new System.Windows.Forms.Button();
+            this.label38 = new System.Windows.Forms.Label();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.textB_SummaryParam = new System.Windows.Forms.TextBox();
+            this.label40 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // label2
@@ -279,6 +285,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
+            this.label9.ForeColor = System.Drawing.Color.Blue;
             this.label9.Location = new System.Drawing.Point(140, 44);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(51, 13);
@@ -659,14 +666,14 @@
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Location = new System.Drawing.Point(608, 59);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(239, 140);
+            this.groupBox3.Size = new System.Drawing.Size(239, 105);
             this.groupBox3.TabIndex = 19;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Paste to GRR: Limit";
             // 
             // btn_PasteLimit
             // 
-            this.btn_PasteLimit.Location = new System.Drawing.Point(40, 112);
+            this.btn_PasteLimit.Location = new System.Drawing.Point(153, 79);
             this.btn_PasteLimit.Name = "btn_PasteLimit";
             this.btn_PasteLimit.Size = new System.Drawing.Size(78, 22);
             this.btn_PasteLimit.TabIndex = 20;
@@ -696,7 +703,7 @@
             // 
             this.label34.AutoSize = true;
             this.label34.BackColor = System.Drawing.Color.Red;
-            this.label34.Location = new System.Drawing.Point(24, 117);
+            this.label34.Location = new System.Drawing.Point(137, 84);
             this.label34.Name = "label34";
             this.label34.Size = new System.Drawing.Size(13, 13);
             this.label34.TabIndex = 8;
@@ -720,6 +727,16 @@
             this.label3.TabIndex = 8;
             this.label3.Text = "StartColDest";
             // 
+            // Btn_SummaryFormula
+            // 
+            this.Btn_SummaryFormula.Location = new System.Drawing.Point(157, 9);
+            this.Btn_SummaryFormula.Name = "Btn_SummaryFormula";
+            this.Btn_SummaryFormula.Size = new System.Drawing.Size(76, 23);
+            this.Btn_SummaryFormula.TabIndex = 21;
+            this.Btn_SummaryFormula.Text = "SummaryFL";
+            this.Btn_SummaryFormula.UseVisualStyleBackColor = true;
+            this.Btn_SummaryFormula.Click += new System.EventHandler(this.Btn_SummaryFormula_Click);
+            // 
             // label26
             // 
             this.label26.AutoSize = true;
@@ -735,7 +752,8 @@
             this.textB_CopyPastePara.Name = "textB_CopyPastePara";
             this.textB_CopyPastePara.Size = new System.Drawing.Size(214, 20);
             this.textB_CopyPastePara.TabIndex = 15;
-            this.textB_CopyPastePara.Text = "9, 3, 18, 14, 23, 3";
+            this.textB_CopyPastePara.Text = "9,3,18,5,23,3\\n9,7,18,9,23,7\\n9,11,18,13,23,11\\n9,6,18,6,23,6\\n9,10,18,10,23,10\\n" +
+    "9,14,18,14,23,14";
             // 
             // groupBox4
             // 
@@ -927,7 +945,7 @@
             this.textB_DeletePara.Name = "textB_DeletePara";
             this.textB_DeletePara.Size = new System.Drawing.Size(214, 20);
             this.textB_DeletePara.TabIndex = 15;
-            this.textB_DeletePara.Text = "23, 3, 32, 14";
+            this.textB_DeletePara.Text = "23,3,31,10\\n23,11,31,18";
             // 
             // richT_SheetName
             // 
@@ -995,11 +1013,52 @@
             this.btn_ReadIni.UseVisualStyleBackColor = true;
             this.btn_ReadIni.Click += new System.EventHandler(this.btn_ReadIni_Click);
             // 
+            // label38
+            // 
+            this.label38.AutoSize = true;
+            this.label38.BackColor = System.Drawing.Color.Red;
+            this.label38.Location = new System.Drawing.Point(141, 16);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(13, 13);
+            this.label38.TabIndex = 8;
+            this.label38.Text = "4";
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.label38);
+            this.groupBox7.Controls.Add(this.Btn_SummaryFormula);
+            this.groupBox7.Controls.Add(this.textB_SummaryParam);
+            this.groupBox7.Controls.Add(this.label40);
+            this.groupBox7.Location = new System.Drawing.Point(608, 162);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(239, 37);
+            this.groupBox7.TabIndex = 24;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "GRR: Summary";
+            // 
+            // textB_SummaryParam
+            // 
+            this.textB_SummaryParam.Location = new System.Drawing.Point(50, 13);
+            this.textB_SummaryParam.Name = "textB_SummaryParam";
+            this.textB_SummaryParam.Size = new System.Drawing.Size(78, 20);
+            this.textB_SummaryParam.TabIndex = 15;
+            this.textB_SummaryParam.Text = "17\\n3,4,6,7,8\\nSummary";
+            // 
+            // label40
+            // 
+            this.label40.AutoSize = true;
+            this.label40.Location = new System.Drawing.Point(5, 17);
+            this.label40.Name = "label40";
+            this.label40.Size = new System.Drawing.Size(38, 13);
+            this.label40.TabIndex = 8;
+            this.label40.Text = "Target";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(849, 464);
+            this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.richTB_Log);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
@@ -1027,6 +1086,8 @@
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
             this.groupBox6.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1124,6 +1185,11 @@
         private System.Windows.Forms.Label label35;
         private System.Windows.Forms.Label label39;
         private System.Windows.Forms.Label label36;
+        private System.Windows.Forms.Button Btn_SummaryFormula;
+        private System.Windows.Forms.Label label38;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.TextBox textB_SummaryParam;
+        private System.Windows.Forms.Label label40;
     }
 }
 

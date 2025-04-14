@@ -26,6 +26,8 @@
 	Extract data: SourcePath：将op01.xlsx中工作表SortSelectTrans中的数据提取到 toSheetAll中；功能按钮：ExtractData
 	Paste to GRR: SourcePath to TargetPath：将op01.xlsx中工作表toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
 	Paste to GRR: Limit：将op01.xlsx中工作表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
+	Summary:将GRR模板中 单表里的测试数据用公式关联到Summary指定位置；格式：开始行\n开始列1,开始列2,开始列3，开始列4，开始列5\nSummary sheet名
+			开始行，列，Summary名都用'\n'隔开。列之间用','隔开.开始列数据依次是："LowLimit", "HighLimit", "CP", "CPK", "GRR Value" 对应的列标位置
 
 =======================================================================================================
 扩展功能，可跳过：
@@ -54,9 +56,10 @@
 4.1 选择路径；
 4.2 设置参数；//基础功能基本上只要按实际测试项个数修改TotalItem，其他的按默认值即可。
 4.3 提取数据；--功能按钮：ExtractData
-4.4 拷贝提取数据到MSA模板；--功能按钮：PasteToGRR
+4.4 拷贝提取的测试数据到MSA模板；--功能按钮：PasteToGRR
 4.5 拷贝limit 到 MSA模板；--功能按钮：PasteLimit
-5.6 手动整理MSA模板中的summary数据；
+4.6 拷贝关联单表的公式到 MSA 模板的Summary工作表；-- 功能按钮：SummaryFL，保持默认即可（除非Summary名不一样，可手动在Summary参数里修改）
+5.6 手动整理MSA模板中的summary里的序号，测试项名，单位等固定数据
 
 5.范例：
 详见可执行文件路径下eg test data文件夹中的文件。

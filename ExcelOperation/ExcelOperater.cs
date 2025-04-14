@@ -35,7 +35,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
             int num = 0;// row count
 
             await Task.Run(() => { /* 空操作 */ }); // 使用 Task.Run 来启动一个无操作的异步任务
-            try 
+            try
             {
                 if (!File.Exists(WorkbookPath))
                 {
@@ -72,7 +72,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     });
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogMsg.Message += "测试项数据 提取 失败：" + ex.ToString() + "\r\n";
             }
@@ -87,12 +87,12 @@ namespace TestItemStatisticsAcync.ExcelOperation
             int stCol = ParamTestItem.StartCol;//数据源列开始:3
             int stRowDest = ParamTestItem.StartRowDest;//目标行开始:9
             int stColDest = ParamTestItem.StartColDest;//目标列开始:3
-            int TrialsCount= ParamTestItem.Repeat;//模板单组列数量:3
+            int TrialsCount = ParamTestItem.Repeat;//模板单组列数量:3
             int count = ParamTestItem.TotalItemCount;// test item count:229
             string fromSheet = ParamTestItem.FromSheet;
             //string toSheet = ParamTestItem.ToSheet;
             numSN += 2;// 添加标题行和空行
-                      
+
             try
             {
                 if (!File.Exists(sourceWorkbookPath))
@@ -202,8 +202,58 @@ namespace TestItemStatisticsAcync.ExcelOperation
             //Console.WriteLine("提取数据 拷贝到 GRR模板完成！------------------------------");
             LogMsg.Message += "limit数据 拷贝到 GRR模板完成！------------------------------\r\n";
         }
+
+        //将提取数据拷贝粘贴到GRR module
+        public async Task PasteToGRRModuleForSummaryFormula(string targetWorkbookPath, ParametersTestItem ParamTestItem, int[][] cellParam, LogMessage LogMsg, string targetSheet = "Summary")
+        {
+            string[] labels = { "LowLimit", "HighLimit", "CP", "CPK", "GRR Value" };
+            int[] rowDests = cellParam.ElementAtOrDefault(0);// 目标行
+            int[] colDests = cellParam.ElementAtOrDefault(1);// labels 列序号
+            try
+            {
+                if (!File.Exists(targetWorkbookPath))
+                {
+                    LogMsg.Message += $"文件：{targetWorkbookPath}不存在\r\n";
+                    return;
+                }
+
+                string[] sheetName = await GetSheetName(targetWorkbookPath, false).ConfigureAwait(false);//get target sheet name
+                List<List<string>> listSummFormula = GetSummaryFormula(sheetName, ParamTestItem);
+
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文                                                                           
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);
+
+                using (ExcelPackage destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    var existingSht = destPackage.Workbook.Worksheets.FirstOrDefault(sheet => sheet.Name == targetSheet);
+                    if (existingSht == null)
+                    {
+                        LogMsg.Message += $"{"",-10}, 目标工作表 '{targetSheet}' 不经存在\r\n";
+                        return;
+                    }
+                    // 获取工作表
+                    LogMsg.Message += $"关联数据 '公式' --> GRR模板 Summary工作表\r\n";
+                    LogMsg.Message += $"Count{string.Empty,-44},Summary工作表\r\n";
+                    await Task.Run(() =>
+                    {
+                        for (int i = 0; i < labels.Length; i++)
+                        {
+                            ExportSummaryToExcel(destPackage, listSummFormula[i], rowDests.ElementAtOrDefault(0), colDests.ElementAtOrDefault(i), targetSheet);
+                            LogMsg.Message += $"{i + 1,-10}关联数据 {labels[i],-15} --> GRR模板 Summary工作表 完成\r\n";
+                        }
+                        destPackage.Save();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMsg.Message += "关联公式到 GRR Summary失败：" + ex.ToString() + "\r\n";
+            }
+            //Console.WriteLine("提取数据 拷贝到 GRR模板完成！------------------------------");
+            LogMsg.Message += "关联公式到 GRR模板 Summary 完成！------------------------------\r\n";
+        }
         #endregion
-        
+
         #region internal
         // 新建sheet
         internal async Task CreatSheet(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg, bool before = false)
@@ -373,7 +423,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
             }
         }
         //删除sheet
-        internal async Task DeleteSheet(string targetWorkbookPath, int reserveSheetCount,LogMessage LogMsg)
+        internal async Task DeleteSheet(string targetWorkbookPath, int reserveSheetCount, LogMessage LogMsg)
         {
             try
             {
@@ -423,7 +473,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 else
                     LogMsg.Message += "删除工作表 完成！\r\n";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogMsg.Message += $"{ex.ToString()}\r\n";
             }
@@ -472,11 +522,11 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     LogMsg.Message += "数据删除 异常！";
                 else
                     LogMsg.Message += $"删除：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束列{endCol}， 完成！\r\n";
-                
-                
+
+
                 //Console.WriteLine(LogMsg.Message += "删除数据完成！");
             }
-            catch(Exception ex) {LogMsg.Message += ex.ToString(); throw;}
+            catch (Exception ex) { LogMsg.Message += ex.ToString(); throw; }
         }
         //复制粘贴range单元格
         internal async Task CopyRangePaste(string targetWorkbookPath, ParametersTestItem ParamTestItem, LogMessage LogMsg)
@@ -521,15 +571,15 @@ namespace TestItemStatisticsAcync.ExcelOperation
                         destPackage.Save();
                     });
 
-                    
+
                 }
-                if(LogMsg.Message.Contains("未找到工作表"))
+                if (LogMsg.Message.Contains("未找到工作表"))
                     LogMsg.Message += "数据拷贝粘贴 异常！";
                 else
                     LogMsg.Message += $"拷贝：开始行{stRow}，开始列{stCol}，结束行{endRow}，结束列{endCol}，粘贴： 目标开始行{stRowDest}，目标开始列{stColDest}， 完成！\r\n";
                 //LogMsg.Message += "数据拷贝粘贴 完成！";
             }
-            catch(Exception ex) { LogMsg.Message += ex.ToString(); throw; }
+            catch (Exception ex) { LogMsg.Message += ex.ToString(); throw; }
         }
         // 获取 Excel 文件所有sheet名,导出生成.txt,去除 Summary sheet。 
         internal async Task<string[]> GetSheetName(string excelFilePaht, bool allSheet, string outputFilePath = null)
@@ -546,7 +596,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     // 获取工作簿中的所有工作表
                     var worksheets = package.Workbook.Worksheets;
                     //sheetNames = worksheets.Select(x => x.Name).ToArray();
-                    sheetNames = await Task.Run(() => { return worksheets.Select(x => x.Name).ToArray();});
+                    sheetNames = await Task.Run(() => { return worksheets.Select(x => x.Name).ToArray(); });
                     Array.Reverse(sheetNames);
                     if (!allSheet)// 移除最后一个sheet，保留n-1个sheet(保留Summary sheet)
                     {
@@ -592,7 +642,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     string toSheet = "toSheet";
                     int num = 0;
                     const int count = 235;
-                    await Task.Run(() => 
+                    await Task.Run(() =>
                     {
                         for (int i = 0; i < count; i++) // total:i = 235
                         {
@@ -619,7 +669,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
                         }
                         writer.WriteLine($"\'end count:{(num / 10)}");
                     });
-                   
+
                 }
 
                 //Console.WriteLine("视频文件信息已保存到 " + outputFilePath);
@@ -786,6 +836,17 @@ namespace TestItemStatisticsAcync.ExcelOperation
                 }
             }
         }
+
+        public void ExportSummaryToExcel(ExcelPackage destPackage, List<string> summaryData, int startRow, int startCol, string sheetName = "Summary")
+        {
+            var worksheet = destPackage.Workbook.Worksheets[sheetName];// ["Summary"];
+            for (int i = 0; i < summaryData.Count; i++)
+            {
+                var rawFormula = summaryData[i];
+                string formula = $"={rawFormula.Replace("’", "'").Replace("‘", "'")}";// 替换中文引号为英文引号，构造有效 Excel 公式
+            worksheet.Cells[startRow + i, startCol].Formula = formula;// 写入每个公式到指定位置（纵向排列）
+            }
+        }
         #endregion
 
         //获取或创建.txt文件
@@ -840,11 +901,27 @@ namespace TestItemStatisticsAcync.ExcelOperation
             {
                 //number--; // 减 1 因为 Excel 标记系统从 1 开始
                 int remainder = number % 26; // 取余数
-                result = (char)(remainder + 'A' -1) + result; // 将余数转为对应字符并添加到结果
+                result = (char)(remainder + 'A' - 1) + result; // 将余数转为对应字符并添加到结果
                 number /= 26; // 除以 26，进入下一位
-            }          
+            }
+            return result;
+        }
+        private List<List<string>> GetSummaryFormula(string[] sheetNames, ParametersTestItem paramTestItem)
+        {
+            List<List<string>> result = new List<List<string>>();
+            // 用 Func 封装拼接逻辑
+            List<string> CreateFormulaList(string formula) =>
+                sheetNames.Select(name => $"'{name}'{formula}").ToList();
+            // 添加每组数据
+            result.Add(CreateFormulaList(paramTestItem.LowLimit));
+            result.Add(CreateFormulaList(paramTestItem.HighLimit));
+            result.Add(CreateFormulaList(paramTestItem.CPValue));
+            result.Add(CreateFormulaList(paramTestItem.CPKValue));
+            result.Add(CreateFormulaList(paramTestItem.GRRValue));
+
             return result;
         }
         #endregion
+        
     }
 }
