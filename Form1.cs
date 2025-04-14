@@ -75,7 +75,7 @@ namespace TestItemStatisticsAcync
 
         #endregion
 
-        #region Control Click event
+        #region Path and Ini config button Control Click event
         //Extract data, copy paste test data to GRR, copy paste limit to GRR
         //Button_Click 是一个事件处理程序，因此它返回 void，这使得它成为 async void 方法。
         //这种情况下，虽然你不能使用 await 等待 Button_Click，但事件处理程序本身会异步执行，不会阻塞 UI 线程。
@@ -87,7 +87,6 @@ namespace TestItemStatisticsAcync
             if (path != String.Empty)
                 textB_SourcePath.Text = path;
         }
-
         private async void btn_SelectTargetPath_Click(object sender, EventArgs e)
         {
             await Task.CompletedTask;  // 模拟异步
@@ -95,88 +94,6 @@ namespace TestItemStatisticsAcync
             string path = SelectfullPath();
             if (path != String.Empty)
                 textB_TargetPath.Text = path;
-        }
-
-        // Extract Data & GRR Paste
-
-        private async void btn_ExtractData_Click(object sender, EventArgs e)
-        {
-            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
-            StartWatchTime();
-            InitUILog("waiting......\r\n");
-            UpdateParamFromUIControl();
-            await ExcelOp.ExtractDataFromTestItem(TestItem.SourcePath, TestItem, LogMsg).ConfigureAwait(false);
-            UpdateUILog(LogMsg.Message);
-            StopWatchTime();
-            _semaphore.Release();// 释放信号量，允许下一个操作执行
-        }
-
-        private async void btn_PasteToGRR_Click(object sender, EventArgs e)
-        {
-            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
-            StartWatchTime();
-            InitUILog("waiting......\r\n");
-            UpdateParamFromUIControl();
-            await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR.SourcePath, TestItemGRR.TargetPath, TestItemGRR, LogMsg).ConfigureAwait(false);
-            UpdateUILog(LogMsg.Message);
-            StopWatchTime();
-            _semaphore.Release();// 释放信号量，允许下一个操作执行
-        }
-
-        private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
-        {
-            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
-            StartWatchTime();
-            InitUILog("waiting......\r\n");
-            UpdateParamFromUIControl();
-            try
-            {
-                UpdateParamFromUIControl();
-                string[] str = { "\\" };
-                string path = string.Empty;
-                string[] pathArr = TestItemGRR.TargetPath.Split(str, StringSplitOptions.None);
-                for (int i = 0; i < pathArr.Length - 1; i++)
-                {
-                    path += pathArr[i] + "\\";
-                }
-                path += "GRRModuleSheetName.txt";
-                string[] sheetName = await ExcelOp.GetSheetName(TestItemGRR.TargetPath, false, path).ConfigureAwait(false);
-                LogMsg.Message += "提取GRR module中 sheet name 到GRRModuleSheetName.txt,\r\n" + "path: " + path + "\r\n";
-                LogMsg.Message += $"Total sheet count: {sheetName.Length}\r\n";
-                LogMsg.Message += $"Count{string.Empty,-5}, sheet name\r\n";
-                if (sheetName != null)
-                {
-                    for (int i = 0; i < sheetName.Length; i++)
-                    {
-                        LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
-                    }
-                    LogMsg.Message += $"提取sheet name 完成！ ----------------------\r\n";
-                }
-                else
-                {
-                    LogMsg.Message += $"未找到工作表\r\n";
-                }
-                UpdateUILog(LogMsg.Message);
-            }
-            catch(Exception ex)
-            {
-                LogMsg.Message += $"异常: {ex.ToString()}\r\n";
-                UpdateUILog(LogMsg.Message);
-            }
-            StopWatchTime();
-            _semaphore.Release();// 释放信号量，允许下一个操作执行
-        }
-
-        private async void btn_PasteLimit_Click(object sender, EventArgs e)
-        {
-            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
-            StartWatchTime();
-            InitUILog("waiting......\r\n");
-            UpdateParamFromUIControl();
-            await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit.SourcePath, TestItemGRRLimit.TargetPath, TestItemGRRLimit, LogMsg).ConfigureAwait(false);
-            UpdateUILog(LogMsg.Message);
-            StopWatchTime();
-            _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
         
         // update ini file
@@ -212,7 +129,7 @@ namespace TestItemStatisticsAcync
                 }
                 else
                 {
-                    
+
                     _stopwatch.Stop();
                     MessageBox.Show(this, LogMsg.Message += "操作已取消\r\n");// 用户点击“取消”
                 }
@@ -222,7 +139,91 @@ namespace TestItemStatisticsAcync
             finally { _semaphore.Release(); }// 释放信号量，允许下一个操作执行
             StopWatchTime();
         }
-       
+        #endregion
+
+        #region GRR button Control Click event
+        // Extract Data & GRR Paste
+        private async void btn_ExtractData_Click(object sender, EventArgs e)
+        {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
+            InitUILog("waiting......\r\n");
+            bool state = UpdateParamFromUIControl();
+            if(state)
+                await ExcelOp.ExtractDataFromTestItem(TestItem.SourcePath, TestItem, LogMsg).ConfigureAwait(false);
+            UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
+        }
+        private async void btn_PasteToGRR_Click(object sender, EventArgs e)
+        {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
+            InitUILog("waiting......\r\n");
+            bool state = UpdateParamFromUIControl();
+            if( state)
+                await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR.SourcePath, TestItemGRR.TargetPath, TestItemGRR, LogMsg).ConfigureAwait(false);
+            UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
+        }
+        private async void btn_PasteLimit_Click(object sender, EventArgs e)
+        {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
+            InitUILog("waiting......\r\n");
+            bool state = UpdateParamFromUIControl();
+            if( state )
+                await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit.SourcePath, TestItemGRRLimit.TargetPath, TestItemGRRLimit, LogMsg).ConfigureAwait(false);
+            UpdateUILog(LogMsg.Message);
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
+        }
+        private async void btn_ExtractSheetToTxt_Click(object sender, EventArgs e)
+        {
+            await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
+            StartWatchTime();
+            InitUILog("waiting......\r\n");
+            bool state = UpdateParamFromUIControl();
+            try
+            {
+                string[] str = { "\\" };
+                string path = string.Empty;
+                string[] pathArr = TestItemGRR.TargetPath.Split(str, StringSplitOptions.None);
+                for (int i = 0; i < pathArr.Length - 1; i++)
+                {
+                    path += pathArr[i] + "\\";
+                }
+                path += "GRRModuleSheetName.txt";
+                string[] sheetName = await ExcelOp.GetSheetName(TestItemGRR.TargetPath, false, path).ConfigureAwait(false);
+                LogMsg.Message += "提取GRR module中 sheet name 到GRRModuleSheetName.txt,\r\n" + "path: " + path + "\r\n";
+                LogMsg.Message += $"Total sheet count: {sheetName.Length}\r\n";
+                LogMsg.Message += $"Count{string.Empty,-5}, sheet name\r\n";
+                if (sheetName != null)
+                {
+                    for (int i = 0; i < sheetName.Length; i++)
+                    {
+                        LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
+                    }
+                    LogMsg.Message += $"提取sheet name 完成！ ----------------------\r\n";
+                }
+                else
+                {
+                    LogMsg.Message += $"未找到工作表\r\n";
+                }
+                UpdateUILog(LogMsg.Message);
+            }
+            catch (Exception ex)
+            {
+                LogMsg.Message += $"异常: {ex.ToString()}\r\n";
+                UpdateUILog(LogMsg.Message);
+            }
+            StopWatchTime();
+            _semaphore.Release();// 释放信号量，允许下一个操作执行
+        }
+        #endregion
+
+        #region General button Control Click event
         //General: CopyPaste And Delete
         private async void btn_CopyPaste_Click(object sender, EventArgs e)
         {
@@ -230,16 +231,18 @@ namespace TestItemStatisticsAcync
             StartWatchTime();
             InitUILog("waiting......\r\n");
             ParametersTestItem[] param = null;
-            UpdateParamFromUIControl(ref param, GeneralMode.CellCopyPaste);
-            for(int i = 0; i < param.Length; i++)
+            bool state = UpdateParamFromUIControl(ref param, GeneralMode.CellCopyPaste);
+            if(state)
             {
-                await ExcelOp.CopyRangePaste(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 复制 公式单元格
-            }            
+                for (int i = 0; i < param.Length; i++)
+                {
+                    await ExcelOp.CopyRangePaste(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 复制 公式单元格
+                }
+            }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
-
         private async void btn_DeleteRange_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
@@ -254,19 +257,21 @@ namespace TestItemStatisticsAcync
             StartWatchTime();
             //await Task.Delay(5000);
             ParametersTestItem[] param = null;
-            UpdateParamFromUIControl(ref param, GeneralMode.CellDelete);
-            for (int i = 0; i < param.Length; i++)
-                await ExcelOp.DeleteRangeData(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            bool state = UpdateParamFromUIControl(ref param, GeneralMode.CellDelete);
+            if(state)
+            {
+                for (int i = 0; i < param.Length; i++)
+                    await ExcelOp.DeleteRangeData(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
-
         private async void btn_DeleteSheet_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
             ParametersTestItem[] param = null;
-            UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
+            bool state = UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
             string content = param.ElementAtOrDefault(0).ReserveSheetCount == -1 ? "确定删除SheetName中的所有sheet？" :
                             $"确定删除sheet,仅保留最右侧 {param.ElementAtOrDefault(0).ReserveSheetCount} 个sheet？\r\n注意：最左侧的sheet（Summary）不计算在内";
             DialogResult result = MessageBox.Show(this, content, "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
@@ -278,36 +283,36 @@ namespace TestItemStatisticsAcync
             }
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
- 
-            if (param.ElementAtOrDefault(0).ReserveSheetCount == -1)
+             if(state)
             {
-                await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
+                if (param.ElementAtOrDefault(0).ReserveSheetCount == -1)
+                {
+                    await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
+                }
+                else
+                {
+                    await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0).ReserveSheetCount, LogMsg).ConfigureAwait(false);//保留ReserveSheetCount个工作表
+                }
             }
-            else
-            {
-                await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0).ReserveSheetCount, LogMsg).ConfigureAwait(false);//保留ReserveSheetCount个工作表
-            }
-            
-                
-            //string[] sheet = ExcelOp.GetSheetName(parametersTestItem.TargetPath,true);
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
-
         private async void btn_CreatSheet_Click(object sender, EventArgs e)
         {
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
             InitUILog("waiting......\r\n");
             ParametersTestItem[] param = null;
-            UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
-            await ExcelOp.CreatSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);
+            bool state = UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
+            if(state)
+            {
+                await ExcelOp.CreatSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);
+            }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
         }
-
         private async void btn_RemaneSheet_Click(object sender, EventArgs e)
         {
             InitUILog("waiting......\r\n");
@@ -321,8 +326,11 @@ namespace TestItemStatisticsAcync
             await _semaphore.WaitAsync();// 请求信号量，如果已经有一个操作在执行，其他的操作会被挂起
             StartWatchTime();
             ParametersTestItem[] param = null;
-            UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
-            await ExcelOp.RenameSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            bool state = UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
+            if( state )
+            {
+                await ExcelOp.RenameSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+            }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -337,192 +345,8 @@ namespace TestItemStatisticsAcync
         }
         #endregion
 
-        #region private function
-        /* path */ 
-        private string SelectfullPath()
-        {
-            // 创建 OpenFileDialog 实例
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            // 设置初始目录和过滤器（可选）
-            //openFileDialog.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            openFileDialog.InitialDirectory = "C:\\";  // 你可以设置你希望打开的默认目录
-            openFileDialog.Filter = "所有文件 (*.*)|*.*";  // 允许选择所有文件类型
-            openFileDialog.FilterIndex = 1;
-            openFileDialog.RestoreDirectory = true;
-            string fullPath = string.Empty;
-
-            // 显示对话框并检查用户是否选择了文件
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                // 获取选择的文件路径
-                fullPath = openFileDialog.FileName;
-            }
-            return fullPath;
-        }
-        private string SelectPath()
-        {
-            // 创建一个 FolderBrowserDialog 实例
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-
-            // 设置初始路径（可选）
-            //folderBrowserDialog.SelectedPath = @"E:\labview\《Labview从入门到精通》视频教程\";
-
-            // 显示文件夹选择对话框
-            DialogResult result = folderBrowserDialog.ShowDialog();
-
-            // 如果用户选择了一个文件夹
-            if (result == DialogResult.OK)
-            {
-                // 获取用户选择的文件夹路径
-                string folderPath = folderBrowserDialog.SelectedPath;
-
-                // 将文件夹路径显示到 TextBox 中
-                return folderPath;
-            }
-            return string.Empty;
-        }
-        private string SaveFile()
-        {
-            // 创建 SaveFileDialog 实例
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            // 设置初始目录和过滤器（可选）
-            saveFileDialog.InitialDirectory = "C:\\";
-            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-            saveFileDialog.FilterIndex = 2;
-            saveFileDialog.RestoreDirectory = true;
-            string fullPath = string.Empty;
-            // 显示对话框并检查用户是否选择了保存路径
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                // 获取选择的保存文件路径
-                fullPath += saveFileDialog.FileName;
-
-                // 显示文件路径
-                //filePathTextBox.Text = selectedFile;
-            }
-            return fullPath;
-        }
-        private void MessagePop(string aa, bool mode = false)
-        {
-            if(mode)
-            {
-                DialogResult result = MessageBox.Show(this, "是否保存更改?", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (result == DialogResult.Yes)
-                {
-                    // 用户点击“是”
-                    MessageBox.Show("保存中...");
-                }
-                else
-                {
-                    // 用户点击“否”
-                    MessageBox.Show("未保存");
-                }
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show(this, "确定要删除文件吗?", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-
-                if (result == DialogResult.OK)
-                {
-                    // 用户点击“确认”
-                    MessageBox.Show("文件已删除");
-                }
-                else
-                {
-                    // 用户点击“取消”
-                    MessageBox.Show("操作已取消");
-                }
-            }
-        }
-
-        /* Stopwatch */
-        private void StartWatchTime()
-        {
-            _stopwatch.Reset();
-            _stopwatch.Start();
-        }
-        private void StopWatchTime()
-        {
-            _stopwatch.Stop();
-            UpdateUILog($"耗时: {_stopwatch.ElapsedMilliseconds} ms\r\n");
-        }
-
-        /* config log */
-        private void ConfigLog()
-        {  
-            var config = new LoggingConfiguration();// 明确配置 NLog，包含内部日志设置             
-            var logfile = new FileTarget("logfile")// 创建文件目标
-            {
-                FileName = "${basedir}/logs/log.txt",
-                Layout = "${longdate} ${level} ${message}"
-            };
-
-            config.AddTarget(logfile);
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, logfile));
-
-            // 定义内部日志文件  
-            //ConfigSetting.SetInternalLogLevel(LogLevel.Debug);
-            //ConfigSetting.SetInternalLogFile("${basedir}/nlog-internal.log");
-
-            LogManager.Configuration = config;// 应用配置 
-
-            string logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
-            Directory.CreateDirectory(logDir); // 确保 logs 目录存在 
-            string logFilePath = Path.Combine(logDir, "log.txt");
-            CheckLogFileSizeAndRecreate(logFilePath);
-        }
-        private void CheckLogFileSizeAndRecreate(string logFilePath)
-        {
-            // 如果日志文件存在，检查大小  
-            if (File.Exists(logFilePath))
-            {
-                FileInfo fileInfo = new FileInfo(logFilePath);
-                if (fileInfo.Length > MaxLogSize)
-                {
-                    DialogResult result = MessageBox.Show(this, $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，是否删除并创建新日志？", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                    if (result == DialogResult.OK)
-                    {
-                        // 删除日志文件  
-                        File.Delete(logFilePath);
-                        Console.WriteLine(LogMsg.Message += $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，已被删除。\r\n");
-
-                        // 重新创建日志文件  
-                        using (File.Create(logFilePath))
-                        {
-                            // 空文件创建，不需要任何操作  
-                        }
-                        Console.WriteLine(LogMsg.Message += $"日志文件 {logFilePath} 已重新创建。\r\n");
-                        MessageBox.Show(LogMsg.Message);// 用户点击“确认”
-                    }
-                    else
-                    {
-                        MessageBox.Show(this, LogMsg.Message += "操作已取消\r\n");// 用户点击“取消”
-                    }
-                }
-            }
-        }
-
+        #region private UI
         /* UI Control update */
-        private void RichUILogScrollToEnd()
-        {
-            // 将光标移动到文本末尾
-            richTB_Log.SelectionStart = richTB_Log.Text.Length;
-            // 滚动到光标所在的位置
-            richTB_Log.ScrollToCaret();
-        }
-        private void RichUILogAdjustSize(int newHeight, int stretch)
-        {
-            // 获取当前的尺寸和位置  
-            int currentHeight = richTB_Log.Height;
-            int dtHeight = Math.Abs(newHeight - currentHeight) * stretch; // 向上拉伸或缩放 dtHeight 像素  
-            richTB_Log.Size = new Size(richTB_Log.Width, newHeight);// 更新 RichTextBox 的高度
-            Point currentLocation = richTB_Log.Location;
-            richTB_Log.Location = new Point(currentLocation.X, currentLocation.Y + dtHeight); // 向上或向下移动 dtHeight 像素
-            //this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + dtHeight);// 可选：更新窗口尺寸以适应新大小  
-        }
         // update richtextbox log,BeginInvoke 是异步执行的，不会阻塞当前线程，而 Invoke 是同步执行的，会等待操作完成。
         private void UpdateUILog(string msg)
         {
@@ -550,73 +374,77 @@ namespace TestItemStatisticsAcync
             LogMsg.Message = string.Empty;
             UpdateUILog(msg);
         }
-        //GRR parameters
-        private void UpdateParamFromUIControl()
+        private void RichUILogScrollToEnd()
+        {
+            // 将光标移动到文本末尾
+            richTB_Log.SelectionStart = richTB_Log.Text.Length;
+            // 滚动到光标所在的位置
+            richTB_Log.ScrollToCaret();
+        }
+        private void RichUILogAdjustSize(int newHeight, int stretch)
+        {
+            // 获取当前的尺寸和位置  
+            int currentHeight = richTB_Log.Height;
+            int dtHeight = Math.Abs(newHeight - currentHeight) * stretch; // 向上拉伸或缩放 dtHeight 像素  
+            richTB_Log.Size = new Size(richTB_Log.Width, newHeight);// 更新 RichTextBox 的高度
+            Point currentLocation = richTB_Log.Location;
+            richTB_Log.Location = new Point(currentLocation.X, currentLocation.Y + dtHeight); // 向上或向下移动 dtHeight 像素
+            //this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + dtHeight);// 可选：更新窗口尺寸以适应新大小  
+        }
+
+        //Get GRR parameters
+        private bool UpdateParamFromUIControl()
         {
             try
             {
-                //Extract data
-                TestItem.StartRow = int.Parse(textB_StartRow.Text);
-                TestItem.StartCol = int.Parse(textB_StartCol.Text);
-                TestItem.StartRowDest = int.Parse(textB_StartRowDest.Text);
-                TestItem.StartColDest = int.Parse(textB_StartColDest.Text);
-                TestItem.Repeat = int.Parse(textB_Repeat.Text);
-                TestItem.NumSN = int.Parse(textB_NumSN.Text);
-                TestItem.TotalItemCount = int.Parse(textB_TotalItem.Text);
-                TestItem.FromSheet = textB_FromSheet.Text;
-                TestItem.ToSheet = textB_ToSheet.Text;
-                TestItem.SourcePath = textB_SourcePath.Text;
+                BindFromUIToModel(TestItem, new Dictionary<string, string>
+                {
+                    { "StartRow", "textB_StartRow" },
+                    { "StartCol", "textB_StartCol" },
+                    { "StartRowDest", "textB_StartRowDest" },
+                    { "StartColDest", "textB_StartColDest" },
+                    { "Repeat", "textB_Repeat" },
+                    { "NumSN", "textB_NumSN" },
+                    { "TotalItemCount", "textB_TotalItem" },
+                    { "FromSheet", "textB_FromSheet" },
+                    { "ToSheet", "textB_ToSheet" },
+                    { "SourcePath", "textB_SourcePath" }
+                });
 
-                //Paste to GRR module test item
-                TestItemGRR.StartRow = int.Parse(textB_StartRow_GRR.Text);
-                TestItemGRR.StartCol = int.Parse(textB_StartCol_GRR.Text);
-                TestItemGRR.StartRowDest = int.Parse(textB_StartRowDest_GRR.Text);
-                TestItemGRR.StartColDest = int.Parse(textB_StartColDest_GRR.Text);
-                TestItemGRR.Repeat = int.Parse(textB_TrialsCount_GRR.Text);
-                TestItemGRR.NumSN = int.Parse(textB_NumSN_GRR.Text);
-                //TestItemGRR.TotalItemCount = int.Parse(textB_TotalItem_GRR.Text);
-                TestItemGRR.FromSheet = textB_FromSheet_GRR.Text;
-                TestItemGRR.SourcePath = textB_SourcePath.Text;
-                TestItemGRR.TargetPath = textB_TargetPath.Text;
+                BindFromUIToModel(TestItemGRR, new Dictionary<string, string>
+                {
+                    { "StartRow", "textB_StartRow_GRR" },
+                    { "StartCol", "textB_StartCol_GRR" },
+                    { "StartRowDest", "textB_StartRowDest_GRR" },
+                    { "StartColDest", "textB_StartColDest_GRR" },
+                    { "Repeat", "textB_TrialsCount_GRR" },
+                    { "NumSN", "textB_NumSN_GRR" },
+                    { "FromSheet", "textB_FromSheet_GRR" },
+                    { "SourcePath", "textB_SourcePath" },
+                    { "TargetPath", "textB_TargetPath" }
+                });
 
-                //Paste to GRR module Limit
-                TestItemGRRLimit.StartRow = int.Parse(textB_StartRowLimit.Text);
-                TestItemGRRLimit.StartCol = int.Parse(textB_StartColLimit.Text);
-                TestItemGRRLimit.StartRowDest = int.Parse(textB_StartRowDestLimit.Text);
-                TestItemGRRLimit.StartColDest = int.Parse(textB_StartColDestLimit.Text);
-                TestItemGRRLimit.FromSheet = textB_FromSheetLimit.Text;
-                TestItemGRRLimit.SourcePath = textB_SourcePath.Text;
-                TestItemGRRLimit.TargetPath = textB_TargetPath.Text;
-
-                // option
-
-                // common
+                BindFromUIToModel(TestItemGRRLimit, new Dictionary<string, string>
+                {
+                    { "StartRow", "textB_StartRowLimit" },
+                    { "StartCol", "textB_StartColLimit" },
+                    { "StartRowDest", "textB_StartRowDestLimit" },
+                    { "StartColDest", "textB_StartColDestLimit" },
+                    { "FromSheet", "textB_FromSheetLimit" },
+                    { "SourcePath", "textB_SourcePath" },
+                    { "TargetPath", "textB_TargetPath" }
+                });
+                return true;
             }
             catch (Exception ex)
             {
-                LogMsg.Message += "UI非法数据输入：" + ex.ToString() + "\r\n";
+                LogMsg.Message += "UI非法数据输入：" + ex + "\r\n";
                 UpdateUILog(LogMsg.Message);
+                return false;
             }
-            
         }
-        
-        // private parameters
-        private int[][] GetParam(string param)
-        {
-
-
-            int[][] result = param
-                            .Split(new[] { "\\n" }, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(line => line
-                                .Split(',')
-                                .Select(s => int.Parse(s.Trim()))
-                                .ToArray())
-                            .ToArray();
-            return result;
-        }
-
-        // General parameters
-        private void UpdateParamFromUIControl(ref ParametersTestItem[] testItems, GeneralMode mode)
+        // Get General parameters
+        private bool UpdateParamFromUIControl(ref ParametersTestItem[] testItems, GeneralMode mode)
         {
             try
             {
@@ -635,20 +463,19 @@ namespace TestItemStatisticsAcync
                         }
                     };
                 }
-                else if(mode == GeneralMode.CellCopyPaste || mode == GeneralMode.CellDelete) // cell operater
+                else if (mode == GeneralMode.CellCopyPaste || mode == GeneralMode.CellDelete) // cell operater
                 {
                     // 获取参数输入数据
                     string rawInput = mode == GeneralMode.CellCopyPaste ? textB_CopyPastePara.Text : textB_DeletePara.Text;
                     int[][] paramsArray = GetParam(rawInput);
                     int expectedLength = (mode == GeneralMode.CellCopyPaste) ? 6 : 4;
-
                     // 检查数据格式
-                    if (paramsArray.Any(arr => arr.Length < expectedLength))
+                    if (paramsArray.Any(arr => arr.Length < expectedLength) || paramsArray == null || paramsArray.Length == 0)
                     {
                         LogMsg.Message += (mode == GeneralMode.CellCopyPaste)
                             ? "CopyPasteParam 输入数据格式异常\r\n"
                             : "DeletePara 输入数据格式异常\r\n";
-                        return;
+                        return false;
                     }
                     testItems = paramsArray
                     .Select(arr => new ParametersTestItem
@@ -667,14 +494,17 @@ namespace TestItemStatisticsAcync
                     })
                     .ToArray();
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 LogMsg.Message += "UI非法数据输入：" + ex.ToString() + "\r\n";
                 UpdateUILog(LogMsg.Message);
+                return false;
             }
         }
-        // update INI file from UI Control
+        
+        // INI write :update INI file from UI Control
         private bool UpdateIniFileFromUIControl()
         {
             try
@@ -741,7 +571,7 @@ namespace TestItemStatisticsAcync
                 return false;
             }
         }
-        // update UI Control from INI File
+        // INI read :update UI Control from INI File
         private bool UpdateUIControlFromIniFile()
         {
             try
@@ -813,132 +643,228 @@ namespace TestItemStatisticsAcync
                 return false;
             }
         }
+        #endregion
 
-#if INIFILE
-        // read ini file
-        private Dictionary<string, string> ReadIni()
+        #region private base func
+        /* path */
+        private string SelectfullPath()
         {
-            //BaseDirectory 返回的是应用程序的启动目录，通常是项目构建后生成的输出文件夹（如 bin\Debug 或 bin\Release 目录）。如果你在开发阶段使用它，路径可能是编译后的输出目录
-            //string projectPath = AppDomain.CurrentDomain.BaseDirectory;//获取应用程序的根目录路径
-            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
-            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
-            var iniData = iniReaderWriter.ReadIniFile(path, Encoding.GetEncoding("GB2312"));// 使用 GB2312 编码读取
-            return iniData;
-        }
+            // 创建 OpenFileDialog 实例
+            OpenFileDialog openFileDialog = new OpenFileDialog();
 
-        // update UI Control from INI File
-        private void UpdateUIControlFromIniFile_1()
-        {
-        #region IniReaderWriter
-            var iniData = ReadIni();
-            if (iniData.Count == 0)
+            // 设置初始目录和过滤器（可选）
+            //openFileDialog.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            openFileDialog.InitialDirectory = "C:\\";  // 你可以设置你希望打开的默认目录
+            openFileDialog.Filter = "所有文件 (*.*)|*.*";  // 允许选择所有文件类型
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            string fullPath = string.Empty;
+
+            // 显示对话框并检查用户是否选择了文件
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                InitUILog("配置文件读取失败......\r\n");
-                return;
+                // 获取选择的文件路径
+                fullPath = openFileDialog.FileName;
             }
-            // ExtractData 文本框控件 初始化
-            textB_SourcePath.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.SourcePath");
-            textB_StartRow.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartRow");
-            textB_StartCol.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartCol");
-            textB_FromSheet.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.FromSheet");
-            textB_StartRowDest.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartRowDest");
-            textB_StartColDest.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.StartColDest");
-            textB_ToSheet.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.ToSheet");
-            textB_Repeat.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.Repeat");
-            textB_NumSN.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.NumSN");
-            textB_TotalItem.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_ExtractData.TotalItem");
-
-            // Paste to GRR 文本框控件 初始化
-            textB_StartRow_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartRow");
-            textB_StartCol_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartCol");
-            textB_FromSheet_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.FromSheet");
-            textB_TargetPath.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.TargetPath");
-            textB_StartRowDest_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartRowDest");
-            textB_StartColDest_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.StartColDest");
-            textB_TrialsCount_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.TrialsCount");
-            textB_NumSN_GRR.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_PasteToGRR.NumSN");
-
-            // limit 文本框控件 初始化
-            textB_StartRowLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartRow");
-            textB_StartColLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartCol");
-            textB_FromSheetLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.FromSheet");
-            textB_StartRowDestLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartRowDest");
-            textB_StartColDestLimit.Text = iniReaderWriter.GetValue<string>(iniData, "GRR_Limit.StartColDest");
-
-            // Genenal Excel parameter 初始化
-            textB_ExcelPath.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.ExcelPath");
-            richT_SheetName.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.SheetName").Replace(@"\n", Environment.NewLine);
-            textB_ReserveSheetCount.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.ReserveCnt");
-            textB_CopyPastePara.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.PasteParam");
-            textB_DeletePara.Text = iniReaderWriter.GetValue<string>(iniData, "General_ExcelParam.DeleteParam");
-        #endregion
-            //InitUILog("初始化完成......\r\n");
-            string ss = richT_SheetName.Text.Replace(Environment.NewLine, "\n");
+            return fullPath;
         }
-        // update INI file from UI Control
-        private void UpdateIniFileFromUIControl_1()
+        private string SelectPath()
         {
-        #region IniReaderWriter
-            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//获取当前执行文件所在路径
-            string path = executablePath + "\\Ini\\TestItemStatistics.ini";
+            // 创建一个 FolderBrowserDialog 实例
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
 
-            // 创建一个字典来存储键值对
-            Dictionary<string, object> iniData = new Dictionary<string, object>();
+            // 设置初始路径（可选）
+            //folderBrowserDialog.SelectedPath = @"E:\labview\《Labview从入门到精通》视频教程\";
 
-            // ExtractData
-            iniData.Add("GRR_ExtractData.SourcePath", textB_SourcePath.Text);
-            iniData.Add("GRR_ExtractData.StartRow", textB_StartRow.Text);
-            iniData.Add("GRR_ExtractData.StartCol", textB_StartCol.Text);
-            iniData.Add("GRR_ExtractData.FromSheet", textB_FromSheet.Text);
-            iniData.Add("GRR_ExtractData.StartRowDest", textB_StartRowDest.Text);
-            iniData.Add("GRR_ExtractData.StartColDest", textB_StartColDest.Text);
-            iniData.Add("GRR_ExtractData.ToSheet", textB_ToSheet.Text);
-            iniData.Add("GRR_ExtractData.Repeat", textB_Repeat.Text);
-            iniData.Add("GRR_ExtractData.NumSN", textB_NumSN.Text);
-            iniData.Add("GRR_ExtractData.TotalItem", textB_TotalItem.Text);
+            // 显示文件夹选择对话框
+            DialogResult result = folderBrowserDialog.ShowDialog();
 
-            // PasteToGRR
-            iniData.Add("GRR_PasteToGRR.StartRow", textB_StartRow_GRR.Text);
-            iniData.Add("GRR_PasteToGRR.StartCol", textB_StartCol_GRR.Text);
-            iniData.Add("GRR_PasteToGRR.FromSheet", textB_FromSheet_GRR.Text);
-            iniData.Add("GRR_PasteToGRR.TargetPath", textB_TargetPath.Text);
-            iniData.Add("GRR_PasteToGRR.StartRowDest", textB_StartRowDest_GRR.Text);
-            iniData.Add("GRR_PasteToGRR.StartColDest", textB_StartColDest_GRR.Text);
-            iniData.Add("GRR_PasteToGRR.TrialsCount", textB_TrialsCount_GRR.Text);
-            iniData.Add("GRR_PasteToGRR.NumSN", textB_NumSN_GRR.Text);
+            // 如果用户选择了一个文件夹
+            if (result == DialogResult.OK)
+            {
+                // 获取用户选择的文件夹路径
+                string folderPath = folderBrowserDialog.SelectedPath;
 
-            // Limit
-            iniData.Add("GRR_Limit.StartRow", textB_StartRowLimit.Text);
-            iniData.Add("GRR_Limit.StartCol", textB_StartColLimit.Text);
-            iniData.Add("GRR_Limit.FromSheet", textB_FromSheetLimit.Text);
-            iniData.Add("GRR_Limit.StartRowDest", textB_StartRowDestLimit.Text);
-            iniData.Add("GRR_Limit.StartColDest", textB_StartColDestLimit.Text);
-
-            // General Excel parameter
-            iniData.Add("General_ExcelParam.ExcelPath", textB_ExcelPath.Text);
-            iniData.Add("General_ExcelParam.SheetName", richT_SheetName.Text.Replace("\r\n", "\\n").Replace("\n", "\\n"));
-            iniData.Add("General_ExcelParam.ReserveCnt", textB_ReserveSheetCount.Text);
-            iniData.Add("General_ExcelParam.PasteParam", textB_CopyPastePara.Text);
-            iniData.Add("General_ExcelParam.DeleteParam", textB_DeletePara.Text);
-
-            //var iniDataOld = ReadIni();
-            //if (iniDataOld.Count == 0)
-            //{
-            //    InitUILog("配置文件读取失败......\r\n");
-            //    return;
-            //}
-            //Dictionary<string, object> combinedDict = iniDataOld
-            //.Concat(iniData)
-            //.GroupBy(kvp => kvp.Key)
-            //.ToDictionary(g => g.Key, g => g.Last()); // 选择最后一个值，如果有重复键  
-
-            // 写入新的数据到 INI 文件
-            //iniReaderWriter.WriteIniFile(path, iniData, Encoding.GetEncoding("GB2312"));
-            iniReaderWriter.WriteIniFile(path, iniData, Encoding.GetEncoding("GB2312"), true);
-            //Console.WriteLine("\nUI Control data written to INI file!");
-        #endregion
+                // 将文件夹路径显示到 TextBox 中
+                return folderPath;
+            }
+            return string.Empty;
         }
-#endif
+        private string SaveFile()
+        {
+            // 创建 SaveFileDialog 实例
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // 设置初始目录和过滤器（可选）
+            saveFileDialog.InitialDirectory = "C:\\";
+            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+            string fullPath = string.Empty;
+            // 显示对话框并检查用户是否选择了保存路径
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // 获取选择的保存文件路径
+                fullPath += saveFileDialog.FileName;
+
+                // 显示文件路径
+                //filePathTextBox.Text = selectedFile;
+            }
+            return fullPath;
+        }
+        private void MessagePop(string aa, bool mode = false)
+        {
+            if (mode)
+            {
+                DialogResult result = MessageBox.Show(this, "是否保存更改?", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    // 用户点击“是”
+                    MessageBox.Show("保存中...");
+                }
+                else
+                {
+                    // 用户点击“否”
+                    MessageBox.Show("未保存");
+                }
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show(this, "确定要删除文件吗?", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.OK)
+                {
+                    // 用户点击“确认”
+                    MessageBox.Show("文件已删除");
+                }
+                else
+                {
+                    // 用户点击“取消”
+                    MessageBox.Show("操作已取消");
+                }
+            }
+        }
+
+        /* Stopwatch */
+        private void StartWatchTime()
+        {
+            _stopwatch.Reset();
+            _stopwatch.Start();
+        }
+        private void StopWatchTime()
+        {
+            _stopwatch.Stop();
+            UpdateUILog($"耗时: {_stopwatch.ElapsedMilliseconds} ms\r\n");
+        }
+
+        /* config log */
+        private void ConfigLog()
+        {
+            var config = new LoggingConfiguration();// 明确配置 NLog，包含内部日志设置             
+            var logfile = new FileTarget("logfile")// 创建文件目标
+            {
+                FileName = "${basedir}/logs/log.txt",
+                Layout = "${longdate} ${level} ${message}"
+            };
+
+            config.AddTarget(logfile);
+            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, logfile));
+
+            // 定义内部日志文件  
+            //ConfigSetting.SetInternalLogLevel(LogLevel.Debug);
+            //ConfigSetting.SetInternalLogFile("${basedir}/nlog-internal.log");
+
+            LogManager.Configuration = config;// 应用配置 
+
+            string logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
+            Directory.CreateDirectory(logDir); // 确保 logs 目录存在 
+            string logFilePath = Path.Combine(logDir, "log.txt");
+            CheckLogFileSizeAndRecreate(logFilePath);
+        }
+        private void CheckLogFileSizeAndRecreate(string logFilePath)
+        {
+            // 如果日志文件存在，检查大小  
+            if (File.Exists(logFilePath))
+            {
+                FileInfo fileInfo = new FileInfo(logFilePath);
+                if (fileInfo.Length > MaxLogSize)
+                {
+                    DialogResult result = MessageBox.Show(this, $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，是否删除并创建新日志？", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    if (result == DialogResult.OK)
+                    {
+                        // 删除日志文件  
+                        File.Delete(logFilePath);
+                        Console.WriteLine(LogMsg.Message += $"日志文件 {logFilePath} 超过 {MaxLogSize / (1024 * 1024)}MB，已被删除。\r\n");
+
+                        // 重新创建日志文件  
+                        using (File.Create(logFilePath))
+                        {
+                            // 空文件创建，不需要任何操作  
+                        }
+                        Console.WriteLine(LogMsg.Message += $"日志文件 {logFilePath} 已重新创建。\r\n");
+                        MessageBox.Show(LogMsg.Message);// 用户点击“确认”
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, LogMsg.Message += "操作已取消\r\n");// 用户点击“取消”
+                    }
+                }
+            }
+        }
+
+        // private parameters
+        private int[][] GetParam(string param)
+        {
+            int[][] result = param
+                            .Split(new[] { "\\n" }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(line => line
+                                .Split(',')
+                                .Select(s => int.Parse(s.Trim()))
+                                .ToArray())
+                            .ToArray();
+            return result;
+        }
+
+        #region general reflect Get Control value to object
+        // reflect
+        private void BindFromUIToModel(object model, Dictionary<string, string> propertyToControlMap)
+        {
+            Type modelType = model.GetType();
+
+            foreach (var kvp in propertyToControlMap)
+            {
+                string propertyName = kvp.Key;
+                string controlName = kvp.Value;
+
+                PropertyInfo prop = modelType.GetProperty(propertyName);
+                if (prop == null || !prop.CanWrite) continue;
+
+                Control[] found = this.Controls.Find(controlName, true);
+                if (found.Length == 0 || !(found[0] is TextBox textBox))
+                    throw new Exception($"控件未找到或不是 TextBox：{controlName}");
+
+                object value = ConvertValue(prop.PropertyType, textBox.Text, controlName);
+                prop.SetValue(model, value);
+            }
+        }
+        private object ConvertValue(Type targetType, string input, string controlName)
+        {
+            try
+            {
+                if (targetType == typeof(int))
+                    return int.Parse(input);
+                if (targetType == typeof(string))
+                    return input;
+                // 可以扩展更多类型
+                throw new NotSupportedException($"不支持的目标类型：{targetType.Name}");
+            }
+            catch
+            {
+                throw new FormatException($"控件 {controlName} 输入格式错误，无法转换为 {targetType.Name}");
+            }
+        }
+        #endregion
 
         #endregion
     }

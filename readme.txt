@@ -44,8 +44,8 @@
 	ReserveCnt：如果值是”:cnt“格式(cnt取正整数)，则表示只保留cnt个工作表格，其他的删除。如果不是”:cnt“格式，则删除SheetName中的工作表。
 	General: CopyPaste And Delete
 		ExcelPath:excel路径，作用域：General
-		PasteParam参数格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest\nStartRow1......  // 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数,从1开始）,每组数据用'\n'分割。
-		DeleteParam参数格式：StartCol,StartCol,EndRow,EndColnStartRow1......							// 开始行，开始列，结束行，结束列（行列都是正整数）,每组数据用'\n'分割。
+		PasteParam参数格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest\nStartRow2......  // 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数,从1开始）,每组数据用'\n'分割。
+		DeleteParam参数格式：StartCol,StartCol,EndRow,EndColnStartRow1\nStartRow2......					// 开始行，开始列，结束行，结束列（行列都是正整数）,每组数据用'\n'分割。
 		ReserveCnt参数格式：:cnt																		// 保留cnt个sheet。注意最后一个sheet不在统计范围（保留Summary工作表）。
 		PosSheet参数：																					//新建sheet时，在PosSheet的左侧开始创建
 =======================================================================================================
