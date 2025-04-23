@@ -25,8 +25,8 @@
 3.2 参数：根据名称理解
 	Extract data: SourcePath：将op01.xlsx中工作表SortSelectTrans中的数据提取到 toSheetAll中；功能按钮：ExtractData
 	Paste to GRR: SourcePath to TargetPath：将op01.xlsx中工作表toSheetAll中的数据拷贝粘贴到MSA模板中；功能按钮：PasteToGRR
-	Paste to GRR: Limit：将op01.xlsx中工作表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
-	Summary:将GRR模板中 单表里的测试数据用公式关联到Summary指定位置；格式：开始行\n开始列1,开始列2,开始列3，开始列4，开始列5\nSummary sheet名
+	PasteLimit: Limit：将op01.xlsx中工作表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
+	SummaryFL:将GRR模板中 单表里的测试数据用公式关联到Summary指定位置；格式：开始行\n开始列1,开始列2,开始列3，开始列4，开始列5\nSummary sheet名
 			开始行，列，Summary名都用'\n'隔开。列之间用','隔开.开始列数据依次是："LowLimit", "HighLimit", "CP", "CPK", "GRR Value" 对应的列标位置
 
 =======================================================================================================
@@ -38,7 +38,7 @@
 	按钮：DeleteRange：删除DeleteParam中的值
 	按钮：DeleteSheet：删除工作表，保留ReserveCnt个或删除SheetName个。
 	按钮：CreatSheet：新建工作表。在PosSheet的左侧开始创建
-	按钮：RemaneSheet：重命名工作表
+	按钮：RemaneSheet：重命名工作表,重名名，最好用中间sheet名过度（1，2，3....）,最后用目标sheetname 重命名，以避免sheetname不唯一
 	按钮：ReadIni：读取INI配置文件到UI控件。
 	按钮：WriteIni：将UI控件数据写入INI配置文件
 	按钮：<-----：在General: SheetName中。单击可切换General功能是否使能。
@@ -47,6 +47,7 @@
 	General: CopyPaste And Delete
 		ExcelPath:excel路径，作用域：General
 		PasteParam参数格式：StartRow,StartCol,EndRow,EndCol,StartRowDest,StartColDest\nStartRow2......  // 开始行，开始列，结束行，结束列，目标行，目标列（行列都是正整数,从1开始）,每组数据用'\n'分割。
+		(GRR模板 SN9公式拷贝到SN10位置，PasteParam参数：17,6,17,6,18,6\n17,10,17,10,18,10\n17,14,17,14,18,14。SheetName输入所有GRR需要处理的sheet名，用换行间隔。)
 		DeleteParam参数格式：StartCol,StartCol,EndRow,EndColnStartRow1\nStartRow2......					// 开始行，开始列，结束行，结束列（行列都是正整数）,每组数据用'\n'分割。
 		ReserveCnt参数格式：:cnt																		// 保留cnt个sheet。注意最后一个sheet不在统计范围（保留Summary工作表）。
 		PosSheet参数：																					//新建sheet时，在PosSheet的左侧开始创建

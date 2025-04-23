@@ -31,7 +31,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
             int count = ParamTestItem.TotalItemCount;// test item count:229
             string fromSheet = ParamTestItem.FromSheet;
             string toSheet = ParamTestItem.ToSheet;
-            numSN += 2;// 添加标题行和空行
+            //numSN += 2;// 添加标题行和空行
             int num = 0;// row count
             string sourceWorkbookPath = ParamTestItem.SourcePath;
 
@@ -55,8 +55,8 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     {
                         for (int i = 0; i < count; i++) // total:i = 229
                         {
-                            CopyRange(sourceSheet, stRow + i, stCol, stRow + i, stCol, destSheet, stRowDest + i * numSN, stColDest);
-                            for (int j = 0; j < repeat + 1; j++) // SN1~SN9
+                            CopyRange(sourceSheet, stRow + i, stCol, stRow + i, stCol, destSheet, stRowDest + i * (numSN + 2) -i, stColDest);
+                            for (int j = 0; j < numSN; j++) // SN1~SN9
                             {
                                 // 拷贝区域 1:fromSheet numSN 个test itme 粘贴到 toSheet中
                                 CopyRange(sourceSheet, stRow + i, stCol + j * repeat + 1, stRow + i, stCol + (j + 1) * repeat, destSheet, stRowDest + ++num, stColDest + 1);
@@ -90,7 +90,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
             string sourceWorkbookPath = ParamTestItem.SourcePath;
             string targetWorkbookPath = ParamTestItem.TargetPath;
             //string toSheet = ParamTestItem.ToSheet;
-            numSN += 2;// 添加标题行和空行
+            //numSN += 2;// 添加标题行和空行
 
             try
             {
@@ -117,8 +117,9 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
                             for (int j = 0; j < TrialsCount; j++)
                             {
+                                //2 + i*(10+1) + 10 -1
                                 // 拷贝区域 1: Source Sheetxx 的 C3:E9, F3:H9, I3:K9 等 到 Dest Sheetxx 的 C3:xx, G3:xx, K3:xx
-                                CopyRange(sourceSheet, stRow + i * numSN, stCol + j * 3, stRow + i * numSN + (numSN - 3), stCol + j * 3 + 2, destSheet, stRowDest, stColDest + j * 4);
+                                CopyRange(sourceSheet, stRow + i * (numSN + 1), stCol + j * 3, stRow + i * (numSN + 1) + numSN - 1, stCol + j * 3 + 2, destSheet, stRowDest, stColDest + j * 4);
                             }
                             //Console.WriteLine( $"序号：{i +1} 数据拷贝到GRR模板中......，拷贝sheet 个数:{i + 1}, 剩余sheet个数: {sheetName.Length - (i + 1)}, sheet name: {sheetName[i]}\r\n");
                             //LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
