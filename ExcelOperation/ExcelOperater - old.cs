@@ -240,7 +240,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
         #region internal
         // 新建sheet
-        internal async Task CreateSheet(ParametersTestItem ParamTestItem, LogMessage LogMsg, bool before = false)
+        internal async Task CreatSheet(ParametersTestItem ParamTestItem, LogMessage LogMsg, bool before = false)
         {
             try
             {
@@ -353,66 +353,63 @@ namespace TestItemStatisticsAcync.ExcelOperation
             }
         }
         //删除sheet
-        //internal async Task DeleteSheet(ParametersTestItem ParamTestItem, LogMessage LogMsg)
-        //{
-        //    try
-        //    {
-        //        string targetWorkbookPath = ParamTestItem.TargetPath;
-        //        if (!CheckFilesOk(LogMsg, targetWorkbookPath))
-        //            return;
-
-        //        //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
-        //        string[] sheetName = ParamTestItem.SheetName;
-
-        //        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
-        //        FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
-        //        using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
-        //        {
-        //            // 获取工作表集合
-        //            var workbook = destPackage.Workbook;
-        //            LogMsg.Message += $"删除工作表\r\n";
-        //            LogMsg.Message += $"Count{string.Empty,-5}, 已删除工作表\r\n";
-        //            await Task.Run(() =>
-        //            {
-        //                for (int i = 0; i < sheetName.Length; i++)
-        //                {
-        //                    var sheetToRemove = workbook.Worksheets[sheetName[i]];
-        //                    if (sheetToRemove != null)
-        //                    {
-        //                        workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
-        //                        LogMsg.Message += $"{i + 1,-10}, '{sheetToRemove}'\r\n";
-        //                    }
-        //                    else
-        //                    {
-        //                        LogMsg.Message += $"{i + 1,-10}, 未找到工作表 '{sheetName[i]}'\r\n";
-        //                    }
-        //                }
-        //                destPackage.Save();
-        //            });
-        //        }
-        //        if (LogMsg.Message.Contains("未找到工作表"))
-        //            LogMsg.Message += "删除工作表 异常！\r\n";
-        //        else
-        //            LogMsg.Message += "删除工作表 完成！\r\n";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        LogMsg.Message += $"{ex.ToString()}\r\n";
-        //    }
-        //}
-        //删除sheet
-        internal async Task DeleteSheet(ParametersTestItem ParamTestItem, LogMessage LogMsg, int? reserveCount = null)
+        internal async Task DeleteSheet(ParametersTestItem ParamTestItem, LogMessage LogMsg)
         {
             try
             {
                 string targetWorkbookPath = ParamTestItem.TargetPath;
                 if (!CheckFilesOk(LogMsg, targetWorkbookPath))
                     return;
-                string[] sheetName;
-                if (reserveCount.HasValue)
-                    sheetName = await GetSheetName(targetWorkbookPath).ConfigureAwait(false);
+
+                //string outputFilePath = @"E:\labview\other prj\IGBT cplusplus dll\MSA1\sheetname.txt";
+                string[] sheetName = ParamTestItem.SheetName;
+
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
+                FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
+                using (var destPackage = new ExcelPackage(destinationFile)) // 打开目标文件
+                {
+                    // 获取工作表集合
+                    var workbook = destPackage.Workbook;
+                    LogMsg.Message += $"删除工作表\r\n";
+                    LogMsg.Message += $"Count{string.Empty,-5}, 已删除工作表\r\n";
+                    await Task.Run(() =>
+                    {
+                        for (int i = 0; i < sheetName.Length; i++)
+                        {
+                            var sheetToRemove = workbook.Worksheets[sheetName[i]];
+                            if (sheetToRemove != null)
+                            {
+                                workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
+                                LogMsg.Message += $"{i + 1,-10}, '{sheetToRemove}'\r\n";
+                            }
+                            else
+                            {
+                                LogMsg.Message += $"{i + 1,-10}, 未找到工作表 '{sheetName[i]}'\r\n";
+                            }
+                        }
+                        destPackage.Save();
+                    });
+                }
+                if (LogMsg.Message.Contains("未找到工作表"))
+                    LogMsg.Message += "删除工作表 异常！\r\n";
                 else
-                    sheetName =  ParamTestItem.SheetName;
+                    LogMsg.Message += "删除工作表 完成！\r\n";
+            }
+            catch (Exception ex)
+            {
+                LogMsg.Message += $"{ex.ToString()}\r\n";
+            }
+        }
+        //删除sheet
+        internal async Task DeleteSheet(ParametersTestItem ParamTestItem, int reserveSheetCount, LogMessage LogMsg)
+        {
+            try
+            {
+                string targetWorkbookPath = ParamTestItem.TargetPath;
+                if (!CheckFilesOk(LogMsg, targetWorkbookPath))
+                    return;
+
+                string[] sheetName = await GetSheetName(targetWorkbookPath).ConfigureAwait(false);
 
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;// 设置 EPPlus 许可证上下文               
                 FileInfo destinationFile = new FileInfo(targetWorkbookPath);// 打工作簿
@@ -421,50 +418,29 @@ namespace TestItemStatisticsAcync.ExcelOperation
                     // 获取工作表集合
                     var workbook = destPackage.Workbook;
 
-                    
+                    // 删除名为 "Sheet1" 的工作表
+                    if (sheetName.Length <= reserveSheetCount)
+                    {
+                        LogMsg.Message += $"工作表小于 {reserveSheetCount} 个\r\n";
+                        return;
+                    }
                     LogMsg.Message += $"删除工作表\r\n";
                     LogMsg.Message += $"Count{string.Empty,-5}, 已删除工作表\r\n";
                     await Task.Run(() =>
                     {
-                        if(reserveCount.HasValue)
+                        for (int i = reserveSheetCount; i < sheetName.Length; i++)
                         {
-                            // 删除名为 "Sheet1" 的工作表
-                            if (sheetName.Length <= reserveCount)
+                            var sheetToRemove = workbook.Worksheets[sheetName[i]];
+                            if (sheetToRemove != null)
                             {
-                                LogMsg.Message += $"工作表小于 {reserveCount} 个\r\n";
-                                return;
+                                workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
+                                LogMsg.Message += $"{i - reserveSheetCount + 1,-10}, '{sheetToRemove}'\r\n";
                             }
-                            for (int i = reserveCount.Value; i < sheetName.Length; i++)
+                            else
                             {
-                                var sheetToRemove = workbook.Worksheets[sheetName[i]];
-                                if (sheetToRemove != null)
-                                {
-                                    workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
-                                    LogMsg.Message += $"{i - reserveCount + 1,-10}, '{sheetToRemove}'\r\n";
-                                }
-                                else
-                                {
-                                    LogMsg.Message += $"{i - reserveCount + 1,-10}， 未找到工作表 '{sheetToRemove}'\r\n";
-                                }
+                                LogMsg.Message += $"{i - reserveSheetCount + 1,-10}， 未找到工作表 '{sheetToRemove}'\r\n";
                             }
                         }
-                        else
-                        {
-                            for (int i = 0; i < sheetName.Length; i++)
-                            {
-                                var sheetToRemove = workbook.Worksheets[sheetName[i]];
-                                if (sheetToRemove != null)
-                                {
-                                    workbook.Worksheets.Delete(sheetToRemove); // 删除工作表
-                                    LogMsg.Message += $"{i + 1,-10}, '{sheetToRemove}'\r\n";
-                                }
-                                else
-                                {
-                                    LogMsg.Message += $"{i + 1,-10}, 未找到工作表 '{sheetName[i]}'\r\n";
-                                }
-                            }
-                        }
-                       
                         destPackage.Save();
                     });
                 }
@@ -961,16 +937,7 @@ namespace TestItemStatisticsAcync.ExcelOperation
 
             return resultOk;
         }
-        private void AppendLog(LogMessage log, string message)
-        {
-            log.Message += message + "\r\n";
-        }
-        private ExcelPackage OpenPackage(string filePath)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            return new ExcelPackage(new FileInfo(filePath));
-        }
         #endregion
-
+        
     }
 }

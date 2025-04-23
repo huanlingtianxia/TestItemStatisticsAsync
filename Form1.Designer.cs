@@ -729,7 +729,7 @@
             // 
             // Btn_SummaryFormula
             // 
-            this.Btn_SummaryFormula.Location = new System.Drawing.Point(157, 9);
+            this.Btn_SummaryFormula.Location = new System.Drawing.Point(153, 9);
             this.Btn_SummaryFormula.Name = "Btn_SummaryFormula";
             this.Btn_SummaryFormula.Size = new System.Drawing.Size(76, 23);
             this.Btn_SummaryFormula.TabIndex = 21;
@@ -1017,7 +1017,7 @@
             // 
             this.label38.AutoSize = true;
             this.label38.BackColor = System.Drawing.Color.Red;
-            this.label38.Location = new System.Drawing.Point(141, 16);
+            this.label38.Location = new System.Drawing.Point(137, 16);
             this.label38.Name = "label38";
             this.label38.Size = new System.Drawing.Size(13, 13);
             this.label38.TabIndex = 8;
@@ -1049,9 +1049,9 @@
             this.label40.AutoSize = true;
             this.label40.Location = new System.Drawing.Point(5, 17);
             this.label40.Name = "label40";
-            this.label40.Size = new System.Drawing.Size(38, 13);
+            this.label40.Size = new System.Drawing.Size(37, 13);
             this.label40.TabIndex = 8;
-            this.label40.Text = "Target";
+            this.label40.Text = "Param";
             // 
             // Form1
             // 

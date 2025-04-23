@@ -60,6 +60,8 @@ namespace TestItemStatisticsAcync
         private static Logger? _logger; // 定义 logger 属性
         private static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 只允许一个异步操作
         private Stopwatch _stopwatch = new Stopwatch();
+
+        public DateTime Now => DateTime.Now;// 获取当前日期和时间
         #endregion
 
         #region internal property
@@ -69,7 +71,7 @@ namespace TestItemStatisticsAcync
         internal ParametersTestItem TestItem { get; set; } = new ParametersTestItem();//从测试log提取数据参数
         internal ParametersTestItem TestItemGRR { get; set; } = new ParametersTestItem();
         internal ParametersTestItem TestItemGRRLimit { get; set; } = new ParametersTestItem();
-        internal ParametersTestItem TestItemGRRSummary { get; set; } = new ParametersTestItem();
+        //internal ParametersTestItem TestItemGRRSummary { get; set; } = new ParametersTestItem();
         internal LogMessage LogMsg { get; set; } = new LogMessage();// log message
         internal long MaxLogSize { get; set; } = 10 * 1024 * 1024; // 10 MB
         internal static Logger Logger => _logger ?? (_logger = LogManager.GetCurrentClassLogger());// 检查 logger 是否为 null，如果是则通过 LogManager 创建新的实例
@@ -151,7 +153,7 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             bool state = UpdateParamFromUIControl();
             if(state)
-                await ExcelOp.ExtractDataFromTestItem(TestItem.SourcePath, TestItem, LogMsg).ConfigureAwait(false);
+                await ExcelOp.ExtractDataFromTestItem(TestItem, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -163,7 +165,7 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             bool state = UpdateParamFromUIControl();
             if( state)
-                await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR.SourcePath, TestItemGRR.TargetPath, TestItemGRR, LogMsg).ConfigureAwait(false);
+                await ExcelOp.PasteToGRRModuleFromExtractData(TestItemGRR, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -175,7 +177,7 @@ namespace TestItemStatisticsAcync
             InitUILog("waiting......\r\n");
             bool state = UpdateParamFromUIControl();
             if( state )
-                await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit.SourcePath, TestItemGRRLimit.TargetPath, TestItemGRRLimit, LogMsg).ConfigureAwait(false);
+                await ExcelOp.PasteToGRRModuleFromLimit(TestItemGRRLimit, LogMsg).ConfigureAwait(false);
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
             _semaphore.Release();// 释放信号量，允许下一个操作执行
@@ -188,24 +190,17 @@ namespace TestItemStatisticsAcync
             bool state = UpdateParamFromUIControl();
             try
             {
-                string[] str = { "\\" };
-                string path = string.Empty;
-                string[] pathArr = TestItemGRR.TargetPath.Split(str, StringSplitOptions.None);
-                for (int i = 0; i < pathArr.Length - 1; i++)
-                {
-                    path += pathArr[i] + "\\";
-                }
-                path += "GRRModuleSheetName.txt";
+                string path = Path.GetDirectoryName(TestItemGRR.TargetPath) + "\\" + "GRRModuleSheetName.txt";
                 string[] sheetName = await ExcelOp.GetSheetName(TestItemGRR.TargetPath, false, path).ConfigureAwait(false);
                 LogMsg.Message += "提取GRR module中 sheet name 到GRRModuleSheetName.txt,\r\n" + "path: " + path + "\r\n";
                 LogMsg.Message += $"Total sheet count: {sheetName.Length}\r\n";
-                LogMsg.Message += $"Count{string.Empty,-5}, sheet name\r\n";
+                //LogMsg.Message += $"Count{string.Empty,-5}, sheet name\r\n";
                 if (sheetName != null)
                 {
-                    for (int i = 0; i < sheetName.Length; i++)
-                    {
-                        LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
-                    }
+                    //for (int i = 0; i < sheetName.Length; i++)
+                    //{
+                    //    LogMsg.Message += $"{i + 1,-10}, {sheetName[i]}\r\n";
+                    //}
                     LogMsg.Message += $"提取sheet name 完成！ ----------------------\r\n";
                 }
                 else
@@ -231,10 +226,10 @@ namespace TestItemStatisticsAcync
             try
             {
                 string[] paramsArr = textB_SummaryParam.Text.Split(new[] { "\\n" }, StringSplitOptions.RemoveEmptyEntries);
-                int[][] paramsArray = GetParam(paramsArr.ElementAtOrDefault(0) + "\\n" + paramsArr.ElementAtOrDefault(1));
-                string targetSheet = paramsArr.ElementAtOrDefault(2);
+                TestItemGRR.CellParams = GetParam(paramsArr.ElementAtOrDefault(0) + "\\n" + paramsArr.ElementAtOrDefault(1));
+                TestItemGRR.ToSheet = paramsArr.ElementAtOrDefault(2);
                 if (state)
-                    await ExcelOp.PasteToGRRModuleForSummaryFormula(TestItemGRR.TargetPath, TestItemGRR, paramsArray, LogMsg, targetSheet).ConfigureAwait(false);
+                    await ExcelOp.PasteToGRRModuleForSummaryFormula(TestItemGRR, LogMsg).ConfigureAwait(false);
                 UpdateUILog(LogMsg.Message);
             }
             catch (Exception ex)
@@ -260,7 +255,7 @@ namespace TestItemStatisticsAcync
             {
                 for (int i = 0; i < param.Length; i++)
                 {
-                    await ExcelOp.CopyRangePaste(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 复制 公式单元格
+                    await ExcelOp.CopyRangePaste(param[i], LogMsg).ConfigureAwait(false); // 复制 公式单元格
                 }
             }
             UpdateUILog(LogMsg.Message);
@@ -285,7 +280,7 @@ namespace TestItemStatisticsAcync
             if(state)
             {
                 for (int i = 0; i < param.Length; i++)
-                    await ExcelOp.DeleteRangeData(param[i].TargetPath, param[i], LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+                    await ExcelOp.DeleteRangeData(param[i], LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
@@ -311,11 +306,11 @@ namespace TestItemStatisticsAcync
             {
                 if (param.ElementAtOrDefault(0).ReserveSheetCount == -1)
                 {
-                    await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
+                    await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);//删除SheetName中的工作表
                 }
                 else
                 {
-                    await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0).ReserveSheetCount, LogMsg).ConfigureAwait(false);//保留ReserveSheetCount个工作表
+                    await ExcelOp.DeleteSheet(param.ElementAtOrDefault(0), LogMsg, param.ElementAtOrDefault(0).ReserveSheetCount).ConfigureAwait(false);//保留ReserveSheetCount个工作表
                 }
             }
             UpdateUILog(LogMsg.Message);
@@ -331,7 +326,7 @@ namespace TestItemStatisticsAcync
             bool state = UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
             if(state)
             {
-                await ExcelOp.CreatSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);
+                await ExcelOp.CreateSheet(param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false);
             }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
@@ -353,7 +348,7 @@ namespace TestItemStatisticsAcync
             bool state = UpdateParamFromUIControl(ref param, GeneralMode.SheetOperater);
             if( state )
             {
-                await ExcelOp.RenameSheet(param.ElementAtOrDefault(0).TargetPath, param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
+                await ExcelOp.RenameSheet(param.ElementAtOrDefault(0), LogMsg).ConfigureAwait(false); // 删除 17行单元格，作用域：11.xx测试项
             }
             UpdateUILog(LogMsg.Message);
             StopWatchTime();
@@ -784,7 +779,9 @@ namespace TestItemStatisticsAcync
         private void StopWatchTime()
         {
             _stopwatch.Stop();
+            UpdateUILog($"当前日期和时间: {Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}\r\n");
             UpdateUILog($"耗时: {_stopwatch.ElapsedMilliseconds} ms\r\n");
+            
         }
 
         /* config log */
