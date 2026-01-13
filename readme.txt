@@ -28,6 +28,7 @@
 	PasteLimit: Limit：将op01.xlsx中工作表limit中的数据拷贝粘贴到MSA模板中；功能按钮：PasteLimit
 	SummaryFL:将GRR模板中 单表里的测试数据用公式关联到Summary指定位置；格式：开始行\n开始列1,开始列2,开始列3，开始列4，开始列5\nSummary sheet名
 			开始行，列，Summary名都用'\n'隔开。列之间用','隔开.开始列数据依次是："LowLimit", "HighLimit", "CP", "CPK", "GRR Value" 对应的列标位置
+			(default Params:17\n3,4,6,7,8\nSummary)
 
 =======================================================================================================
 扩展功能，可跳过：
